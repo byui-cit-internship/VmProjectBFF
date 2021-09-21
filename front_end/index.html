@@ -1,3 +1,5 @@
+<!--How to sign in to google -->
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -6,13 +8,23 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <meta name="google-signin-client_id" content="YOUR_CLIENT_ID.apps.googleusercontent.com">
+    <meta name="google-signin-client_id" content="1043747313361-0rm5ebtf2trjfk6eqgg5ivas8ubsan7v.apps.googleusercontent.com">
     <script src="https://apis.google.com/js/platform.js" async defer></script>
 </head>
 
 <body>
 
     <div class="g-signin2" data-onsuccess="onSignIn"></div>
+    <script>
+        function onSignIn(googleUser) {
+            console.log(googleUser)
+        }
+    
+    </script>
+
+
 </body>
 
 </html>
+
+
