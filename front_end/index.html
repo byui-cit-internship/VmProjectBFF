@@ -1,30 +1,30 @@
-<!--How to sign in to google -->
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <meta name="google-signin-client_id" content="1043747313361-0rm5ebtf2trjfk6eqgg5ivas8ubsan7v.apps.googleusercontent.com">
-    <script src="https://apis.google.com/js/platform.js" async defer></script>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google-signin-scope" content="profile email">
+  <meta name="google-signin-client_id"
+    content="206355491752-pf7mdq6g24tcsrpv1q61tocmvuvu92r3.apps.googleusercontent.com">
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
+  <title>Document</title>
 </head>
 
 <body>
+  <div class="login">
+    <h1>Hello you are signed in</h1>
 
-    <div class="g-signin2" data-onsuccess="onSignIn"></div>
-    <script>
-        function onSignIn(googleUser) {
-            console.log(googleUser)
-        }
-    
-    </script>
+    <h2>BYU-I Login</h2>
+    <p>Login with your BYUI account.</p>
+    <div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
+    <a href="#" onclick="signOut();">Sign out</a>
+    <script src="signIn.js"></script>
 
- 
+  </div>
 </body>
 
+<script src=signIn.js></script>
+
 </html>
-
-
