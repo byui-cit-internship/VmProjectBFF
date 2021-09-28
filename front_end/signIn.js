@@ -7,16 +7,16 @@ function onSignIn(googleUser) {
     var email = profile.getEmail()
     var id = profile.getId()
 
-    const approvedUser = ["nol18003@byui.edu", "leonarine@gmail.com", "tnolasco54@gmail.com"]
-    // check with bro murdock on how to add a param to the index.html
+    const approvedUser = ["nol18003@byui.edu", "leonarine@gmail.com", "tnolasco54@gmail.com"] //backend
+    //check with bro murdock on how to add a param to the index.html
     // approvedUser.forEach(element => {
     //     if (element == email) {
-    //         location.replace(`http://localhost:5500/Google-Sign-in/front_end/home.html`
+    //         location.replace(`http://localhost:5500/Google-Sign-in/front_end/home.html`)
     //             // location.replace(`http://localhost:5500/Google-Sign-in/front_end/home.html#${id}`
-    //         )
+            
     //     }
 
-    // });
+   // });
 }
 
 function signOut() {
@@ -37,3 +37,4 @@ function signOut() {
 //     }
 
 // });
+
