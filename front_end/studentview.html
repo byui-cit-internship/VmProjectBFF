@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+    <head>
+
+        <h1>Student</h1>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Styling for dropdown  -->
+<style>
+.dropbtn {
+  background-color: #0000CD;
+  color: white;
+  padding: 16px;
+  font-size: 16px;
+  border: none;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-content a:hover {background-color: #ddd;}
+
+.dropdown:hover .dropdown-content {display: block;}
+
+.dropdown:hover .dropbtn {background-color: #334AFF;}
+</style>
+    </head>
+
+<body>
+
+    <!-- Buttons -->
+    <p>
+    	<input class="btn-lg btn-primary" id="-" value="Courses" onclick="-" type="button"><br>
+	</p>
+	<p>
+		<input class="btn-lg btn-primary" id="-" value="Create a Virtual Machine" onclick="-" type="button"><br>
+	</p>
+	<p>
+		<input class="btn btn-lg btn-primary" id="-" value="button" onclick="-" type="button"><br>
+	</p>
+
+<!-- Buttons -->
+    <div class="dropdown">
+      <button class="dropbtn">Menu</button>
+      <div class="dropdown-content">
+        <a href="#">Profile</a>
+        <a href="#"></a>
+        <a href="#" onclick="signOut();">Sign out</a>
+      </div>
+    </div>
+</body>
+</html>

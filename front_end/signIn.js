@@ -9,15 +9,15 @@ function onSignIn(googleUser) {
 
     const approvedUser = ["nol18003@byui.edu", "leonarine@gmail.com", "tnolasco54@gmail.com"] //backend
     //check with bro murdock on how to add a param to the index.html
-    // approvedUser.forEach(element => {
-    //     if (element == email) {
-    //         location.replace(`http://localhost:5500/Google-Sign-in/front_end/home.html`)
-    //             // location.replace(`http://localhost:5500/Google-Sign-in/front_end/home.html#${id}`
-            
-    //     }
+    
+    approvedUser.forEach(element => {
+        if (element == email) {
+            window.location.replace("http://127.0.0.1:5500/front_end/buton.html");
+         
+        }
 
-   // });
-}
+   });
+
 
 function signOut() {
     var auth2 = gapi.auth2.getAuthInstance();
@@ -30,11 +30,72 @@ function signOut() {
     });
 }
 
+// I have used Brother's Murdock code to connect the frontend and backend together
+// when we get the backend push to github then I will start working in connecting frontend and backend
 
-// approvedUser.forEach(element => {
-//     if (element == email) {
-//         location.replace("http://localhost:5500/Google-Sign-in/front_end/home.html")
+// let clicks = 0; 
+// let usertoken="";
+// let email="";
+// let signInbtn;
+
+// $(document).ready(function(){
+//     signInbtn = document.getElementById('signInbtn')
+//     // I used this code from Brother's Murdock website
+//     let hash= location.hash;//will include the #
+//     let hashparts = hash.split("#");
+//     if (hashparts.length < 2) {
+//         window.location="/"; //there is no login token on the url, so they must not have logged in yet, we will help redirect them here
+//     } else {
+//         usertoken = hashparts[1];// the url should look like https://stedi.me/timer.html#4c2286a7-8fdc-47c5-b972-739769554c88
+//         validateToken();//check if token is expired, if not display the email, if expired send to login
 //     }
-
 // });
+
+
+// const saveStudentInfo = (studentInfo) => {
+//     $.ajax({
+//         type: 'POST',
+//         url: '', // we need to add the url from the backend
+//         data: JSON.stringify(studentInfo), // or JSON.stringify ({name: 'jonas'}),
+//         statusCode:{
+//             401: () => window.location.href="/",
+//         },
+//         headers: { "account.session.token": usertoken},
+//         contentType: "application/json",
+//         dataType: 'json'
+//     });
+
+// }
+
+// const getStudentInfo = () => {
+//     $.ajax({
+//         type: 'GET',
+//         url: ''+$('#email').html(), // we need to add the url from the backend 
+//         success: function(data) {
+//           let studentInfo = JSON.parse(data);
+//           document.getElementById('info').innerHTML = studentInfo.info;
+//         },
+//         headers: { "account.session.token": usertoken},
+//         contentType: "application/json",
+//         dataType: 'json'
+//     });
+
+//     const validateToken = () => {
+//         let tokenEmail="";
+//         $.ajax({
+//            type: 'GET',
+//             url: '/validate/'+usertoken,
+//             success: function(data){
+//                if (data==""){
+//                  window.location="/"
+//                } else{
+//                  $('#email').html(data);
+//                }
+//             },//token is no longer valid (1 hour expiration), they need to log in
+//             contentType: "application/text",
+//             dataType: 'text' })
+
+//         return tokenEmail;
+//     }
+// }
 

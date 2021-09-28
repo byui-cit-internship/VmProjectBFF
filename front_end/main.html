@@ -1,10 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
-  <script src="jquery-3.1.1.min.js"></script>
-  
+
 <head>
-  <title>VMProject</title>
-		<link href="style.css" rel="stylesheet" type="text/css" />
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,24 +9,28 @@
   <meta name="google-signin-client_id"
     content="206355491752-pf7mdq6g24tcsrpv1q61tocmvuvu92r3.apps.googleusercontent.com">
   <script src="https://apis.google.com/js/platform.js" async defer></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Raleway&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+  <title>Document</title>
 </head>
 
 <body>
-  <title>Document</title>
   <div class="login">
-    <h1>Hello you are signed in</h1>
+    <h1>Hello! You are signed in.</h1>
 
     <h2>BYU-I Login</h2>
     <p>Login with your BYUI account.</p>
     <div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
-    <a href="#" onclick="signOut();">Sign out</a>
-    <p>
-    </p>
+  <!-- <a href="#" onclick="signOut();">Sign out</a> -->
+    <script src="signIn.js"></script>
 
   </div>
+
 </body>
 
 <script src=signIn.js></script>
-<script src=new.js></script>
 
 </html>
+
