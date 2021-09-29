@@ -4,32 +4,18 @@ function onSignIn(googleUser) {
     console.log('Name: ' + profile.getName());
     console.log('Image URL: ' + profile.getImageUrl());
     console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+    window.location = 'http://127.0.0.1:5500/front_end/button.html'
     var email = profile.getEmail()
     var id = profile.getId()
 
-    const approvedUser = ["nol18003@byui.edu", "leonarine@gmail.com", "tnolasco54@gmail.com"] //backend
-    //check with bro murdock on how to add a param to the index.html
-    
-    approvedUser.forEach(element => {
-        if (element == email) {
-            window.location.replace("http://127.0.0.1:5500/front_end/buton.html");
-         
-        }
-
-   });
-
+      } 
 
 function signOut() {
     var auth2 = gapi.auth2.getAuthInstance();
     auth2.signOut().then(function () {
-
-        // console.log('User signed out.')
-        // location.replace(`http://localhost:5500/Google-Sign-in/front_end/index.html`)
-
-
+        console.log('User signed out.')
     });
 }
-
 // I have used Brother's Murdock code to connect the frontend and backend together
 // when we get the backend push to github then I will start working in connecting frontend and backend
 
@@ -50,7 +36,6 @@ function signOut() {
 //         validateToken();//check if token is expired, if not display the email, if expired send to login
 //     }
 // });
-
 
 // const saveStudentInfo = (studentInfo) => {
 //     $.ajax({
@@ -98,4 +83,3 @@ function signOut() {
 //         return tokenEmail;
 //     }
 // }
-
