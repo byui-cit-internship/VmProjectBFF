@@ -6,8 +6,9 @@
 
 THIS FRONTEND STILL NEEDS A BIT OF WORK BUT IT'S WHAT I HAVE BEEN WORKING TODAY.
 
-It redirects to the status page but now I need to redirect from the status page to the student/faculty view so the user can see the user stories
-🐻🦊🐟🐣🐻‍❄️🐹
+It redirects to the status page but now I need to redirect from the status page to the student/faculty view so the user can see the user stories. Now it needs styling and the 1st part of frontend should be done.
+🥳🐻‍❄️
+
 
 git comands:
     git add .
