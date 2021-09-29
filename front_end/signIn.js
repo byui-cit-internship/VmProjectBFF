@@ -16,6 +16,7 @@ function signOut() {
         console.log('User signed out.')
     });
 }
+
 // I have used Brother's Murdock code to connect the frontend and backend together
 // when we get the backend push to github then I will start working in connecting frontend and backend
 

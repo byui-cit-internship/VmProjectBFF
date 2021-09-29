@@ -10,13 +10,19 @@
 
 <h1>Status</h1>
 
-<p>
-    <button onclick="http://127.0.0.1:5500/front_end/studentview.html'">Faculty</button>
-</p>
-<p>
-    <input class="btn-lg btn-primary" id="-" value="Student" onclick="-" type="button"><br>
-</p>
+<button onclick="Function()">Faculty</button>
+<button onclick="myFunction()">Student</button>
+<script>
 
+function Function() {
+  location.replace("http://127.0.0.1:5500/front_end/facultyview.html")
+}
+
+function myFunction() {
+  location.replace("http://127.0.0.1:5500/front_end/studentview.html")
+}
+
+</script>
 </body>
 
 </html>
