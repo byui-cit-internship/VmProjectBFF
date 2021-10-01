@@ -15,4 +15,9 @@ Note to Developer:
 Model class:
 A model is a set of classes that represent the data that the app manages.
 
+Below are commands to create the connected database:
 
+- dotnet tool install --global dotnet-ef
+- dotnet ef database drop
+- dotnet ef migrations add InitialCreate
+NOTE: every command runned inside of vscode to link to the dotnet has to start with "dotnet ef"
