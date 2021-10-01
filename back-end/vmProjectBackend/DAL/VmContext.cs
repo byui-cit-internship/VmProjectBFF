@@ -23,6 +23,8 @@ namespace vmProjectBackend.DAL
         public DbSet<Course> Courses {get;set;}
         public DbSet<VmTable> VmTables {get;set;}
 
+        public DbSet<Token> Tokens {get;set;}
+
         // protected override void OnModelCreating(DbModelBuilder modelBuilder)
         // {
         //     modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
