@@ -6,7 +6,8 @@ function onSignIn(googleUser) {
     console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
     var email = profile.getEmail()
     var id = profile.getId()
-
+    var id_token = googleUser.getAuthResponse().id_token;
+    console.log("this is the id token", id_token)
     const approvedUser = ["nol18003@byui.edu", "leonarine@gmail.com", "tnolasco54@gmail.com"]
     // check with bro murdock on how to add a param to the index.html
     // approvedUser.forEach(element => {

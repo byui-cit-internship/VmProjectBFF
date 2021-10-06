@@ -1,12 +1,20 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
+using Google.Apis.Auth;
+using Google.Apis.Auth.OAuth2;
+
+
 
 namespace vmProjectBackend.Controllers
 {
@@ -75,30 +83,104 @@ namespace vmProjectBackend.Controllers
 
         // POST: api/Token
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+
+        // private const string GoogleApiTokenInfoUrl = "https://www.googleapis.com/oauth2/v3/tokeninfo?id_token={0}";
+
+        // private async Task<GoogleJsonWebSignature.Payload> ValidateIdTokenAndGetUserInfo(string Id_token)
+        // {
+        //     if (string.IsNullOrWhiteSpace(Id_token))
+        //     {
+        //         return null;
+        //     }
+
+        //     try
+        //     {
+        //         return await GoogleJsonWebSignature.ValidateAsync(Id_token);
+        //     }
+        //     catch (Exception exception)
+        //     {
+        //         // _Logger.LogError(exception, $"Error calling ValidateIdToken in GoogleAuthenticateHttpClient");
+        //         return null;
+        //     }
+        // }
         [HttpPost]
         public async Task<ActionResult<Token>> PostToken(Token token)
         {
-            _context.Tokens.Add(token);
+
+            string Id_token = token.token;
+
+            // GoogleJsonWebSignature.Payload payload = await GoogleJsonWebSignature.ValidateAsync(Id_token);
+            // ValidateIdTokenAndGetUserInfoId(Id_token);
+
             try
             {
-                await _context.SaveChangesAsync();
+                var validPayload = await GoogleJsonWebSignature.ValidateAsync(Id_token);
+
+                string validEmail = validPayload.Email;
+                Console.WriteLine(validEmail);
+
+
+                // User user = new User();
+                // var user_email = _context.Users.ToList();
+                var user_email =   _context.Users.Where(u => u.email == validEmail).FirstOrDefault();
+                // if(user_email null){
+
+                // }
+                Console.WriteLine(user_email.firstName);
+
+
+                // Console.WriteLine(user.email);
+
+                //    List of users
+                //    for loop into all those user:
+                //    if email is int database:
+                //      if it the user type eqaul to type- ProducesDefaultResponseTypeAttribute then am going to send type pro
+                //      else SendFileFallback type student
+
+                //     else
+                //         PutToken them in the database
+
+                return Ok(user_email.userType);
+                //...
             }
-            catch (DbUpdateException)
+            catch (Exception ex)
             {
-                if (TokenExists(token.ID))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
+                //...
+                return NotFound(ex);
             }
 
-            return CreatedAtAction("GetToken", new { id = token.ID }, token);
+
+
+
+
+
+
+            Console.WriteLine(Id_token);
+
+
+            // _context.Tokens.Add(token);
+
+            // try
+            // {
+            //     await _context.SaveChangesAsync();
+            // }
+            // catch (DbUpdateException)
+            // {
+            //     if (TokenExists(token.ID))
+            //     {
+            //         return Conflict();
+            //     }
+            //     else
+            //     {
+            //         throw;
+            //     }
+            // }
+
+            // return CreatedAtAction("GetToken", new { id = token.ID }, token);
         }
 
-        // DELETE: api/Token/5
+
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteToken(string id)
         {
