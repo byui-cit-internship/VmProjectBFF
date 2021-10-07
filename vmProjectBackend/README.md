@@ -26,4 +26,4 @@ NOTE: every command runned inside of vscode to link to the dotnet has to start w
 # To use SQL Server for Mac try this: https://docs.microsoft.com/en-us/sql/linux/quickstart-install-connect-docker?view=sql-server-ver15&pivots=cs1-bash
 >>>>>>> 63188b18200a33f3b14d98c2b4347228005805e6:back-end/vmProjectBackend/README.md
 
-    /*password =  q8kUd7LBKJLheakNPTTeH6cNbdjkK5rW username = sa */
+   
