@@ -117,91 +117,159 @@ namespace vmProjectBackend.Controllers
                 var validPayload = await GoogleJsonWebSignature.ValidateAsync(Id_token);
 
                 string validEmail = validPayload.Email;
-                Console.WriteLine(validEmail);
-
-
-                // User user = new User();
-                
-                // user.email = validPayload.Email;
-                // user.firstName = validPayload.name
-                // user.
-                // var user_email = _context.Users.ToList();
+                // Console.WriteLine(validEmail);
 
                 var user_email = _context.Users.Where(u => u.email == validEmail).FirstOrDefault();
 
+                // if (user_email == null)
+                // {
+                //     Console.WriteLine("this is the current email", user_email);
+                // }
+
                 if (user_email == null)
+
                 {
-                    /*
 
-                    string fullName = validPayload.name
-                    // split the full name
-                    string[] names  = fullName.Split(' ');
-                    
+                    try
+                    {
+                        Console.WriteLine("this is 1");
+                        string fullName = validPayload.Name;
+                        Console.WriteLine("this is 2");
+                        // split the full name
+                        string[] names = fullName.Split(' ');
+                        Console.WriteLine("this is 3");
+                        string firstname = names[0];
+                        Console.WriteLine("this is 4");
+                        string lastname = names[1];
+                        Console.WriteLine("this is 5");
+
+                        // check that email with whats in the db
+                        User user = new User();
+                        Console.WriteLine("this is 6");
+                        user.email = validPayload.Email;
+
+                        Console.WriteLine("this is 7");
+                        user.firstName = firstname;
+                        Console.WriteLine("this is 8");
+                        user.lastName = lastname;
+                        Console.WriteLine("this is 9");
+                        user.userType = "Student";
+                        Console.WriteLine("this is 10");
+                        Random randomID = new Random();
+                        Console.WriteLine("this is 11");
+                        // user.UserID = randomID.Next(1, 1000);
+                        Console.WriteLine("this is 12");
+
+                        _context.Users.Add(user);
+                        Console.WriteLine("this is 13");
+                        await _context.SaveChangesAsync();
+                        Console.WriteLine("this is 14");
+
+                        return Ok(user.firstName + "is created");
+                    }
+                    catch (Exception ex)
+                    {
+                        return NotFound("hitting the error for trying to create a user");
+
+                    }
 
 
-
-                    
-                    
-                    
-                    */
-                    // save that current user to the data base
-                    //  _context.Users.Add();
-                    return NotFound("User not in database");
 
                 }
 
-                Console.WriteLine(user_email.firstName);
-                // return Ok(user_email.userType);
-                return Ok(validPayload);
-
-
-
-
-                // if(user_email null){
-
-                // }
-
-
-
-                // Console.WriteLine(user.email);
-
-                //    List of users
-                //    for loop into all those user:
-                //    if email is int database:
-                //      if it the user type eqaul to type- ProducesDefaultResponseTypeAttribute then am going to send type pro
-                //      else SendFileFallback type student
-
-                //     else
-                //         PutToken them in the database
-
-
-                //...
+                // outside return statment
+                return Ok("this is the payload" + validPayload);
             }
             catch (Exception ex)
             {
-                //...
-                return NotFound(ex);
+                return NotFound("the token is not valid");
+
             }
-            // _context.Tokens.Add(token);
-
-            // try
-            // {
-            //     await _context.SaveChangesAsync();
-            // }
-            // catch (DbUpdateException)
-            // {
-            //     if (TokenExists(token.ID))
-            //     {
-            //         return Conflict();
-            //     }
-            //     else
-            //     {
-            //         throw;
-            //     }
-            // }
-
-            // return CreatedAtAction("GetToken", new { id = token.ID }, token);
         }
+        // User user = new User();
+
+        // user.email = validPayload.Email;
+        // user.firstName = validPayload.name
+        // user.
+        // var user_email = _context.Users.ToList();
+
+        //         var user_email = _context.Users.Where(u => u.email == validEmail).FirstOrDefault();
+
+        //         if (user_email == null)
+        //         {
+        //             /*
+
+        //             string fullName = validPayload.name
+        //             // split the full name
+        //             string[] names  = fullName.Split(' ');
+
+        //             // User user = new User();
+
+        //             string firstname = names[0]
+        //             string lastname = name[1]
+        //             string usertype = "student"
+        //             validPayload.email = string email
+
+
+        //             */
+        //             // save that current user to the data base
+        //             //  _context.Users.Add();
+        //             return NotFound("User not in database");
+
+        //         }
+
+        //         Console.WriteLine(user_email.firstName);
+        //         // return Ok(user_email.userType);
+        //         return Ok(validPayload);
+
+
+
+
+        //         // if(user_email null){
+
+        //         // }
+
+
+
+        //         // Console.WriteLine(user.email);
+
+        //         //    List of users
+        //         //    for loop into all those user:
+        //         //    if email is int database:
+        //         //      if it the user type eqaul to type- ProducesDefaultResponseTypeAttribute then am going to send type pro
+        //         //      else SendFileFallback type student
+
+        //         //     else
+        //         //         PutToken them in the database
+
+
+        //         //...
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         //...
+        //         return NotFound(ex);
+        //     }
+        //     // _context.Tokens.Add(token);
+
+        //     // try
+        //     // {
+        //     //     await _context.SaveChangesAsync();
+        //     // }
+        //     // catch (DbUpdateException)
+        //     // {
+        //     //     if (TokenExists(token.ID))
+        //     //     {
+        //     //         return Conflict();
+        //     //     }
+        //     //     else
+        //     //     {
+        //     //         throw;
+        //     //     }
+        //     // }
+
+        //     // return CreatedAtAction("GetToken", new { id = token.ID }, token);
+        // }
 
 
 

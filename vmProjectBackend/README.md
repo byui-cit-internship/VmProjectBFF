@@ -9,7 +9,7 @@ The Link below should help you  get started on your own wep-api
 
 Note to Developer:
 
-1. The Launch Url is changed  to : "api/VmApi" and it is changed in the launchSettings.json if it needs to be change din the future.
+1. The Launch Url is changed  to : "api/VmApi" and it is changed in the launchSettings.json if it needs to be changed in the future.
 
 
 Model class:
@@ -26,3 +26,4 @@ NOTE: every command runned inside of vscode to link to the dotnet has to start w
 # To use SQL Server for Mac try this: https://docs.microsoft.com/en-us/sql/linux/quickstart-install-connect-docker?view=sql-server-ver15&pivots=cs1-bash
 >>>>>>> 63188b18200a33f3b14d98c2b4347228005805e6:back-end/vmProjectBackend/README.md
 
+    /*password =  q8kUd7LBKJLheakNPTTeH6cNbdjkK5rW username = sa */
