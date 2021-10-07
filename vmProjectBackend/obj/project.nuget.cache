@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "ZsD7hnAYx9CyFsoPKabhemNGxvtB+0kPmfImLmCWpDPyV/faeHIdZ40rHsp6SFaVZSnlj056mdiFp8VtCj/KUg==",
+  "dgSpecHash": "FEA7zsxRAqrw7yM+n1iVVEYfmzl8CDiihjmUIlw9N95M7eXE/34ZoLURFIwQHeFHgFVYekHJYD1ViOPzZxJaNw==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Laker\\OneDrive\\Desktop\\VMBACKEND\\VmProject\\back-end\\vmProjectBackend\\vmProjectBackend.csproj",
+  "projectFilePath": "C:\\Users\\Laker\\OneDrive\\Desktop\\VMBACKEND\\VmProject\\vmProjectBackend\\vmProjectBackend.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Laker\\.nuget\\packages\\entityframework\\5.0.0\\entityframework.5.0.0.nupkg.sha512",
     "C:\\Users\\Laker\\.nuget\\packages\\google.apis\\1.55.0\\google.apis.1.55.0.nupkg.sha512",

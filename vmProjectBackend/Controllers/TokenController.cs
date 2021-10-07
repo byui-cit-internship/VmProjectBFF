@@ -121,12 +121,46 @@ namespace vmProjectBackend.Controllers
 
 
                 // User user = new User();
+                
+                // user.email = validPayload.Email;
+                // user.firstName = validPayload.name
+                // user.
                 // var user_email = _context.Users.ToList();
-                var user_email =   _context.Users.Where(u => u.email == validEmail).FirstOrDefault();
+
+                var user_email = _context.Users.Where(u => u.email == validEmail).FirstOrDefault();
+
+                if (user_email == null)
+                {
+                    /*
+
+                    string fullName = validPayload.name
+                    // split the full name
+                    string[] names  = fullName.Split(' ');
+                    
+
+
+
+                    
+                    
+                    
+                    */
+                    // save that current user to the data base
+                    //  _context.Users.Add();
+                    return NotFound("User not in database");
+
+                }
+
+                Console.WriteLine(user_email.firstName);
+                // return Ok(user_email.userType);
+                return Ok(validPayload);
+
+
+
+
                 // if(user_email null){
 
                 // }
-                Console.WriteLine(user_email.firstName);
+
 
 
                 // Console.WriteLine(user.email);
@@ -140,7 +174,7 @@ namespace vmProjectBackend.Controllers
                 //     else
                 //         PutToken them in the database
 
-                return Ok(user_email.userType);
+
                 //...
             }
             catch (Exception ex)
@@ -148,16 +182,6 @@ namespace vmProjectBackend.Controllers
                 //...
                 return NotFound(ex);
             }
-
-
-
-
-
-
-
-            Console.WriteLine(Id_token);
-
-
             // _context.Tokens.Add(token);
 
             // try

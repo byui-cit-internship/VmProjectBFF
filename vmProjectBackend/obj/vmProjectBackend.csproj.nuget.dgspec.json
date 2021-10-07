@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Laker\\OneDrive\\Desktop\\VMBACKEND\\VmProject\\back-end\\vmProjectBackend\\vmProjectBackend.csproj": {}
+    "C:\\Users\\Laker\\OneDrive\\Desktop\\VMBACKEND\\VmProject\\vmProjectBackend\\vmProjectBackend.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Laker\\OneDrive\\Desktop\\VMBACKEND\\VmProject\\back-end\\vmProjectBackend\\vmProjectBackend.csproj": {
+    "C:\\Users\\Laker\\OneDrive\\Desktop\\VMBACKEND\\VmProject\\vmProjectBackend\\vmProjectBackend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Laker\\OneDrive\\Desktop\\VMBACKEND\\VmProject\\back-end\\vmProjectBackend\\vmProjectBackend.csproj",
+        "projectUniqueName": "C:\\Users\\Laker\\OneDrive\\Desktop\\VMBACKEND\\VmProject\\vmProjectBackend\\vmProjectBackend.csproj",
         "projectName": "vmProjectBackend",
-        "projectPath": "C:\\Users\\Laker\\OneDrive\\Desktop\\VMBACKEND\\VmProject\\back-end\\vmProjectBackend\\vmProjectBackend.csproj",
+        "projectPath": "C:\\Users\\Laker\\OneDrive\\Desktop\\VMBACKEND\\VmProject\\vmProjectBackend\\vmProjectBackend.csproj",
         "packagesPath": "C:\\Users\\Laker\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Laker\\OneDrive\\Desktop\\VMBACKEND\\VmProject\\back-end\\vmProjectBackend\\obj\\",
+        "outputPath": "C:\\Users\\Laker\\OneDrive\\Desktop\\VMBACKEND\\VmProject\\vmProjectBackend\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
