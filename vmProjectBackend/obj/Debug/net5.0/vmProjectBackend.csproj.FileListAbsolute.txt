@@ -282,3 +282,8 @@ C:\Users\Laker\OneDrive\Desktop\VMBACKEND\VmProject\vmProjectBackend\obj\Debug\n
 C:\Users\Laker\OneDrive\Desktop\VMBACKEND\VmProject\vmProjectBackend\obj\Debug\net5.0\ref\vmProjectBackend.dll
 C:\Users\Laker\OneDrive\Desktop\VMBACKEND\VmProject\vmProjectBackend\obj\Debug\net5.0\vmProjectBackend.pdb
 C:\Users\Laker\OneDrive\Desktop\VMBACKEND\VmProject\vmProjectBackend\obj\Debug\net5.0\vmProjectBackend.genruntimeconfig.cache
+C:\Users\Laker\OneDrive\Desktop\VMBACKEND\VmProject\vmProjectBackend\bin\Debug\net5.0\Microsoft.AspNetCore.Cryptography.Internal.dll
+C:\Users\Laker\OneDrive\Desktop\VMBACKEND\VmProject\vmProjectBackend\bin\Debug\net5.0\Microsoft.AspNetCore.Cryptography.KeyDerivation.dll
+C:\Users\Laker\OneDrive\Desktop\VMBACKEND\VmProject\vmProjectBackend\bin\Debug\net5.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
+C:\Users\Laker\OneDrive\Desktop\VMBACKEND\VmProject\vmProjectBackend\bin\Debug\net5.0\Microsoft.Extensions.Identity.Core.dll
+C:\Users\Laker\OneDrive\Desktop\VMBACKEND\VmProject\vmProjectBackend\bin\Debug\net5.0\Microsoft.Extensions.Identity.Stores.dll
