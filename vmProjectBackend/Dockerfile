@@ -12,7 +12,7 @@ WORKDIR /app
 RUN dotnet publish -c Release -o out
 
 # Build runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:3.1
+FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/out ./
 
@@ -22,4 +22,3 @@ ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT 0
 
 ENTRYPOINT ["dotnet", "vmProjectBackend.dll"]
 
-EXPOSE 80
