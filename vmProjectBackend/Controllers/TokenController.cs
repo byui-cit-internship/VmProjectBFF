@@ -81,28 +81,7 @@ namespace vmProjectBackend.Controllers
             return NoContent();
         }
 
-        // POST: api/Token
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-
-        // private const string GoogleApiTokenInfoUrl = "https://www.googleapis.com/oauth2/v3/tokeninfo?id_token={0}";
-
-        // private async Task<GoogleJsonWebSignature.Payload> ValidateIdTokenAndGetUserInfo(string Id_token)
-        // {
-        //     if (string.IsNullOrWhiteSpace(Id_token))
-        //     {
-        //         return null;
-        //     }
-
-        //     try
-        //     {
-        //         return await GoogleJsonWebSignature.ValidateAsync(Id_token);
-        //     }
-        //     catch (Exception exception)
-        //     {
-        //         // _Logger.LogError(exception, $"Error calling ValidateIdToken in GoogleAuthenticateHttpClient");
-        //         return null;
-        //     }
-        // }
+       
         [HttpPost]
         public async Task<ActionResult<Token>> PostToken(Token token)
         {
@@ -127,44 +106,25 @@ namespace vmProjectBackend.Controllers
                 // }
 
                 if (user_email == null)
-
                 {
-
                     try
                     {
-                        Console.WriteLine("this is 1");
+                        
                         string fullName = validPayload.Name;
-                        Console.WriteLine("this is 2");
-                        // split the full name
                         string[] names = fullName.Split(' ');
-                        Console.WriteLine("this is 3");
                         string firstname = names[0];
-                        Console.WriteLine("this is 4");
                         string lastname = names[1];
-                        Console.WriteLine("this is 5");
 
-                        // check that email with whats in the db
+                        
                         User user = new User();
-                        Console.WriteLine("this is 6");
                         user.email = validPayload.Email;
-
-                        Console.WriteLine("this is 7");
                         user.firstName = firstname;
-                        Console.WriteLine("this is 8");
                         user.lastName = lastname;
-                        Console.WriteLine("this is 9");
                         user.userType = "Student";
-                        Console.WriteLine("this is 10");
-                        Random randomID = new Random();
-                        Console.WriteLine("this is 11");
-                        // user.UserID = randomID.Next(1, 1000);
-                        Console.WriteLine("this is 12");
+                       
 
-                        _context.Users.Add(user);
-                        Console.WriteLine("this is 13");
+                        _context.Users.Add(user);;
                         await _context.SaveChangesAsync();
-                        Console.WriteLine("this is 14");
-
                         return Ok(user.firstName + "is created");
                     }
                     catch (Exception ex)
@@ -172,9 +132,6 @@ namespace vmProjectBackend.Controllers
                         return NotFound("hitting the error for trying to create a user");
 
                     }
-
-
-
                 }
 
                 // outside return statment
@@ -186,93 +143,7 @@ namespace vmProjectBackend.Controllers
 
             }
         }
-        // User user = new User();
-
-        // user.email = validPayload.Email;
-        // user.firstName = validPayload.name
-        // user.
-        // var user_email = _context.Users.ToList();
-
-        //         var user_email = _context.Users.Where(u => u.email == validEmail).FirstOrDefault();
-
-        //         if (user_email == null)
-        //         {
-        //             /*
-
-        //             string fullName = validPayload.name
-        //             // split the full name
-        //             string[] names  = fullName.Split(' ');
-
-        //             // User user = new User();
-
-        //             string firstname = names[0]
-        //             string lastname = name[1]
-        //             string usertype = "student"
-        //             validPayload.email = string email
-
-
-        //             */
-        //             // save that current user to the data base
-        //             //  _context.Users.Add();
-        //             return NotFound("User not in database");
-
-        //         }
-
-        //         Console.WriteLine(user_email.firstName);
-        //         // return Ok(user_email.userType);
-        //         return Ok(validPayload);
-
-
-
-
-        //         // if(user_email null){
-
-        //         // }
-
-
-
-        //         // Console.WriteLine(user.email);
-
-        //         //    List of users
-        //         //    for loop into all those user:
-        //         //    if email is int database:
-        //         //      if it the user type eqaul to type- ProducesDefaultResponseTypeAttribute then am going to send type pro
-        //         //      else SendFileFallback type student
-
-        //         //     else
-        //         //         PutToken them in the database
-
-
-        //         //...
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         //...
-        //         return NotFound(ex);
-        //     }
-        //     // _context.Tokens.Add(token);
-
-        //     // try
-        //     // {
-        //     //     await _context.SaveChangesAsync();
-        //     // }
-        //     // catch (DbUpdateException)
-        //     // {
-        //     //     if (TokenExists(token.ID))
-        //     //     {
-        //     //         return Conflict();
-        //     //     }
-        //     //     else
-        //     //     {
-        //     //         throw;
-        //     //     }
-        //     // }
-
-        //     // return CreatedAtAction("GetToken", new { id = token.ID }, token);
-        // }
-
-
-
+  
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteToken(string id)
         {
@@ -287,7 +158,6 @@ namespace vmProjectBackend.Controllers
 
             return NoContent();
         }
-
         private bool TokenExists(string id)
         {
             return _context.Tokens.Any(e => e.ID == id);

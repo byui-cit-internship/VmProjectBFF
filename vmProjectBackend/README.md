@@ -6,6 +6,14 @@ The Link below should help you  get started on your own wep-api
 1. dotnet add package Microsoft.EntityFrameworkCore.InMemory
 2. dotnet dev-certs https --trust
 
+To do an actual miration to create a database from exiting models:
+1. dotnet ef migrations intitalCreate
+2. dotnet ef database update
+
+
+update datbase by adding a column to a table:
+1. dotnet ef migrations add usercolumn
+2. dotnet ef database update
 
 Note to Developer:
 
