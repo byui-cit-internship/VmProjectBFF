@@ -11,11 +11,24 @@ namespace vmProjectBackend.Migrations
                 columns: table => new
                 {
                     CourseID = table.Column<long>(type: "bigint", nullable: false),
+                    CourseName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     section_num = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Courses", x => x.CourseID);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Tokens",
+                columns: table => new
+                {
+                    ID = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    token = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tokens", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -27,7 +40,8 @@ namespace vmProjectBackend.Migrations
                     firstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     lastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     email = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    userType = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    userType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    userAccess = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -103,6 +117,9 @@ namespace vmProjectBackend.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Enrollments");
+
+            migrationBuilder.DropTable(
+                name: "Tokens");
 
             migrationBuilder.DropTable(
                 name: "VmTables");

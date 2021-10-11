@@ -10,8 +10,8 @@ using vmProjectBackend.DAL;
 namespace vmProjectBackend.Migrations
 {
     [DbContext(typeof(VmContext))]
-    [Migration("20211001210025_TokenModels")]
-    partial class TokenModels
+    [Migration("20211011195400_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -90,6 +90,9 @@ namespace vmProjectBackend.Migrations
 
                     b.Property<string>("lastName")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("userAccess")
+                        .HasColumnType("bit");
 
                     b.Property<string>("userType")
                         .IsRequired()

@@ -80,6 +80,9 @@ namespace vmProjectBackend.Migrations
                         .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("Inumber")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("email")
                         .HasColumnType("nvarchar(max)");
 
@@ -88,6 +91,9 @@ namespace vmProjectBackend.Migrations
 
                     b.Property<string>("lastName")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("status")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("userAccess")
                         .HasColumnType("bit");

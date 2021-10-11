@@ -10,8 +10,8 @@ using vmProjectBackend.DAL;
 namespace vmProjectBackend.Migrations
 {
     [DbContext(typeof(VmContext))]
-    [Migration("20211001163928_courseName")]
-    partial class courseName
+    [Migration("20211011224818_coloumnUser")]
+    partial class coloumnUser
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -62,12 +62,28 @@ namespace vmProjectBackend.Migrations
                     b.ToTable("Enrollments");
                 });
 
+            modelBuilder.Entity("vmProjectBackend.Models.Token", b =>
+                {
+                    b.Property<string>("ID")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("token")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Tokens");
+                });
+
             modelBuilder.Entity("vmProjectBackend.Models.User", b =>
                 {
                     b.Property<long>("UserID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Inumber")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("email")
                         .HasColumnType("nvarchar(max)");
@@ -77,6 +93,12 @@ namespace vmProjectBackend.Migrations
 
                     b.Property<string>("lastName")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("status")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("userAccess")
+                        .HasColumnType("bit");
 
                     b.Property<string>("userType")
                         .IsRequired()

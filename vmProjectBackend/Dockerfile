@@ -19,6 +19,8 @@ COPY --from=build /app/out ./
 # not sure what this does
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT 0
 
+# ENV ASPNETCORE_ENVIRONMENT Development
+
 
 ENTRYPOINT ["dotnet", "vmProjectBackend.dll"]
 

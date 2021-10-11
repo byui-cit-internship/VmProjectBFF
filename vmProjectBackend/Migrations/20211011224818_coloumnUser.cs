@@ -2,12 +2,18 @@
 
 namespace vmProjectBackend.Migrations
 {
-    public partial class usercolumn : Migration
+    public partial class coloumnUser : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AddColumn<string>(
+                name: "Inumber",
+                table: "Users",
+                type: "nvarchar(max)",
+                nullable: true);
+
             migrationBuilder.AddColumn<bool>(
-                name: "userAccess",
+                name: "status",
                 table: "Users",
                 type: "bit",
                 nullable: false,
@@ -17,7 +23,11 @@ namespace vmProjectBackend.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "userAccess",
+                name: "Inumber",
+                table: "Users");
+
+            migrationBuilder.DropColumn(
+                name: "status",
                 table: "Users");
         }
     }
