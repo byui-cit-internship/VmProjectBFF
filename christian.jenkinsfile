@@ -1,0 +1,21 @@
+pipeline {
+    
+        agent any
+        
+        tools {
+            
+        }
+    
+        stages {
+            
+            stage('Checkout') {
+                steps {
+                    checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'Github_VMAPI_DeployKey', url: 'git@github.com:BYUI-CIT-Internship/VmProject.git']]])
+                }   
+            }
+            stage('Build') {
+                
+            }
+        }
+        
+}
