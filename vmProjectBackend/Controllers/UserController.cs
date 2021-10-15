@@ -104,5 +104,17 @@ namespace vmProjectBackend.Controllers
         {
             return _context.Users.Any(e => e.UserID == id);
         }
+
+
+        // Sending the email to the teacher based on student
+
+        [HttpGet("sendemail/{id}")]
+
+        public async Task<ActionResult<string>> Get(int id)
+        {
+            return Ok("you have hit the email get end point");
+        }
+
+
     }
 }
