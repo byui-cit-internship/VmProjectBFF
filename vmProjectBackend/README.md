@@ -40,3 +40,5 @@ NOTE: every command runned inside of vscode to link to the dotnet has to start w
 
 
  "Server=DESKTOP-VV1SUF4;Database=VmDB;User Id=leonarine; Password=password;"
+
+ dotnet add package FluentEmail.Smtp --version 3.0.0
