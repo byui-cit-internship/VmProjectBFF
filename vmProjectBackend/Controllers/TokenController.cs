@@ -81,7 +81,7 @@ namespace vmProjectBackend.Controllers
             return NoContent();
         }
 
-       
+
         [HttpPost]
         public async Task<ActionResult<Token>> PostToken(Token token)
         {
@@ -109,23 +109,23 @@ namespace vmProjectBackend.Controllers
                 {
                     try
                     {
-                        
+
                         string fullName = validPayload.Name;
                         string[] names = fullName.Split(' ');
                         string firstname = names[0];
                         string lastname = names[1];
 
-                        
+
                         User user = new User();
                         user.email = validPayload.Email;
                         user.firstName = firstname;
                         user.lastName = lastname;
                         user.userType = "Student";
-                       
 
-                        _context.Users.Add(user);;
+
+                        _context.Users.Add(user); ;
                         await _context.SaveChangesAsync();
-                        return Ok(user.firstName + "is created");
+                        return Ok(user.userType + "is created");
                     }
                     catch (Exception ex)
                     {
@@ -135,7 +135,7 @@ namespace vmProjectBackend.Controllers
                 }
 
                 // outside return statment
-                return Ok("this is the payload" + validPayload);
+                return Ok(user_email.userType);
             }
             catch (Exception ex)
             {
@@ -143,7 +143,7 @@ namespace vmProjectBackend.Controllers
 
             }
         }
-  
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteToken(string id)
         {

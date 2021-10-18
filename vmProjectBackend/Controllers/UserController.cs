@@ -112,17 +112,30 @@ namespace vmProjectBackend.Controllers
 
         // Sending the email to the teacher based on student
 
-        [HttpGet("sendemail/{id}")]
+        [HttpGet("sendemail/{studentid}")]
 
-        public ActionResult<string> Get(int id)
+        public async Task<ActionResult<User>> GetEmail(long studentid)
         {
-            // return Ok("you hit the endpoint");
+            /*gRAB THE PRAMS AND USE IT TO SEARCH THE DATA BASE FOR THAT USE 
+            AND THEN SEND TO THE PROFESSOR THAT EMAIL*/
+
+            // var user = await _context.Users.FindAsync(studentid);
+
+            // if (user == null)
+            // {
+            //     return NotFound();
+            // }
+            // else
+            // {
+            //     Console.WriteLine(user.firstName);
+            //     return Ok("you have found it");
+            // }
 
 
 
             var mailMessage = new MimeMessage();
             mailMessage.From.Add(new MailboxAddress("vmproject", "vmproject234@gmail.com"));
-            mailMessage.To.Add(MailboxAddress.Parse("nol18003@byui.edu"));
+            mailMessage.To.Add(MailboxAddress.Parse("vmproject234@gmail.com"));
             mailMessage.Subject = "Test";
             mailMessage.Body = new TextPart("plain")
             {
@@ -133,15 +146,11 @@ namespace vmProjectBackend.Controllers
 
             try
             {
-                Console.WriteLine("here 1");
-                client.Connect("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
-                Console.WriteLine("here 2");
-                client.Authenticate("vmproject234@gmail.com", "vmProject199321");
-                Console.WriteLine("here 3");
-                client.Send(mailMessage);
-                Console.WriteLine("here 4");
 
-                return Ok("Message was sent");
+                client.Connect("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
+                client.Authenticate("vmproject234@gmail.com", "vmProject199321");
+                client.Send(mailMessage);
+                return Ok("message was sent");
             }
             catch (Exception ex)
             {
@@ -153,21 +162,6 @@ namespace vmProjectBackend.Controllers
                 client.Disconnect(true);
                 client.Dispose();
             }
-            // using (var smtpClient = new SmtpClient())
-            // {
-            //     smtpClient.Connect("smtp.gmail.com", 587, true);
-            //     smtpClient.Authenticate("vmproject234@gmail.com", "vmProject199321");
-            //     smtpClient.Send(mailMessage);
-            //     smtpClient.Disconnect(true);
-            // }
-            // return Ok("you have hit the email get end point");
-
-            //     }
-            //         catch (Exception)
-            //         {
-            //             return NotFound("did not send email");
-            // }
-
 
         }
 
