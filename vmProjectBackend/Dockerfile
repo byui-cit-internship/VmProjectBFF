@@ -1,6 +1,7 @@
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /app
+ENV ASPNETCORE_ENVIRONMENT Development
 
 # Copy csproj and restore as distinct layers
 COPY *.csproj ./
@@ -8,7 +9,17 @@ RUN dotnet restore
 
 # Copy everything else and build
 COPY . ./
-WORKDIR /app
+
+# Install Entity Framework
+RUN dotnet tool install --global dotnet-ef
+RUN export PATH="$PATH:/root/.dotnet/tools"
+
+# Create initial schema on Development Database
+# RUN /root/.dotnet/tools/dotnet-ef -v migrations add InitialCreate
+
+# Run database migrations (schema updates)
+RUN /root/.dotnet/tools/dotnet-ef database update
+
 RUN dotnet publish -c Release -o out
 
 # Build runtime image
@@ -18,9 +29,7 @@ COPY --from=build /app/out ./
 
 # not sure what this does
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT 0
-
-# ENV ASPNETCORE_ENVIRONMENT Development
-
+ENV ASPNETCORE_ENVIRONMENT Development
 
 ENTRYPOINT ["dotnet", "vmProjectBackend.dll"]
 
