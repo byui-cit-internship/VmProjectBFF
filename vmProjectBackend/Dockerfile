@@ -12,7 +12,6 @@ COPY . ./
 
 # Install Entity Framework
 RUN dotnet tool install --global dotnet-ef
-RUN export PATH="$PATH:/root/.dotnet/tools"
 
 # Create initial schema on Development Database
 # RUN /root/.dotnet/tools/dotnet-ef -v migrations add InitialCreate
