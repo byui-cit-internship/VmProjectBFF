@@ -22,16 +22,21 @@ namespace vmProjectBackend.Migrations
             modelBuilder.Entity("vmProjectBackend.Models.Course", b =>
                 {
                     b.Property<long>("CourseID")
-                        .HasColumnType("bigint");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("CourseName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("canvas_token")
-                        .HasColumnType("int");
+                    b.Property<string>("canvas_token")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("section_num")
-                        .HasColumnType("int");
+                    b.Property<string>("description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("section_num")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("semester")
                         .HasColumnType("nvarchar(max)");

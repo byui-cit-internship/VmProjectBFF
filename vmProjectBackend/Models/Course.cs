@@ -11,13 +11,15 @@ namespace vmProjectBackend.Models
         // this declarator makes us define the courseId instead of the database generating it
 
         [Key]
-        [Required]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+
+        // [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long CourseID { get; set; }
         public string CourseName { get; set; }
-        public int section_num { get; set; }
+        public string section_num { get; set; }
 
-        public int canvas_token { get; set; }
+        public string canvas_token { get; set; }
+
+        public string description { get; set; }
         public string semester { get; set; }
 
         // this below is the can be emmited since enrollment will connect them

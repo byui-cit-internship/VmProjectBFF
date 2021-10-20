@@ -10,9 +10,13 @@ namespace vmProjectBackend.Migrations
                 name: "Courses",
                 columns: table => new
                 {
-                    CourseID = table.Column<long>(type: "bigint", nullable: false),
+                    CourseID = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     CourseName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    section_num = table.Column<int>(type: "int", nullable: false)
+                    section_num = table.Column<int>(type: "int", nullable: false),
+                    canvas_token = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    semester = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -41,7 +45,9 @@ namespace vmProjectBackend.Migrations
                     lastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     email = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     userType = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    userAccess = table.Column<bool>(type: "bit", nullable: false)
+                    userAccess = table.Column<bool>(type: "bit", nullable: false),
+                    Inumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    status = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {

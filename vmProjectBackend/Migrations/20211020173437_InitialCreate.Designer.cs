@@ -10,7 +10,7 @@ using vmProjectBackend.DAL;
 namespace vmProjectBackend.Migrations
 {
     [DbContext(typeof(VmContext))]
-    [Migration("20211011195400_InitialCreate")]
+    [Migration("20211020173437_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,13 +24,24 @@ namespace vmProjectBackend.Migrations
             modelBuilder.Entity("vmProjectBackend.Models.Course", b =>
                 {
                     b.Property<long>("CourseID")
-                        .HasColumnType("bigint");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("CourseName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("canvas_token")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("description")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("section_num")
                         .HasColumnType("int");
+
+                    b.Property<string>("semester")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("CourseID");
 
@@ -82,6 +93,9 @@ namespace vmProjectBackend.Migrations
                         .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("Inumber")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("email")
                         .HasColumnType("nvarchar(max)");
 
@@ -90,6 +104,9 @@ namespace vmProjectBackend.Migrations
 
                     b.Property<string>("lastName")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("status")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("userAccess")
                         .HasColumnType("bit");
