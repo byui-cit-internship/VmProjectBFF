@@ -30,6 +30,9 @@ namespace vmProjectBackend
         public void ConfigureServices(IServiceCollection services)
         {
             // ********************ONLY FOR NOW USE****************************
+            services.AddControllers().AddNewtonsoftJson(options =>
+options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+);
             services.AddCors(c =>
             {
                 c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyHeader());
