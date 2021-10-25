@@ -29,7 +29,7 @@ namespace vmProjectBackend.Models
         public virtual ICollection<Enrollment> Enrollments { get; set; }
 
         // this is course to vmtables
-        public virtual ICollection<VmTable> VmTables { get; set; }
+        public virtual ICollection<VmTableCourse> VmTableCourses { get; set; }
         // public virtual User User { get; set; }
 
 

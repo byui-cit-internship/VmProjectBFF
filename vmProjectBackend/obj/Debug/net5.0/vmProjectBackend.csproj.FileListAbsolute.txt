@@ -148,3 +148,6 @@ C:\Users\Laker\OneDrive\Desktop\VMBACKEND\VmProject\vmProjectBackend\obj\Debug\n
 C:\Users\Laker\OneDrive\Desktop\VMBACKEND\VmProject\vmProjectBackend\obj\Debug\net5.0\ref\vmProjectBackend.dll
 C:\Users\Laker\OneDrive\Desktop\VMBACKEND\VmProject\vmProjectBackend\obj\Debug\net5.0\vmProjectBackend.pdb
 C:\Users\Laker\OneDrive\Desktop\VMBACKEND\VmProject\vmProjectBackend\obj\Debug\net5.0\vmProjectBackend.genruntimeconfig.cache
+C:\Users\Laker\OneDrive\Desktop\VMBACKEND\VmProject\vmProjectBackend\bin\Debug\net5.0\Microsoft.AspNetCore.JsonPatch.dll
+C:\Users\Laker\OneDrive\Desktop\VMBACKEND\VmProject\vmProjectBackend\bin\Debug\net5.0\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
+C:\Users\Laker\OneDrive\Desktop\VMBACKEND\VmProject\vmProjectBackend\bin\Debug\net5.0\Newtonsoft.Json.Bson.dll

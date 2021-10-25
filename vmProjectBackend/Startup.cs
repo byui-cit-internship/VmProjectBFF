@@ -42,7 +42,7 @@ namespace vmProjectBackend
             services.AddDbContext<VmContext>(opt =>
                                              opt.UseSqlServer(connectionString));
 
-
+            // services.AddDatabaseDeveloperPageExceptionFilter();
 
         }
 
