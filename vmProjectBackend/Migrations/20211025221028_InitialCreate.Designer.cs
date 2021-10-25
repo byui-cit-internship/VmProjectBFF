@@ -9,7 +9,7 @@ using vmProjectBackend.DAL;
 namespace vmProjectBackend.Migrations
 {
     [DbContext(typeof(VmContext))]
-    [Migration("20211025211934_InitialCreate")]
+    [Migration("20211025221028_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

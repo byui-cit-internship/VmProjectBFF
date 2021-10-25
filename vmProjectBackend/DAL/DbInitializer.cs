@@ -162,33 +162,41 @@ namespace vmProjectBackend.DAL
                 VmTableID= vmtables.Single(v => v.vm_image =="Linux 10 gb").VmTableID},
 
                 new VmTableCourse{CourseID= courses.Single(c => c.CourseName== "Cit 101" && c.section_num=="2").CourseID,
-                VmTableID= vmtables.Single(v => v.vm_image =="Cit 124 image name").VmTableID},
+                VmTableID= vmtables.Single(v => v.vm_image =="windows 5gb").VmTableID},
 
                 new VmTableCourse{CourseID= courses.Single(c => c.CourseName== "Cit 798" && c.section_num=="3").CourseID,
                 VmTableID= vmtables.Single(v => v.vm_image =="Linux 10 gb").VmTableID},
 
                 new VmTableCourse{CourseID= courses.Single(c => c.CourseName== "Cit 123" && c.section_num=="1").CourseID,
-                VmTableID= vmtables.Single(v => v.vm_image =="Cit 124 image name").VmTableID},
+                VmTableID= vmtables.Single(v => v.vm_image =="windows 10 gb").VmTableID},
 
                 new VmTableCourse{CourseID= courses.Single(c => c.CourseName== "Cit 123" && c.section_num=="3").CourseID,
-                VmTableID= vmtables.Single(v => v.vm_image =="Cit 124 image name").VmTableID},
+                VmTableID= vmtables.Single(v => v.vm_image =="windows 5gb").VmTableID},
 
                 new VmTableCourse{CourseID= courses.Single(c => c.CourseName== "Cit 456" && c.section_num=="2").CourseID,
                 VmTableID= vmtables.Single(v => v.vm_image =="windows 5gb").VmTableID},
 
                 new VmTableCourse{CourseID= courses.Single(c => c.CourseName== "Cit 456" && c.section_num=="3").CourseID,
-                VmTableID= vmtables.Single(v => v.vm_image =="Cit 124 image name").VmTableID},
+                VmTableID= vmtables.Single(v => v.vm_image =="Linux 10 gb").VmTableID},
 
                 new VmTableCourse{CourseID= courses.Single(c => c.CourseName== "Cit 101" && c.section_num=="3").CourseID,
                 VmTableID= vmtables.Single(v => v.vm_image =="windows 5gb").VmTableID}
 
 
             };
-            foreach (VmTableCourse v in vmTableCourses)
+            foreach (VmTableCourse t in vmTableCourses)
             {
-                context.VmTableCourse.Add(v);
+                var vmTableCoursesInDataBase = context.VmTableCourse.Where(
+                    s =>
+                            s.VmTable.VmTableID == t.VmTableID &&
+                            s.Course.CourseID == t.CourseID).SingleOrDefault();
+                if (vmTableCoursesInDataBase == null)
+                {
+                    context.VmTableCourse.Add(t);
+                }
             }
             context.SaveChanges();
+
         }
     }
 }
