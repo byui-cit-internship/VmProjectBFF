@@ -164,7 +164,29 @@ namespace vmProjectBackend.Controllers
             }
 
         }
+        [HttpGet("userdetails/{id}")]
+        public async Task<IActionResult> UserDetails(int id)
+        {
+            // if (id == null)
+            // {
+            //     return NotFound();
+            // }
 
+            // searching for the a user that is enrolled in what course
+            var userDetail = await _context.Users
+            .Include(s => s.Enrollments)
+            .ThenInclude(e => e.Course)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(m => m.UserID == id);
+
+            // if the user is not found
+            if (userDetail == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(userDetail);
+        }
 
     }
 }
