@@ -151,3 +151,5 @@ C:\Users\Laker\OneDrive\Desktop\VMBACKEND\VmProject\vmProjectBackend\obj\Debug\n
 C:\Users\Laker\OneDrive\Desktop\VMBACKEND\VmProject\vmProjectBackend\bin\Debug\net5.0\Microsoft.AspNetCore.JsonPatch.dll
 C:\Users\Laker\OneDrive\Desktop\VMBACKEND\VmProject\vmProjectBackend\bin\Debug\net5.0\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
 C:\Users\Laker\OneDrive\Desktop\VMBACKEND\VmProject\vmProjectBackend\bin\Debug\net5.0\Newtonsoft.Json.Bson.dll
+C:\Users\Laker\OneDrive\Desktop\VMBACKEND\VmProject\vmProjectBackend\bin\Debug\net5.0\appsettings.Production.json
+C:\Users\Laker\OneDrive\Desktop\VMBACKEND\VmProject\vmProjectBackend\bin\Debug\net5.0\appsettings.Testing.json

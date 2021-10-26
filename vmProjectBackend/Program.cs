@@ -18,12 +18,14 @@ namespace vmProjectBackend
         {
             var host = CreateHostBuilder(args).Build();
 
+           
             CreateDbIfNotExists(host);
 
             host.Run();
         }
         private static void CreateDbIfNotExists(IHost host)
         {
+
             using (var scope = host.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
