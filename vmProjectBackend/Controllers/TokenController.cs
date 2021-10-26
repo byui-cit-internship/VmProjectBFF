@@ -125,7 +125,7 @@ namespace vmProjectBackend.Controllers
 
                         _context.Users.Add(user); ;
                         await _context.SaveChangesAsync();
-                        return Ok(user.userType + "is created");
+                        return Ok(user);
                     }
                     catch (Exception ex)
                     {
