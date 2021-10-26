@@ -98,14 +98,14 @@ namespace vmProjectBackend.Controllers
                 string validEmail = validPayload.Email;
                 // Console.WriteLine(validEmail);
 
-                var user_email = _context.Users.Where(u => u.email == validEmail).FirstOrDefault();
+                var user_detail = _context.Users.Where(u => u.email == validEmail).FirstOrDefault();
 
                 // if (user_email == null)
                 // {
                 //     Console.WriteLine("this is the current email", user_email);
                 // }
 
-                if (user_email == null)
+                if (user_detail == null)
                 {
                     try
                     {
@@ -135,7 +135,7 @@ namespace vmProjectBackend.Controllers
                 }
 
                 // outside return statment
-                return Ok(user_email.userType);
+                return Ok(user_detail);
             }
             catch (Exception ex)
             {

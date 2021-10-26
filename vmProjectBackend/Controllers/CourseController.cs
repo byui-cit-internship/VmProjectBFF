@@ -118,5 +118,15 @@ namespace vmProjectBackend.Controllers
         {
             return _context.Courses.Any(e => e.CourseID == id);
         }
+
+        // [HttpGet("coursenroll/{id}")]
+        // public async Task<IActionResult> GetCourseDetails(int id)
+        // {
+        //     var courseDetail = await _context.Courses
+        //     .Include()
+
+
+        //     return Ok();
+        // }
     }
 }
