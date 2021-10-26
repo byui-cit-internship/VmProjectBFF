@@ -8,9 +8,9 @@ namespace vmProjectBackend.Models
         [Key]
         public long EnrollmentID { get; set; }
 
-        public long CourseID {get;set;} 
-        public int section_num { get; set; }
-    
+        public long CourseID { get; set; }
+
+
         public long UserId { get; set; }
 
         //      Reference the connection made with enrollment and user and course

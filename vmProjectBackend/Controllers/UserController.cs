@@ -175,6 +175,7 @@ namespace vmProjectBackend.Controllers
             // searching for the a user that is enrolled in what course
             var userDetail = await _context.Users
             .Include(s => s.Enrollments)
+            .ThenInclude(e => e.Course)
             .AsNoTracking()
             .FirstOrDefaultAsync(m => m.UserID == id);
 
