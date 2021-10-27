@@ -19,20 +19,21 @@ namespace vmProjectBackend
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
+            Environment = env;
         }
 
         public IConfiguration Configuration { get; }
+        public IWebHostEnvironment Environment { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // ********************ONLY FOR NOW USE****************************
             services.AddControllers().AddNewtonsoftJson(options =>
-            options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
-            );
+           options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+           );
             services.AddCors(c =>
             {
                 c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyHeader());
@@ -40,13 +41,24 @@ namespace vmProjectBackend
             });
             // ******************CHNAGE IN FUTURE**********************************
             services.AddControllers();
-            string connectionString = Configuration.GetConnectionString("DefaultConnection");
+            // ********************ONLY FOR NOW USE****************************
+            if (Environment.IsDevelopment())
+            {
 
-            services.AddDbContext<VmContext>(opt =>
-                                             opt.UseSqlServer(connectionString));
+                string connectionString = Configuration.GetConnectionString("DevelopmentString");
 
-            // services.AddDatabaseDeveloperPageExceptionFilter();
+                services.AddDbContext<VmContext>(opt =>
+                                                 opt.UseSqlServer(connectionString));
+            }
 
+            if (Environment.IsProduction())
+            {
+                string connectionString = Configuration.GetConnectionString("ProductionString");
+
+                services.AddDbContext<VmContext>(opt =>
+                                                 opt.UseSqlServer(connectionString));
+
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -62,8 +74,6 @@ namespace vmProjectBackend
                 // app.UseSwagger();
                 // app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "vmProjectBackend v1"));
             }
-
-           
 
             app.UseHttpsRedirection();
 

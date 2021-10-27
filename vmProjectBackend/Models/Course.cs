@@ -14,12 +14,16 @@ namespace vmProjectBackend.Models
 
         // [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long CourseID { get; set; }
+        [Required]
+        [StringLength(50)]
         public string CourseName { get; set; }
+        [StringLength(20)]
         public string section_num { get; set; }
 
         public string canvas_token { get; set; }
 
         public string description { get; set; }
+        [StringLength(20)]
         public string semester { get; set; }
 
         // this below is the can be emmited since enrollment will connect them

@@ -27,7 +27,29 @@ Below are commands to create the connected database:
 
 # To use SQL Server for Mac try this: https://docs.microsoft.com/en-us/sql/linux/quickstart-install-connect-docker?view=sql-server-ver15&pivots=cs1-bash
 
-   
+ TO POINT TO DIFFERENT ENV:
+ Note: If your enviornment is pointing to different DB, Make sure that you created that
+ Database before
+ 1. Create your enviornment varible in the terminal with : 
+ $env:ASPNETCORE_ENVIRONMENT = 'Production' or any other enviornment that you want to run
+ 2. Run $env:ASPNETCORE_ENVIRONMENT to make sure that the environment was created
+
+ 3. Make sure that you have already created the intitial create to creat ethe migration:
+ dotnet ef migrations add <name of your mirgation>
+
+ 4. Now apply that miragtion to the database with:
+ dotnet ef database update
+
+ 5. Check that you tabels are in that DB
+
+
+
+
+
+
+
+
+
 "DefaultConnection": "Server=host.docker.internal;Database=VmDB;Trusted_Connection=True;"
  "DefaultConnection": "Server=host.docker.internal,1433;Database=VmDB;Trusted_Connection=True;"
 

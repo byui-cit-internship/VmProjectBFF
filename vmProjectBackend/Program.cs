@@ -2,13 +2,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
+using Microsoft.EntityFrameworkCore;
+
 using vmProjectBackend.Models;
-using Microsoft.Extensions.DependencyInjection;
 using vmProjectBackend.DAL;
+
 
 namespace vmProjectBackend
 {
@@ -18,14 +25,12 @@ namespace vmProjectBackend
         {
             var host = CreateHostBuilder(args).Build();
 
-           
             CreateDbIfNotExists(host);
 
             host.Run();
         }
         private static void CreateDbIfNotExists(IHost host)
         {
-
             using (var scope = host.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
