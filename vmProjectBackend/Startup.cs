@@ -15,6 +15,9 @@ using Microsoft.EntityFrameworkCore;
 
 using vmProjectBackend.Models;
 using vmProjectBackend.DAL;
+using Microsoft.AspNetCore.Authentication;
+using vmProjectBackend.Handlers;
+
 namespace vmProjectBackend
 {
     public class Startup
@@ -41,6 +44,10 @@ namespace vmProjectBackend
             });
             // ******************CHNAGE IN FUTURE**********************************
             services.AddControllers();
+
+            //this helps to connect the authentication for controllers request to the BasicAuthenticationHandler 
+            services.AddAuthentication("BasicAuthentication")
+            .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
             // ********************ONLY FOR NOW USE****************************
             if (Environment.IsDevelopment())
             {
@@ -79,6 +86,8 @@ namespace vmProjectBackend
 
             app.UseRouting();
 
+            // tell app that it will use autheication
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

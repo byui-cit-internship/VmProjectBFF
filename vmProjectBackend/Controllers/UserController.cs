@@ -11,9 +11,11 @@ using MimeKit;
 using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
 using MailKit.Security;
+using Microsoft.AspNetCore.Authorization;
 
 namespace vmProjectBackend.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
@@ -116,22 +118,6 @@ namespace vmProjectBackend.Controllers
 
         public async Task<ActionResult<User>> GetEmail(long studentid)
         {
-            /*gRAB THE PRAMS AND USE IT TO SEARCH THE DATA BASE FOR THAT USE 
-            AND THEN SEND TO THE PROFESSOR THAT EMAIL*/
-
-            // var user = await _context.Users.FindAsync(studentid);
-
-            // if (user == null)
-            // {
-            //     return NotFound();
-            // }
-            // else
-            // {
-            //     Console.WriteLine(user.firstName);
-            //     return Ok("you have found it");
-            // }
-
-
 
             var mailMessage = new MimeMessage();
             mailMessage.From.Add(new MailboxAddress("vmproject", "vmproject234@gmail.com"));
@@ -167,11 +153,6 @@ namespace vmProjectBackend.Controllers
         [HttpGet("userdetails/{id}")]
         public async Task<IActionResult> UserDetails(int id)
         {
-            // if (id == null)
-            // {
-            //     return NotFound();
-            // }
-
             // searching for the a user that is enrolled in what course
             var userDetail = await _context.Users
             .Include(s => s.Enrollments)
