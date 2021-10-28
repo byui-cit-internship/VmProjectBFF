@@ -15,24 +15,20 @@ namespace vmProjectBackend.DAL
                 return;   // DB has been seeded
             }
 
-
-
-
             var users = new User[]
             {
                 new User { firstName = "Carson",   lastName = "Alexander",
-                    email="carson@gmail.com", userType="Student", userAccess= false, status= "Active"},
-
+                    email="carson@gmail.com", userType="Student", userAccess= false},
+                new User { firstName = "Tammy",   lastName = "Nolasco",
+                    email="tnolasco54@gmail.com", userType="Student", userAccess= false},
                 new User { firstName = "Meredith",   lastName = "Alonso",
-                    email="Alonso@gmail.com", userType="Student", userAccess= false, status= "Active"},
+                    email="Alonso@gmail.com", userType="Student", userAccess= false},
                 new User { firstName = "Arturo",   lastName = "Anand",
-                    email="carson@gmail.com", userType="Professor", userAccess= false, status= "Active"},
+                    email="carson@gmail.com", userType="Professor", userAccess= false},
                 new User { firstName = "Gytis",   lastName = "Barzdukas",
-                    email="Barzdukas@gmail.com", userType="Professor", userAccess= false, status= "Active"},
+                    email="Barzdukas@gmail.com", userType="Professor", userAccess= false},
                 new User { firstName = "Peggy",   lastName = "Justice",
-                    email="Justice@gmail.com", userType="Student", userAccess= false, status= "Active"},
-
-
+                    email="Justice@gmail.com", userType="Student", userAccess= false},
 
             };
 
@@ -41,9 +37,6 @@ namespace vmProjectBackend.DAL
                 context.Users.Add(u);
             }
             context.SaveChanges();
-
-
-
             //    creating data fro the courses
             var courses = new Course[]
             {
@@ -60,7 +53,6 @@ namespace vmProjectBackend.DAL
                 new Course {CourseName="Cit 798" ,section_num="3", canvas_token= "12345fxb", description= "this is demo", semester="Fall" },
                 new Course {CourseName="Cit 101" ,section_num="3", canvas_token= "12345fxb", description= "this is demo", semester="Spring" },
             };
-
             foreach (Course c in courses)
             {
                 context.Courses.Add(c);
@@ -72,52 +64,53 @@ namespace vmProjectBackend.DAL
             var enrollments = new Enrollment[]
             {
                 new Enrollment {
-                    UserId = users.Single(s => s.lastName == "Alexander").UserID,
-                    CourseID = courses.Single(c => c.CourseName == "Cit 456" && c.section_num=="2" ).CourseID,
+                    UserId = users.Single(s => s.lastName == "Nolasco").UserID,
+                    CourseID = courses.Single(c => c.CourseName == "Cit 456" && c.section_num=="2" ).CourseID, Status= "Active"
+
                     },
                     new Enrollment {
                     UserId = users.Single(s => s.lastName == "Alexander").UserID,
-                    CourseID = courses.Single(c => c.CourseName == "Cit 798" && c.section_num=="2" ).CourseID,
+                    CourseID = courses.Single(c => c.CourseName == "Cit 798" && c.section_num=="2" ).CourseID, Status= "Active"
                     },
                     new Enrollment {
                     UserId = users.Single(s => s.lastName == "Alonso").UserID,
-                    CourseID = courses.Single(c => c.CourseName == "Cit 456" && c.section_num=="2" ).CourseID,
+                    CourseID = courses.Single(c => c.CourseName == "Cit 456" && c.section_num=="2" ).CourseID,Status= "Active"
                     },
                     new Enrollment {
                     UserId = users.Single(s => s.lastName == "Justice").UserID,
-                    CourseID = courses.Single(c => c.CourseName == "Cit 798" && c.section_num=="2" ).CourseID,
+                    CourseID = courses.Single(c => c.CourseName == "Cit 798" && c.section_num=="2" ).CourseID,Status= "Active"
                     },
                     new Enrollment {
                     UserId = users.Single(s => s.lastName == "Alexander").UserID,
-                    CourseID = courses.Single(c => c.CourseName == "Cit 101" && c.section_num=="2" ).CourseID,
+                    CourseID = courses.Single(c => c.CourseName == "Cit 101" && c.section_num=="2" ).CourseID,Status= "Active"
                     },
                     new Enrollment {
                     UserId = users.Single(s => s.lastName == "Anand").UserID,
-                    CourseID = courses.Single(c => c.CourseName == "Cit 101" && c.section_num=="2" ).CourseID,
+                    CourseID = courses.Single(c => c.CourseName == "Cit 101" && c.section_num=="2" ).CourseID,Status= "Active"
                     },
                         new Enrollment {
-                    UserId = users.Single(s => s.lastName == "Alexander").UserID,
-                    CourseID = courses.Single(c => c.CourseName == "Cit 456" && c.section_num=="3" ).CourseID,
+                    UserId = users.Single(s => s.lastName == "Nolasco").UserID,
+                    CourseID = courses.Single(c => c.CourseName == "Cit 456" && c.section_num=="3" ).CourseID,Status= "Active"
                     },
                     new Enrollment {
                     UserId = users.Single(s => s.lastName == "Alexander").UserID,
-                    CourseID = courses.Single(c => c.CourseName == "Cit 798" && c.section_num=="1" ).CourseID,
+                    CourseID = courses.Single(c => c.CourseName == "Cit 798" && c.section_num=="1" ).CourseID,Status= "Active"
                     },
                     new Enrollment {
                     UserId = users.Single(s => s.lastName == "Alonso").UserID,
-                    CourseID = courses.Single(c => c.CourseName == "Cit 456" && c.section_num=="1" ).CourseID,
+                    CourseID = courses.Single(c => c.CourseName == "Cit 456" && c.section_num=="1" ).CourseID,Status= "Active"
                     },
                     new Enrollment {
                     UserId = users.Single(s => s.lastName == "Justice").UserID,
-                    CourseID = courses.Single(c => c.CourseName == "Cit 798" && c.section_num=="3" ).CourseID,
+                    CourseID = courses.Single(c => c.CourseName == "Cit 798" && c.section_num=="3" ).CourseID,Status= "Active"
                     },
                     new Enrollment {
                     UserId = users.Single(s => s.lastName == "Alexander").UserID,
-                    CourseID = courses.Single(c => c.CourseName == "Cit 101" && c.section_num=="1" ).CourseID,
+                    CourseID = courses.Single(c => c.CourseName == "Cit 101" && c.section_num=="1" ).CourseID,Status= "Active"
                     },
                     new Enrollment {
-                    UserId = users.Single(s => s.lastName == "Anand").UserID,
-                    CourseID = courses.Single(c => c.CourseName == "Cit 101" && c.section_num=="1" ).CourseID,
+                    UserId = users.Single(s => s.lastName == "Nolasco").UserID,
+                    CourseID = courses.Single(c => c.CourseName == "Cit 101" && c.section_num=="1" ).CourseID,Status= "Active"
                     },
             };
 

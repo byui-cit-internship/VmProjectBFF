@@ -12,11 +12,11 @@ namespace vmProjectBackend.Migrations
                 {
                     CourseID = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    CourseName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    section_num = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CourseName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    section_num = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     canvas_token = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    semester = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    semester = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -41,12 +41,11 @@ namespace vmProjectBackend.Migrations
                 {
                     UserID = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    firstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    lastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    email = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    userType = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    userAccess = table.Column<bool>(type: "bit", nullable: false),
-                    status = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    firstName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    lastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    userType = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    userAccess = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -75,8 +74,8 @@ namespace vmProjectBackend.Migrations
                     EnrollmentID = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CourseID = table.Column<long>(type: "bigint", nullable: false),
-                    section_num = table.Column<int>(type: "int", nullable: false),
-                    UserId = table.Column<long>(type: "bigint", nullable: false)
+                    UserId = table.Column<long>(type: "bigint", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
