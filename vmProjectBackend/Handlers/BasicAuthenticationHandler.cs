@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using Google.Apis.Auth;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -44,18 +45,21 @@ namespace vmProjectBackend.Handlers
             {
                 // Read the authorization header
                 var authenticationHeaderValue = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
-
+                Console.WriteLine("this is headervalue", authenticationHeaderValue);
                 // convert that header into byte
-                var bytes = Convert.FromBase64String(authenticationHeaderValue.Parameter);
-                // convert bytes into string and split it into two
-                string[] credentials = Encoding.UTF8.GetString(bytes).Split(":");
+                var validPayload = await GoogleJsonWebSignature.ValidateAsync(authenticationHeaderValue.Parameter);
+                string validemail = validPayload.Email;
+                // var bytes = Convert.FromBase64String(authenticationHeaderValue.Parameter);
+                // Console.WriteLine("this is bytes", bytes);
+                // // convert bytes into string and split it into two
+                // string[] credentials = Encoding.UTF8.GetString(bytes).Split(":");
 
-                // save the split string into two credentials
-                string emailAddress = credentials[0];
-                string userid = credentials[1];
+                // // save the split string into two credentials
+                // string emailAddress = credentials[0];
+                // string userid = credentials[1];
 
                 // get users from the db and check if any match with what was send through the request
-                User user = _context.Users.Where(user => user.email == emailAddress && user.UserID.ToString() == userid).FirstOrDefault();
+                User user = _context.Users.Where(user => user.email == validemail).FirstOrDefault();
 
                 // If we get no user
                 if (user == null)
