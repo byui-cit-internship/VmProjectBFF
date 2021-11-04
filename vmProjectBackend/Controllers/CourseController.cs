@@ -4,14 +4,16 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace vmProjectBackend.Controllers
 {
-    [Authorize]
+    // [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class CourseController : ControllerBase
@@ -27,11 +29,13 @@ namespace vmProjectBackend.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Course>>> GetCourses()
         {
+            string useremail = HttpContext.User.Identity.Name;
+            Console.WriteLine("this si the user email" + useremail);
             return await _context.Courses.ToListAsync();
         }
 
         // GET: api/Course/5
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name = "GetCourse")]
         public async Task<ActionResult<Course>> GetCourse(long id)
         {
             var course = await _context.Courses.FindAsync(id);
@@ -130,5 +134,20 @@ namespace vmProjectBackend.Controllers
 
         //     return Ok();
         // }
+        [HttpPatch("{id}")]
+        public async Task<ActionResult> PartialUpdate(long id, JsonPatchDocument<Course> patchDoc)
+        {
+            var orginalCourse = await _context.Courses.FirstOrDefaultAsync(c => c.CourseID == id);
+
+            if (orginalCourse == null)
+            {
+                return NotFound();
+            }
+
+            patchDoc.ApplyTo(orginalCourse, ModelState);
+            await _context.SaveChangesAsync();
+
+            return Ok(orginalCourse);
+        }
     }
 }

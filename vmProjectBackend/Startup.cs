@@ -12,7 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
-
+using Newtonsoft.Json.Serialization;
 using vmProjectBackend.Models;
 using vmProjectBackend.DAL;
 using Microsoft.AspNetCore.Authentication;
@@ -34,21 +34,25 @@ namespace vmProjectBackend
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers().AddNewtonsoftJson(options =>
-           options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
-           );
+            services.AddControllers().AddNewtonsoftJson(s =>
+            {
+                s.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            });
+
             services.AddCors(c =>
             {
                 c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyHeader());
 
             });
             // ******************CHNAGE IN FUTURE**********************************
-            services.AddControllers();
+
 
             //this helps to connect the authentication for controllers request to the BasicAuthenticationHandler 
             services.AddAuthentication("BasicAuthentication")
             .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
             // ********************ONLY FOR NOW USE****************************
+
+
             if (Environment.IsDevelopment())
             {
 

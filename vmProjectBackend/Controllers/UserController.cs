@@ -12,6 +12,7 @@ using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
 using MailKit.Security;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace vmProjectBackend.Controllers
 {
@@ -169,5 +170,20 @@ namespace vmProjectBackend.Controllers
             return Ok(userDetail);
         }
 
+        [HttpPatch("{id}")]
+        public async Task<ActionResult> PartialUpdate(long id, JsonPatchDocument<User> patchDoc)
+        {
+            var orginalUser = await _context.Users.FirstOrDefaultAsync(c => c.UserID == id);
+
+            if (orginalUser == null)
+            {
+                return NotFound();
+            }
+
+            patchDoc.ApplyTo(orginalUser, ModelState);
+            await _context.SaveChangesAsync();
+
+            return Ok(orginalUser);
+        }
     }
 }

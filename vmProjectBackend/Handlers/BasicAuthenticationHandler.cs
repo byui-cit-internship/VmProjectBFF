@@ -45,10 +45,11 @@ namespace vmProjectBackend.Handlers
             {
                 // Read the authorization header
                 var authenticationHeaderValue = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
-                Console.WriteLine("this is headervalue", authenticationHeaderValue);
-                // convert that header into byte
+                Console.WriteLine("this is headervalue" + authenticationHeaderValue);
+                
                 var validPayload = await GoogleJsonWebSignature.ValidateAsync(authenticationHeaderValue.Parameter);
                 string validemail = validPayload.Email;
+                // convert that header into byte
                 // var bytes = Convert.FromBase64String(authenticationHeaderValue.Parameter);
                 // Console.WriteLine("this is bytes", bytes);
                 // // convert bytes into string and split it into two

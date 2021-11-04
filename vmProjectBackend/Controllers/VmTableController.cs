@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using vmProjectBackend.DAL;
@@ -121,6 +122,22 @@ namespace vmProjectBackend.Controllers
         private bool VmTableExists(long id)
         {
             return _context.VmTables.Any(e => e.VmTableID == id);
+        }
+
+        [HttpPatch("{id}")]
+        public async Task<ActionResult> PartialUpdate(long id, JsonPatchDocument<VmTable> patchDoc)
+        {
+            var orginalVm = await _context.VmTables.FirstOrDefaultAsync(c => c.VmTableID == id);
+
+            if (orginalVm == null)
+            {
+                return NotFound();
+            }
+
+            patchDoc.ApplyTo(orginalVm, ModelState);
+            await _context.SaveChangesAsync();
+
+            return Ok(orginalVm);
         }
     }
 }
