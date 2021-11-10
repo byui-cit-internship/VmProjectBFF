@@ -29,9 +29,22 @@ namespace vmProjectBackend.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Course>>> GetCourses()
         {
+            // grabbing the user that signed in
             string useremail = HttpContext.User.Identity.Name;
-            Console.WriteLine("this si the user email" + useremail);
-            return await _context.Courses.ToListAsync();
+
+            // check if it is a professor
+            var user_prof = _context.Users.Where(p => p.email == useremail && p.userType == "Professor").FirstOrDefault();
+
+            Console.WriteLine("this is the user email" + useremail);
+            if (user_prof != null)
+            {
+                return await _context.Courses.ToListAsync();
+            }
+
+            else
+            {
+                return NotFound("You are not Authorized and not a Professor");
+            }
         }
 
         // GET: api/Course/5

@@ -53,23 +53,22 @@ namespace vmProjectBackend
             // ********************ONLY FOR NOW USE****************************
 
 
-            if (Environment.IsDevelopment())
-            {
 
-                string connectionString = Configuration.GetConnectionString("DevelopmentString");
 
-                services.AddDbContext<VmContext>(opt =>
-                                                 opt.UseSqlServer(connectionString));
-            }
+            string connectionString = Configuration.GetConnectionString("DevelopmentString");
 
-            if (Environment.IsProduction())
-            {
-                string connectionString = Configuration.GetConnectionString("ProductionString");
+            services.AddDbContext<VmContext>(opt =>
+                                             opt.UseSqlServer(connectionString));
 
-                services.AddDbContext<VmContext>(opt =>
-                                                 opt.UseSqlServer(connectionString));
 
-            }
+            // if (Environment.IsProduction())
+            // {
+            //     string connectionString = Configuration.GetConnectionString("ProductionString");
+
+            //     services.AddDbContext<VmContext>(opt =>
+            //                                      opt.UseSqlServer(connectionString));
+
+            // }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

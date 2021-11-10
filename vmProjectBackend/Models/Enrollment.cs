@@ -10,9 +10,12 @@ namespace vmProjectBackend.Models
 
         public long CourseID { get; set; }
 
-
         public long UserId { get; set; }
+
         public string Status { get; set; }
+
+        public string section_num { get; set; }
+        public string semester { get; set; }
 
         //      Reference the connection made with enrollment and user and course
         public virtual User User { get; set; }

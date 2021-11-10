@@ -2,7 +2,7 @@
 
 namespace vmProjectBackend.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class IntialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -13,10 +13,8 @@ namespace vmProjectBackend.Migrations
                     CourseID = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CourseName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    section_num = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
-                    canvas_token = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    semester = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true)
+                    canvas_token = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    description = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -75,7 +73,9 @@ namespace vmProjectBackend.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CourseID = table.Column<long>(type: "bigint", nullable: false),
                     UserId = table.Column<long>(type: "bigint", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    section_num = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    semester = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {

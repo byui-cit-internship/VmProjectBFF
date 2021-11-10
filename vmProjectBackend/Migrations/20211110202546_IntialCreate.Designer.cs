@@ -9,8 +9,8 @@ using vmProjectBackend.DAL;
 namespace vmProjectBackend.Migrations
 {
     [DbContext(typeof(VmContext))]
-    [Migration("20211027210707_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20211110202546_IntialCreate")]
+    partial class IntialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -33,18 +33,11 @@ namespace vmProjectBackend.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("canvas_token")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("description")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("section_num")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("semester")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("CourseID");
 
@@ -66,6 +59,12 @@ namespace vmProjectBackend.Migrations
 
                     b.Property<long>("UserId")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("section_num")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("semester")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("EnrollmentID");
 
