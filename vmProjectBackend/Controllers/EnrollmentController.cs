@@ -27,9 +27,8 @@ namespace vmProjectBackend.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Enrollment>>> GetEnrollments()
         {
-            return await _context.Enrollments.ToListAsync();
+            return await _context.Enrollments.Include(c => c.Course).Include(u => u.User).ToListAsync();
         }
-
         // GET: api/Enrollment/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Enrollment>> GetEnrollment(long id)

@@ -2,15 +2,17 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using vmProjectBackend.DAL;
 
 namespace vmProjectBackend.Migrations
 {
     [DbContext(typeof(VmContext))]
-    partial class VmContextModelSnapshot : ModelSnapshot
+    [Migration("20211111194711_IntialCreate")]
+    partial class IntialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -167,13 +169,13 @@ namespace vmProjectBackend.Migrations
             modelBuilder.Entity("vmProjectBackend.Models.Enrollment", b =>
                 {
                     b.HasOne("vmProjectBackend.Models.Course", "Course")
-                        .WithMany()
+                        .WithMany("Enrollments")
                         .HasForeignKey("CourseID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("vmProjectBackend.Models.User", "User")
-                        .WithMany()
+                        .WithMany("Enrollments")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -186,7 +188,7 @@ namespace vmProjectBackend.Migrations
             modelBuilder.Entity("vmProjectBackend.Models.VmTableCourse", b =>
                 {
                     b.HasOne("vmProjectBackend.Models.Course", "Course")
-                        .WithMany()
+                        .WithMany("VmTableCourses")
                         .HasForeignKey("CourseID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -200,6 +202,18 @@ namespace vmProjectBackend.Migrations
                     b.Navigation("Course");
 
                     b.Navigation("VmTable");
+                });
+
+            modelBuilder.Entity("vmProjectBackend.Models.Course", b =>
+                {
+                    b.Navigation("Enrollments");
+
+                    b.Navigation("VmTableCourses");
+                });
+
+            modelBuilder.Entity("vmProjectBackend.Models.User", b =>
+                {
+                    b.Navigation("Enrollments");
                 });
 
             modelBuilder.Entity("vmProjectBackend.Models.VmTable", b =>

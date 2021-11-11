@@ -2,15 +2,17 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using vmProjectBackend.DAL;
 
 namespace vmProjectBackend.Migrations
 {
     [DbContext(typeof(VmContext))]
-    partial class VmContextModelSnapshot : ModelSnapshot
+    [Migration("20211111210350_Chnge")]
+    partial class Chnge
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -67,8 +69,6 @@ namespace vmProjectBackend.Migrations
                     b.HasKey("EnrollmentID");
 
                     b.HasIndex("CourseID");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Enrollment");
                 });
@@ -172,15 +172,7 @@ namespace vmProjectBackend.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("vmProjectBackend.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Course");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("vmProjectBackend.Models.VmTableCourse", b =>

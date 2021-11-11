@@ -9,8 +9,8 @@ using vmProjectBackend.DAL;
 namespace vmProjectBackend.Migrations
 {
     [DbContext(typeof(VmContext))]
-    [Migration("20211110202546_IntialCreate")]
-    partial class IntialCreate
+    [Migration("20211111213643_ChangeUserModel")]
+    partial class ChangeUserModel
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -169,13 +169,13 @@ namespace vmProjectBackend.Migrations
             modelBuilder.Entity("vmProjectBackend.Models.Enrollment", b =>
                 {
                     b.HasOne("vmProjectBackend.Models.Course", "Course")
-                        .WithMany("Enrollments")
+                        .WithMany()
                         .HasForeignKey("CourseID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("vmProjectBackend.Models.User", "User")
-                        .WithMany("Enrollments")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -188,7 +188,7 @@ namespace vmProjectBackend.Migrations
             modelBuilder.Entity("vmProjectBackend.Models.VmTableCourse", b =>
                 {
                     b.HasOne("vmProjectBackend.Models.Course", "Course")
-                        .WithMany("VmTableCourses")
+                        .WithMany()
                         .HasForeignKey("CourseID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -202,18 +202,6 @@ namespace vmProjectBackend.Migrations
                     b.Navigation("Course");
 
                     b.Navigation("VmTable");
-                });
-
-            modelBuilder.Entity("vmProjectBackend.Models.Course", b =>
-                {
-                    b.Navigation("Enrollments");
-
-                    b.Navigation("VmTableCourses");
-                });
-
-            modelBuilder.Entity("vmProjectBackend.Models.User", b =>
-                {
-                    b.Navigation("Enrollments");
                 });
 
             modelBuilder.Entity("vmProjectBackend.Models.VmTable", b =>

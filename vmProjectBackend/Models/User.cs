@@ -21,12 +21,12 @@ namespace vmProjectBackend.Models
         [StringLength(20)]
         public string userType { get; set; }
         public bool userAccess { get; set; } = false;
-        [StringLength(20)]
+        // [StringLength(20)]
 
 
         //  if a given Student row in the database has two related Enrollment rows (rows that contain that student's primary key value in their StudentID 
         // foreign key column), that Student entity's Enrollments navigation property will contain those two Enrollment entities.
-        public virtual ICollection<Enrollment> Enrollments { get; set; }
+        // public virtual ICollection<Enrollment> Enrollments { get; set; }
         //     public virtual ICollection<Course> Courses { get; set; }
     }
 

@@ -100,24 +100,24 @@ namespace vmProjectBackend.Controllers
 
             return NoContent();
         }
-        [HttpGet("vmdetails/{id}")]
-        public async Task<IActionResult> VmDetails(int id)
-        {
+        // [HttpGet("vmdetails/{id}")]
+        // public async Task<IActionResult> VmDetails(int id)
+        // {
 
-            var vmDetail = await _context.VmTables
-            .Include(s => s.VmTableCourses)
-            .ThenInclude(e => e.Course.Enrollments)
-            .AsNoTracking()
-            .FirstOrDefaultAsync(m => m.VmTableID == id);
+        //     var vmDetail = await _context.VmTables
+        //     .Include(s => s.VmTableCourses)
+        //     .ThenInclude(e => e.Course.Enrollments)
+        //     .AsNoTracking()
+        //     .FirstOrDefaultAsync(m => m.VmTableID == id);
 
-            // if the user is not found
-            if (vmDetail == null)
-            {
-                return NotFound();
-            }
+        //     // if the user is not found
+        //     if (vmDetail == null)
+        //     {
+        //         return NotFound();
+        //     }
 
-            return Ok(vmDetail);
-        }
+        //     return Ok(vmDetail);
+        // }
 
         private bool VmTableExists(long id)
         {

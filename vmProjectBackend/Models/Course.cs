@@ -28,10 +28,10 @@ namespace vmProjectBackend.Models
 
         // public long UserId { get; set; }
         // this is for course connection ot enrollment
-        public virtual ICollection<Enrollment> Enrollments { get; set; }
+        // public virtual ICollection<Enrollment> Enrollments { get; set; }
 
         // this is course to vmtables
-        public virtual ICollection<VmTableCourse> VmTableCourses { get; set; }
+        // public virtual ICollection<VmTableCourse> VmTableCourses { get; set; }
         // public virtual User User { get; set; }
 
 

@@ -15,7 +15,7 @@ namespace vmProjectBackend.DAL
         public VmContext(DbContextOptions<VmContext> options)
            : base(options)
         {
-
+            this.ChangeTracker.LazyLoadingEnabled = false;
         }
 
         public DbSet<User> Users { get; set; }
@@ -25,6 +25,8 @@ namespace vmProjectBackend.DAL
 
         public DbSet<Token> Tokens { get; set; }
         public DbSet<VmTableCourse> VmTableCourse { get; set; }
+        public object Configuration { get; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Course>().ToTable("Course");
