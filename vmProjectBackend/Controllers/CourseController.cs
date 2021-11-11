@@ -38,7 +38,8 @@ namespace vmProjectBackend.Controllers
             Console.WriteLine("this is the user email" + useremail);
             if (user_prof != null)
             {
-                return await _context.Courses.ToListAsync();
+                var listOfCourse = await _context.Enrollments.Where(u => u.UserId == user_prof.UserID).ToListAsync();
+                return Ok(listOfCourse);
             }
 
             else
