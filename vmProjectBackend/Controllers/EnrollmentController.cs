@@ -27,20 +27,39 @@ namespace vmProjectBackend.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Enrollment>>> GetEnrollments()
         {
-            return await _context.Enrollments.Include(c => c.Course).Include(u => u.User).ToListAsync();
+            string useremail = HttpContext.User.Identity.Name;
+            var user_prof = _context.Users
+                            .Where(p => p.email == useremail && p.userType == "Professor")
+                            .FirstOrDefault();
+            if (user_prof != null)
+            {
+                return await _context.Enrollments
+                            .Include(c => c.Course)
+                            .Include(u => u.User)
+                            .ToListAsync();
+            }
+            return Unauthorized("You are not Authorized");
+
         }
         // GET: api/Enrollment/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Enrollment>> GetEnrollment(long id)
         {
-            var enrollment = await _context.Enrollments.FindAsync(id);
+            string useremail = HttpContext.User.Identity.Name;
+            var user_prof = _context.Users
+                            .Where(p => p.email == useremail && p.userType == "Professor")
+                            .FirstOrDefault();
 
-            if (enrollment == null)
+            if (user_prof != null)
             {
-                return NotFound();
+                var enrollment = await _context.Enrollments.FindAsync(id);
+                if (enrollment == null)
+                {
+                    return NotFound();
+                }
+                return enrollment;
             }
-
-            return enrollment;
+            return Unauthorized("You are not Authorized");
         }
 
         // PUT: api/Enrollment/5
@@ -48,30 +67,35 @@ namespace vmProjectBackend.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutEnrollment(long id, Enrollment enrollment)
         {
-            if (id != enrollment.EnrollmentID)
+            string useremail = HttpContext.User.Identity.Name;
+            var user_prof = _context.Users
+                            .Where(p => p.email == useremail && p.userType == "Professor")
+                            .FirstOrDefault();
+            if (user_prof != null)
             {
-                return BadRequest();
-            }
-
-            _context.Entry(enrollment).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!EnrollmentExists(id))
+                if (id != enrollment.EnrollmentID)
                 {
-                    return NotFound();
+                    return BadRequest();
                 }
-                else
+                _context.Entry(enrollment).State = EntityState.Modified;
+                try
                 {
-                    throw;
+                    await _context.SaveChangesAsync();
                 }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!EnrollmentExists(id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return NoContent();
             }
-
-            return NoContent();
+            return Unauthorized("You are not Authorized");
         }
 
         // POST: api/Enrollment
@@ -89,16 +113,25 @@ namespace vmProjectBackend.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteEnrollment(long id)
         {
-            var enrollment = await _context.Enrollments.FindAsync(id);
-            if (enrollment == null)
+            string useremail = HttpContext.User.Identity.Name;
+            var user_prof = _context.Users
+                            .Where(p => p.email == useremail && p.userType == "Professor")
+                            .FirstOrDefault();
+
+            if (user_prof != null)
             {
-                return NotFound();
+                var enrollment = await _context.Enrollments.FindAsync(id);
+                if (enrollment == null)
+                {
+                    return NotFound();
+                }
+
+                _context.Enrollments.Remove(enrollment);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
             }
-
-            _context.Enrollments.Remove(enrollment);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            return Unauthorized("You are not a professor");
         }
 
         private bool EnrollmentExists(long id)

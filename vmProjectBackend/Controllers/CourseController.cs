@@ -48,8 +48,7 @@ namespace vmProjectBackend.Controllers
                 // });
                 var listOfCourse = await _context.Enrollments
                                 .Include(c => c.Course)
-                                .Where(u => u.UserId
-                                            == user_prof.UserID)
+                                .Where(u => u.UserId == user_prof.UserID)
                                 .ToListAsync();
                 return Ok(listOfCourse);
             }
@@ -59,7 +58,6 @@ namespace vmProjectBackend.Controllers
                 return NotFound("You are not Authorized and not a Professor");
             }
         }
-
         // GET: api/Course/5
         [HttpGet("{id}/{section_num}/{semester}", Name = "GetCourse")]
         public async Task<ActionResult<Course>> GetCourse(long id, string section_num, string semester)
@@ -163,9 +161,9 @@ namespace vmProjectBackend.Controllers
             if (user_prof != null)
             {
                 var singleCourse = _context.Enrollments
-                                               .Include(c => c.Course)
-                                               .Where(c => c.CourseID == id && c.UserId == user_prof.UserID)
-                                               .FirstOrDefault();
+                                    .Include(c => c.Course)
+                                    .Where(c => c.CourseID == id && c.UserId == user_prof.UserID)
+                                    .FirstOrDefault();
                 var course = await _context.Courses.FindAsync(id);
                 if (course == null)
                 {

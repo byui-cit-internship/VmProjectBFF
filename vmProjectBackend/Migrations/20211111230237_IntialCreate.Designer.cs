@@ -9,8 +9,8 @@ using vmProjectBackend.DAL;
 namespace vmProjectBackend.Migrations
 {
     [DbContext(typeof(VmContext))]
-    [Migration("20211111213643_ChangeUserModel")]
-    partial class ChangeUserModel
+    [Migration("20211111230237_IntialCreate")]
+    partial class IntialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

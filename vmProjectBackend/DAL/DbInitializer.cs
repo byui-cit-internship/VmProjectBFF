@@ -67,6 +67,7 @@ namespace vmProjectBackend.DAL
                     section_num= "2",
                     semester="Fall"
                     },
+
                 new Enrollment {
                     UserId = users.Single(s => s.email == "leonarine@gmail.com").UserID,
                     CourseID = courses.Single(c => c.CourseName == "Cit 456").CourseID,
@@ -75,8 +76,7 @@ namespace vmProjectBackend.DAL
                     semester="Winter"
                     },
 
-
-                    new Enrollment {
+                new Enrollment {
                     UserId = users.Single(s => s.email == "nar19002@byui.edu").UserID,
                     CourseID = courses.Single(c => c.CourseName == "Cit 798").CourseID,
                     Status= "Active",
@@ -84,6 +84,13 @@ namespace vmProjectBackend.DAL
                     semester="Fall"
                     },
 
+                new Enrollment {
+                    UserId = users.Single(s => s.email == "nar19002@byui.edu").UserID,
+                    CourseID = courses.Single(c => c.CourseName == "Cit 798").CourseID,
+                    Status= "Active",
+                    section_num= "1",
+                    semester="Winter"
+                    },
                     new Enrollment {
                     UserId = users.Single(s => s.email == "nar19002@byui.edu").UserID,
                     CourseID = courses.Single(c => c.CourseName == "Cit 798").CourseID,
@@ -91,121 +98,60 @@ namespace vmProjectBackend.DAL
                     section_num= "1",
                     semester="Winter"
                     },
+                    /****************************************************************/
 
-                //     new Enrollment {
-                //     UserId = users.Single(s => s.lastName == "Alonso").UserID,
-                //     CourseID = courses.Single(c => c.CourseName == "Cit 456").CourseID,
-                //     Status= "Active",
-                //     section_num= "2",
-                //     semester="Fall"
-                //     },
-
-                //     new Enrollment {
-                //     UserId = users.Single(s => s.lastName == "Justice").UserID,
-                //     CourseID = courses.Single(c => c.CourseName == "Cit 798").CourseID,
-                //     Status= "Active",
-                //     section_num= "2",
-                //     semester="Fall"
-                //     },
-
-                //     new Enrollment {
-                //     UserId = users.Single(s => s.lastName == "Alexander").UserID,
-                //     CourseID = courses.Single(c => c.CourseName == "Cit 101").CourseID,
-                //     Status= "Active",
-                //     section_num= "1",
-                //     semester="Fall"
-                //     },
-
-                //     new Enrollment {
-                //     UserId = users.Single(s => s.lastName == "Anand").UserID,
-                //     CourseID = courses.Single(c => c.CourseName == "Cit 101").CourseID,
-                //     Status= "Active",
-                //     section_num= "3",
-                //     semester="Fall"
-                //     },
-                //     new Enrollment {
-                //     UserId = users.Single(s => s.lastName == "Narine").UserID,
-                //     CourseID = courses.Single(c => c.CourseName == "Cit 101").CourseID,
-                //     Status= "Active",
-                //     section_num= "3",
-                //     semester="Fall"
-                //     },
-
-                //     new Enrollment {
-                //     UserId = users.Single(s => s.lastName == "Nolasco").UserID,
+                    new Enrollment {
+                    UserId = users.FirstOrDefault(s => s.email == "carson@gmail.com").UserID,
+                    CourseID = courses.FirstOrDefault(c => c.CourseName == "Cit 798").CourseID,
+                    Status= "Active",
+                    section_num= "1",
+                    semester="Winter"
+                    },
+                    // new Enrollment {
+                    // UserId = users.Single(s => s.email == "carson@gmail.com").UserID,
+                    // CourseID = courses.Single(c => c.CourseName == "Cit 456").CourseID,
+                    // Status= "Active",
+                    // section_num= "2",
+                    // semester="Fall"
+                    // },
+                // new Enrollment {
+                //     UserId = users.Single(s => s.email == "tnolasco54@gmail.com").UserID,
                 //     CourseID = courses.Single(c => c.CourseName == "Cit 456").CourseID,
                 //     Status= "Active",
                 //     section_num= "1",
-                //     semester="Fall"
+                //     semester="Winter"
                 //     },
 
+
                 //     new Enrollment {
-                //     UserId = users.Single(s => s.lastName == "Alexander").UserID,
+                //     UserId = users.Single(s => s.email == "carson@gmail.com").UserID,
                 //     CourseID = courses.Single(c => c.CourseName == "Cit 798").CourseID,
-                //     Status= "Active",
-                //     section_num= "3",
-                //     semester="Fall"
-                //     },
-
-                //     new Enrollment {
-                //     UserId = users.Single(s => s.lastName == "Alonso").UserID,
-                //     CourseID = courses.Single(c => c.CourseName == "Cit 456").CourseID,
                 //     Status= "Active",
                 //     section_num= "2",
                 //     semester="Fall"
                 //     },
 
                 //     new Enrollment {
-                //     UserId = users.Single(s => s.lastName == "Justice").UserID,
+                //     UserId = users.Single(s => s.email == "tnolasco54@gmail.com").UserID,
                 //     CourseID = courses.Single(c => c.CourseName == "Cit 798").CourseID,
                 //     Status= "Active",
-                //     section_num= "5",
-                //     semester="Fall"
-                //     },
-
-                //     new Enrollment {
-                //     UserId = users.Single(s => s.lastName == "Alexander").UserID,
-                //     CourseID = courses.Single(c => c.CourseName == "Cit 101").CourseID,
-                //     Status= "Active",
-                //     section_num= "5",
-                //     semester="Fall"
-                //     },
-
-                //     new Enrollment {
-                //     UserId = users.Single(s => s.lastName == "Nolasco").UserID,
-                //     CourseID = courses.Single(c => c.CourseName == "Cit 101").CourseID,
-                //     Status= "Active",
-                //     section_num= "4",
-                //     semester="Fall"
-                //     },
-                //     new Enrollment {
-                //     UserId = users.Single(s => s.lastName == "Narine").UserID,
-                //     CourseID = courses.Single(c => c.CourseName == "Cit 798").CourseID,
-                //     Status= "Active",
-                //     section_num= "5",
-                //     semester="Fall"
-                //     },
-
-                //     new Enrollment {
-                //     UserId = users.Single(s => s.lastName == "Narine").UserID,
-                //     CourseID = courses.Single(c => c.CourseName == "Cit 101").CourseID,
-                //     Status= "Active",
-                //     section_num= "5",
-                //     semester="Fall"
+                //     section_num= "1",
+                //     semester="Winter"
                 //     }
 
-                    // new Enrollment {
-                    // UserId = users.Single(s => s.lastName == "Narine").UserID,
-                    // CourseID = courses.Single(c => c.CourseName == "Cit 101").CourseID,
-                    // Status= "Active",
-                    // section_num= "4",
-                    // semester="Fall"
-                    // }
-            };
 
+            };
             foreach (Enrollment e in enrollments)
             {
-                context.Enrollments.Add(e);
+                var enrollmentDataBase = context.Enrollments.Where(
+                    s =>
+                    s.User.UserID == e.UserId &&
+                    s.Course.CourseID == e.CourseID).SingleOrDefault();
+                if (enrollmentDataBase == null)
+                {
+                    context.Enrollments.Add(e);
+                }
+
             }
             context.SaveChanges();
 

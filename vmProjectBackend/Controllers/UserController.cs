@@ -32,7 +32,16 @@ namespace vmProjectBackend.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
-            return await _context.Users.ToListAsync();
+            string user_email = HttpContext.User.Identity.Name;
+            var auth_user = _context.Users
+                            .Where(p => p.email == user_email)
+                            .FirstOrDefault();
+            if (auth_user != null)
+            {
+                return await _context.Users.ToListAsync();
+            }
+            return Unauthorized();
+
         }
 
         // GET: api/User/5
