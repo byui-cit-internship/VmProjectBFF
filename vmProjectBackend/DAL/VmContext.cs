@@ -24,7 +24,7 @@ namespace vmProjectBackend.DAL
         public DbSet<VmTable> VmTables { get; set; }
 
         public DbSet<Token> Tokens { get; set; }
-        public DbSet<VmTableCourse> VmTableCourse { get; set; }
+        // public DbSet<VmTableCourse> VmTableCourse { get; set; }
         public object Configuration { get; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -34,7 +34,7 @@ namespace vmProjectBackend.DAL
             modelBuilder.Entity<User>().ToTable("Users");
             modelBuilder.Entity<Token>().ToTable("Token");
             modelBuilder.Entity<VmTable>().ToTable("VmTable");
-            modelBuilder.Entity<VmTableCourse>().ToTable("VmTableCourse");
+            // modelBuilder.Entity<VmTableCourse>().ToTable("VmTableCourse");
         }
 
     }

@@ -10,6 +10,7 @@ To do an actual miration to create a database from exiting models:
 1. dotnet ef migrations add InitialCreate
 2. dotnet ef database update
 
+dotnet aspnet-codegenerator controller -name TodoItemsController -async -api -m TodoItem -dc TodoContext -outDir Controllers
 
 update datbase by adding a column to a table:
 1. dotnet ef migrations add usercolumn

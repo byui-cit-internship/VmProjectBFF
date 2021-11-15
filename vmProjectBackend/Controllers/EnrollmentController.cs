@@ -11,7 +11,7 @@ using vmProjectBackend.Models;
 
 namespace vmProjectBackend.Controllers
 {
-    [Authorize]
+    // [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class EnrollmentController : ControllerBase
@@ -23,6 +23,8 @@ namespace vmProjectBackend.Controllers
             _context = context;
         }
 
+
+        /*********************Teacher getting theor course**************************************************/
         // GET: api/Enrollment
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Enrollment>>> GetEnrollments()
@@ -41,6 +43,34 @@ namespace vmProjectBackend.Controllers
             return Unauthorized("You are not Authorized");
 
         }
+        /*********************Teacher getting theor course**************************************************/
+
+        //Get : api/enrollment/usertype
+        [HttpGet("usertype/{usertype}")]
+        public async Task<ActionResult<Enrollment>> GetUsertypeEnrollment(string usertype)
+        {
+            string user_email = HttpContext.User.Identity.Name;
+            Console.WriteLine("here 1");
+            var auth_user = _context.Users
+                            .Where(p => p.email == user_email)
+                            .FirstOrDefault();
+            Console.WriteLine("here 2");
+            if (auth_user != null)
+            {
+                Console.WriteLine("here 3");
+                var listOfEnrollments = await _context.Enrollments
+                            .Include(c => c.Course)
+                            .Include(u => u.User)
+                            .Where(user => user.User.userType == usertype)
+                            .ToListAsync();
+                Console.WriteLine("here 1");
+                return Ok(listOfEnrollments);
+
+            }
+            return Unauthorized();
+        }
+
+        /*********************Teacher getting theor course**************************************************/
         // GET: api/Enrollment/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Enrollment>> GetEnrollment(long id)
@@ -49,7 +79,6 @@ namespace vmProjectBackend.Controllers
             var user_prof = _context.Users
                             .Where(p => p.email == useremail && p.userType == "Professor")
                             .FirstOrDefault();
-
             if (user_prof != null)
             {
                 var enrollment = await _context.Enrollments.FindAsync(id);
@@ -62,8 +91,11 @@ namespace vmProjectBackend.Controllers
             return Unauthorized("You are not Authorized");
         }
 
+        /*********************Teacher getting theor course**************************************************/
+
         // PUT: api/Enrollment/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // 
         [HttpPut("{id}")]
         public async Task<IActionResult> PutEnrollment(long id, Enrollment enrollment)
         {
@@ -98,6 +130,8 @@ namespace vmProjectBackend.Controllers
             return Unauthorized("You are not Authorized");
         }
 
+
+        /*********************Teacher getting theor course**************************************************/
         // POST: api/Enrollment
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
@@ -109,6 +143,10 @@ namespace vmProjectBackend.Controllers
             return CreatedAtAction("GetEnrollment", new { id = enrollment.EnrollmentID }, enrollment);
         }
 
+
+        /*********************Teacher getting theor course**************************************************/
+
+        
         // DELETE: api/Enrollment/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteEnrollment(long id)

@@ -9,6 +9,7 @@ namespace vmProjectBackend.Models
     {
         [Key]
         public long UserID { get; set; }
+        
         [Required]
         [StringLength(50)]
         public string firstName { get; set; }

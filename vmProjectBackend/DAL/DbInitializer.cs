@@ -18,7 +18,7 @@ namespace vmProjectBackend.DAL
             var users = new User[]
             {
                 new User { firstName = "Carson",   lastName = "Alexander",
-                    email="carson@gmail.com", userType="Student", userAccess= false},
+                    email="cristinacardenasmelgar@gmail.com", userType="Student", userAccess= false},
                 new User { firstName = "Leon",   lastName = "Narine",
                     email="leonarine@gmail.com", userType="Professor", userAccess= false},
                 new User { firstName = "Tammy",   lastName = "Nolasco",
@@ -26,13 +26,14 @@ namespace vmProjectBackend.DAL
                 new User { firstName = "Meredith",   lastName = "Alonso",
                     email="Alonso@gmail.com", userType="Student", userAccess= false},
                 new User { firstName = "Arturo",   lastName = "Anand",
-                    email="carson@gmail.com", userType="Professor", userAccess= false},
+                    email="anand@gmail.com", userType="Student", userAccess= false},
                 new User { firstName = "Gytis",   lastName = "Barzdukas",
-                    email="Barzdukas@gmail.com", userType="Professor", userAccess= false},
+                    email="Barzdukas@gmail.com", userType="Student", userAccess= false},
                 new User { firstName = "Peggy",   lastName = "Justice",
                     email="Justice@gmail.com", userType="Student", userAccess= false},
                 new User { firstName = "Lakeram",   lastName = "Narine",
-                    email="nar19002@byui.edu", userType="Student", userAccess= false},
+                    email="nar19002@byui.edu", userType="Student", userAccess= false}
+                
 
             };
 
@@ -60,86 +61,226 @@ namespace vmProjectBackend.DAL
 
             var enrollments = new Enrollment[]
             {
+                /************************teacher********************/
+                new Enrollment {
+                    UserId = users.Single(s => s.email == "leonarine@gmail.com").UserID,
+                    CourseID = courses.Single(c => c.CourseName == "Cit 101").CourseID,
+                    Status= "Active",
+                    section_num= "1",
+                    semester="Fall",
+                    teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID
+                    },
+                new Enrollment {
+                    UserId = users.Single(s => s.email == "leonarine@gmail.com").UserID,
+                    CourseID = courses.Single(c => c.CourseName == "Cit 798").CourseID,
+                    Status= "Active",
+                    section_num= "1",
+                    semester="Fall",
+                    teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID
+                    },
+                new Enrollment {
+                    UserId = users.Single(s => s.email == "leonarine@gmail.com").UserID,
+                    CourseID = courses.Single(c => c.CourseName == "Cit 456").CourseID,
+                    Status= "Active",
+                    section_num= "1",
+                    semester="Fall",
+                    teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID
+                    },
                 new Enrollment {
                     UserId = users.Single(s => s.email == "leonarine@gmail.com").UserID,
                     CourseID = courses.Single(c => c.CourseName == "Cit 456").CourseID,
                     Status= "Active",
                     section_num= "2",
-                    semester="Fall"
+                    semester="Fall",
+                    teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID
                     },
+                /*************************/
+                            new Enrollment {
+                            UserId = users.FirstOrDefault(s => s.email == "cristinacardenasmelgar@gmail.com").UserID,
+                            CourseID = courses.FirstOrDefault(c => c.CourseName == "Cit 101").CourseID,
+                            Status= "Active",
+                            section_num= "1",
+                            semester="Winter",
+                            teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID
+                            },
+                            new Enrollment {
+                            UserId = users.FirstOrDefault(s => s.email == "tnolasco54@gmail.com").UserID,
+                            CourseID = courses.FirstOrDefault(c => c.CourseName == "Cit 101").CourseID,
+                            Status= "Active",
+                            section_num= "1",
+                            semester="Winter",
+                            teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID
+                            },
 
+                /************************teacher********************/
                 new Enrollment {
                     UserId = users.Single(s => s.email == "leonarine@gmail.com").UserID,
                     CourseID = courses.Single(c => c.CourseName == "Cit 456").CourseID,
                     Status= "Active",
-                    section_num= "1",
-                    semester="Winter"
-                    },
-
-                new Enrollment {
-                    UserId = users.Single(s => s.email == "nar19002@byui.edu").UserID,
-                    CourseID = courses.Single(c => c.CourseName == "Cit 798").CourseID,
-                    Status= "Active",
                     section_num= "2",
-                    semester="Fall"
+                    semester="Fall",
+                    teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID
                     },
+                /*************************/
+                            new Enrollment {
+                            UserId = users.FirstOrDefault(s => s.email == "anand@gmail.com").UserID,
+                            CourseID = courses.FirstOrDefault(c => c.CourseName == "Cit 456").CourseID,
+                            Status= "Active",
+                            section_num= "2",
+                            semester="Fall",
+                            teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID
+                            },
+                            new Enrollment {
+                            UserId = users.FirstOrDefault(s => s.email == "Barzdukas@gmail.com").UserID,
+                            CourseID = courses.FirstOrDefault(c => c.CourseName == "Cit 456").CourseID,
+                            Status= "Active",
+                            section_num= "2",
+                            semester="Fall",
+                            teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID
+                            },
 
+                /************************teacher********************/
                 new Enrollment {
-                    UserId = users.Single(s => s.email == "nar19002@byui.edu").UserID,
-                    CourseID = courses.Single(c => c.CourseName == "Cit 798").CourseID,
-                    Status= "Active",
-                    section_num= "1",
-                    semester="Winter"
-                    },
-                    new Enrollment {
-                    UserId = users.Single(s => s.email == "nar19002@byui.edu").UserID,
-                    CourseID = courses.Single(c => c.CourseName == "Cit 798").CourseID,
-                    Status= "Active",
-                    section_num= "1",
-                    semester="Winter"
-                    },
+                UserId = users.Single(s => s.email == "leonarine@gmail.com").UserID,
+                CourseID = courses.Single(c => c.CourseName == "Cit 798").CourseID,
+                Status= "Active",
+                section_num= "2",
+                semester="Fall",
+                teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID
+                },
+                /*************************/
+                            new Enrollment {
+                            UserId = users.FirstOrDefault(s => s.email == "anand@gmail.com").UserID,
+                            CourseID = courses.FirstOrDefault(c => c.CourseName == "Cit 798").CourseID,
+                            Status= "Active",
+                            section_num= "2",
+                            semester="Fall",
+                            teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID
+                            },
+                            new Enrollment {
+                            UserId = users.FirstOrDefault(s => s.email == "Barzdukas@gmail.com").UserID,
+                            CourseID = courses.FirstOrDefault(c => c.CourseName == "Cit 798").CourseID,
+                            Status= "Active",
+                            section_num= "2",
+                            semester="Fall",
+                            teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID
+                            },
+
+
+                /************************teacher********************/
+                new Enrollment {
+                UserId = users.Single(s => s.email == "leonarine@gmail.com").UserID,
+                CourseID = courses.Single(c => c.CourseName == "Cit 456").CourseID,
+                Status= "Active",
+                section_num= "1",
+                semester="Winter",
+                teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID
+                },
+                /*************************/
+                            new Enrollment {
+                            UserId = users.FirstOrDefault(s => s.email == "anand@gmail.com").UserID,
+                            CourseID = courses.FirstOrDefault(c => c.CourseName == "Cit 456").CourseID,
+                            Status= "Active",
+                            section_num= "1",
+                            semester="Winter",
+                            teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID
+                            },
+                            new Enrollment {
+                            UserId = users.FirstOrDefault(s => s.email == "Barzdukas@gmail.com").UserID,
+                            CourseID = courses.FirstOrDefault(c => c.CourseName == "Cit 456").CourseID,
+                            Status= "Active",
+                            section_num= "1",
+                            semester="Winter",
+                            teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID
+                            },
+
+
+
+                /************************teacher********************/
+                new Enrollment {
+                UserId = users.Single(s => s.email == "nar19002@byui.edu").UserID,
+                CourseID = courses.Single(c => c.CourseName == "Cit 798").CourseID,
+                Status= "Active",
+                section_num= "2",
+                semester = "Fall",
+                teacherId = users.FirstOrDefault(s => s.email == "nar19002@byui.edu").UserID
+                },
+                /*************************/
+                        new Enrollment {
+                        UserId = users.Single(s => s.email == "Alonso@gmail.com").UserID,
+                        CourseID = courses.Single(c => c.CourseName == "Cit 798").CourseID,
+                        Status= "Active",
+                        section_num= "2",
+                        semester = "Fall",
+                        teacherId = users.FirstOrDefault(s => s.email == "nar19002@byui.edu").UserID
+                        },
+                        new Enrollment {
+                        UserId = users.Single(s => s.email == "Barzdukas@gmail.com").UserID,
+                        CourseID = courses.Single(c => c.CourseName == "Cit 798").CourseID,
+                        Status= "Active",
+                        section_num= "2",
+                        semester = "Fall",
+                        teacherId = users.FirstOrDefault(s => s.email == "nar19002@byui.edu").UserID
+                        },
+
+                /************************teacher********************/
+                new Enrollment {
+                UserId = users.Single(s => s.email == "nar19002@byui.edu").UserID,
+                CourseID = courses.Single(c => c.CourseName == "Cit 101").CourseID,
+                Status= "Active",
+                section_num= "1",
+                semester="Winter",
+                teacherId = users.FirstOrDefault(s => s.email == "nar19002@byui.edu").UserID
+                },
+                /*************************/
+                        new Enrollment {
+                        UserId = users.Single(s => s.email == "Justice@gmail.com").UserID,
+                        CourseID = courses.Single(c => c.CourseName == "Cit 101").CourseID,
+                        Status= "Active",
+                        section_num= "1",
+                        semester="Winter",
+                        teacherId = users.FirstOrDefault(s => s.email == "nar19002@byui.edu").UserID
+                        },
+                        new Enrollment {
+                        UserId = users.Single(s => s.email == "anand@gmail.com").UserID,
+                        CourseID = courses.Single(c => c.CourseName == "Cit 101").CourseID,
+                        Status= "Active",
+                        section_num= "1",
+                        semester="Winter",
+                        teacherId = users.FirstOrDefault(s => s.email == "nar19002@byui.edu").UserID
+                        },
+
+
+
+                /************************teacher********************/
+                new Enrollment {
+                UserId = users.Single(s => s.email == "nar19002@byui.edu").UserID,
+                CourseID = courses.Single(c => c.CourseName == "Cit 456").CourseID,
+                Status= "Active",
+                section_num= "1",
+                semester="Winter",
+                teacherId = users.FirstOrDefault(s => s.email == "nar19002@byui.edu").UserID
+                },
+                /*************************/
+                            new Enrollment {
+                            UserId = users.Single(s => s.email == "tnolasco54@gmail.com").UserID,
+                            CourseID = courses.Single(c => c.CourseName == "Cit 456").CourseID,
+                            Status= "Active",
+                            section_num= "1",
+                            semester="Winter",
+                            teacherId = users.FirstOrDefault(s => s.email == "nar19002@byui.edu").UserID
+                            },
+                            new Enrollment {
+                            UserId = users.Single(s => s.email == "cristinacardenasmelgar@gmail.com").UserID,
+                            CourseID = courses.Single(c => c.CourseName == "Cit 456").CourseID,
+                            Status= "Active",
+                            section_num= "1",
+                            semester="Winter",
+                            teacherId = users.FirstOrDefault(s => s.email == "nar19002@byui.edu").UserID
+                            },
+
+
                     /****************************************************************/
-
-                    new Enrollment {
-                    UserId = users.FirstOrDefault(s => s.email == "carson@gmail.com").UserID,
-                    CourseID = courses.FirstOrDefault(c => c.CourseName == "Cit 798").CourseID,
-                    Status= "Active",
-                    section_num= "1",
-                    semester="Winter"
-                    },
-                    // new Enrollment {
-                    // UserId = users.Single(s => s.email == "carson@gmail.com").UserID,
-                    // CourseID = courses.Single(c => c.CourseName == "Cit 456").CourseID,
-                    // Status= "Active",
-                    // section_num= "2",
-                    // semester="Fall"
-                    // },
-                // new Enrollment {
-                //     UserId = users.Single(s => s.email == "tnolasco54@gmail.com").UserID,
-                //     CourseID = courses.Single(c => c.CourseName == "Cit 456").CourseID,
-                //     Status= "Active",
-                //     section_num= "1",
-                //     semester="Winter"
-                //     },
-
-
-                //     new Enrollment {
-                //     UserId = users.Single(s => s.email == "carson@gmail.com").UserID,
-                //     CourseID = courses.Single(c => c.CourseName == "Cit 798").CourseID,
-                //     Status= "Active",
-                //     section_num= "2",
-                //     semester="Fall"
-                //     },
-
-                //     new Enrollment {
-                //     UserId = users.Single(s => s.email == "tnolasco54@gmail.com").UserID,
-                //     CourseID = courses.Single(c => c.CourseName == "Cit 798").CourseID,
-                //     Status= "Active",
-                //     section_num= "1",
-                //     semester="Winter"
-                //     }
-
-
             };
             foreach (Enrollment e in enrollments)
             {
