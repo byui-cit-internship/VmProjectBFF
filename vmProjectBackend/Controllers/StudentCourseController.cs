@@ -25,26 +25,53 @@ namespace vmProjectBackend.Controllers
             _context = context;
         }
 
+        //Student get to see all their classes that they are enrolled in
         // GET: api/StudentCourse
         [HttpGet()]
         public async Task<ActionResult<IEnumerable<Course>>> GetCourses()
         {
             string useremail = HttpContext.User.Identity.Name;
-            // check if it is a professor
+            // check if it is a Student
             var user_student = _context.Users
                             .Where(p => p.email == useremail && p.userType == "Student")
                             .FirstOrDefault();
             if (user_student != null)
             {
+                // give the enrollment, user and vmtable data  
                 var listOfCourse = _context.Enrollments
                                     .Include(c => c.Course)
-                                    // .Include(vm => vm.VmTable)
+                                    .Include(vm => vm.VmTable)
                                     .Where(s => s.UserId == user_student.UserID);
+
                 return Ok(listOfCourse);
             }
             return Unauthorized("You are not an Authorized User");
 
 
+        }
+
+        // Student get to see a specific class that they are enrolled in for a specific semester
+        [HttpGet("specificcourse/{course_id}/{course_semester}/{sectionNum}")]
+        public async Task<ActionResult<Course>> GetSpecificCourse(long course_id, string course_semester, string sectionNum)
+        {
+            string useremail = HttpContext.User.Identity.Name;
+            // check if it is a Student
+            var user_student = _context.Users
+                            .Where(p => p.email == useremail && p.userType == "Student")
+                            .FirstOrDefault();
+
+            if (user_student != null)
+            {
+                var specificcourse = _context.Enrollments
+                                    .Include(c => c.Course)
+                                    .Include(vm => vm.VmTable)
+                                    .Where(sp => sp.UserId == user_student.UserID
+                                                && sp.CourseID == course_id
+                                                && sp.semester == course_semester
+                                                && sp.section_num == sectionNum);
+                return Ok(specificcourse);
+            }
+            return Unauthorized("You are not Authorized User");
         }
 
         // // GET: api/StudentCourse/5

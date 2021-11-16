@@ -33,7 +33,7 @@ namespace vmProjectBackend.DAL
                     email="Justice@gmail.com", userType="Student", userAccess= false},
                 new User { firstName = "Lakeram",   lastName = "Narine",
                     email="nar19002@byui.edu", userType="Student", userAccess= false}
-                
+
 
             };
 
@@ -57,6 +57,21 @@ namespace vmProjectBackend.DAL
             }
             context.SaveChanges();
 
+            // create vm tables with data 
+            var vmtables = new VmTable[]
+            {
+                new VmTable{vm_image="windows 10 gb"},
+                new VmTable{vm_image="Linux 10 gb"},
+                new VmTable{vm_image="windows 5gb"},
+
+            };
+
+            foreach (VmTable v in vmtables)
+            {
+                context.VmTables.Add(v);
+            }
+            context.SaveChanges();
+
             // create the enrollment based on 
 
             var enrollments = new Enrollment[]
@@ -68,7 +83,8 @@ namespace vmProjectBackend.DAL
                     Status= "Active",
                     section_num= "1",
                     semester="Fall",
-                    teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID
+                    teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID,
+                    VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
                     },
                 new Enrollment {
                     UserId = users.Single(s => s.email == "leonarine@gmail.com").UserID,
@@ -76,7 +92,8 @@ namespace vmProjectBackend.DAL
                     Status= "Active",
                     section_num= "1",
                     semester="Fall",
-                    teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID
+                    teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID,
+                    VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
                     },
                 new Enrollment {
                     UserId = users.Single(s => s.email == "leonarine@gmail.com").UserID,
@@ -84,7 +101,8 @@ namespace vmProjectBackend.DAL
                     Status= "Active",
                     section_num= "1",
                     semester="Fall",
-                    teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID
+                    teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID,
+                    VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
                     },
                 new Enrollment {
                     UserId = users.Single(s => s.email == "leonarine@gmail.com").UserID,
@@ -92,7 +110,8 @@ namespace vmProjectBackend.DAL
                     Status= "Active",
                     section_num= "2",
                     semester="Fall",
-                    teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID
+                    teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID,
+                    VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
                     },
                 /*************************/
                             new Enrollment {
@@ -101,7 +120,8 @@ namespace vmProjectBackend.DAL
                             Status= "Active",
                             section_num= "1",
                             semester="Winter",
-                            teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID
+                            teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID,
+                            VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
                             },
                             new Enrollment {
                             UserId = users.FirstOrDefault(s => s.email == "tnolasco54@gmail.com").UserID,
@@ -109,7 +129,8 @@ namespace vmProjectBackend.DAL
                             Status= "Active",
                             section_num= "1",
                             semester="Winter",
-                            teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID
+                            teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID,
+                            VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
                             },
 
                 /************************teacher********************/
@@ -119,7 +140,8 @@ namespace vmProjectBackend.DAL
                     Status= "Active",
                     section_num= "2",
                     semester="Fall",
-                    teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID
+                    teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID,
+                    VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
                     },
                 /*************************/
                             new Enrollment {
@@ -128,7 +150,8 @@ namespace vmProjectBackend.DAL
                             Status= "Active",
                             section_num= "2",
                             semester="Fall",
-                            teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID
+                            teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID,
+                            VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
                             },
                             new Enrollment {
                             UserId = users.FirstOrDefault(s => s.email == "Barzdukas@gmail.com").UserID,
@@ -136,7 +159,8 @@ namespace vmProjectBackend.DAL
                             Status= "Active",
                             section_num= "2",
                             semester="Fall",
-                            teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID
+                            teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID,
+                            VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
                             },
 
                 /************************teacher********************/
@@ -146,7 +170,8 @@ namespace vmProjectBackend.DAL
                 Status= "Active",
                 section_num= "2",
                 semester="Fall",
-                teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID
+                teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID,
+                VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
                 },
                 /*************************/
                             new Enrollment {
@@ -155,15 +180,18 @@ namespace vmProjectBackend.DAL
                             Status= "Active",
                             section_num= "2",
                             semester="Fall",
-                            teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID
+                            teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID,
+                            VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
                             },
+
                             new Enrollment {
                             UserId = users.FirstOrDefault(s => s.email == "Barzdukas@gmail.com").UserID,
                             CourseID = courses.FirstOrDefault(c => c.CourseName == "Cit 798").CourseID,
                             Status= "Active",
                             section_num= "2",
                             semester="Fall",
-                            teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID
+                            teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID,
+                            VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
                             },
 
 
@@ -174,7 +202,8 @@ namespace vmProjectBackend.DAL
                 Status= "Active",
                 section_num= "1",
                 semester="Winter",
-                teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID
+                teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID,
+                VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
                 },
                 /*************************/
                             new Enrollment {
@@ -183,7 +212,8 @@ namespace vmProjectBackend.DAL
                             Status= "Active",
                             section_num= "1",
                             semester="Winter",
-                            teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID
+                            teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID,
+                            VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
                             },
                             new Enrollment {
                             UserId = users.FirstOrDefault(s => s.email == "Barzdukas@gmail.com").UserID,
@@ -191,7 +221,8 @@ namespace vmProjectBackend.DAL
                             Status= "Active",
                             section_num= "1",
                             semester="Winter",
-                            teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID
+                            teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID,
+                            VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
                             },
 
 
@@ -203,7 +234,8 @@ namespace vmProjectBackend.DAL
                 Status= "Active",
                 section_num= "2",
                 semester = "Fall",
-                teacherId = users.FirstOrDefault(s => s.email == "nar19002@byui.edu").UserID
+                teacherId = users.FirstOrDefault(s => s.email == "nar19002@byui.edu").UserID,
+                VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
                 },
                 /*************************/
                         new Enrollment {
@@ -212,7 +244,8 @@ namespace vmProjectBackend.DAL
                         Status= "Active",
                         section_num= "2",
                         semester = "Fall",
-                        teacherId = users.FirstOrDefault(s => s.email == "nar19002@byui.edu").UserID
+                        teacherId = users.FirstOrDefault(s => s.email == "nar19002@byui.edu").UserID,
+                        VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
                         },
                         new Enrollment {
                         UserId = users.Single(s => s.email == "Barzdukas@gmail.com").UserID,
@@ -220,7 +253,8 @@ namespace vmProjectBackend.DAL
                         Status= "Active",
                         section_num= "2",
                         semester = "Fall",
-                        teacherId = users.FirstOrDefault(s => s.email == "nar19002@byui.edu").UserID
+                        teacherId = users.FirstOrDefault(s => s.email == "nar19002@byui.edu").UserID,
+                        VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
                         },
 
                 /************************teacher********************/
@@ -230,7 +264,8 @@ namespace vmProjectBackend.DAL
                 Status= "Active",
                 section_num= "1",
                 semester="Winter",
-                teacherId = users.FirstOrDefault(s => s.email == "nar19002@byui.edu").UserID
+                teacherId = users.FirstOrDefault(s => s.email == "nar19002@byui.edu").UserID,
+                VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
                 },
                 /*************************/
                         new Enrollment {
@@ -239,7 +274,8 @@ namespace vmProjectBackend.DAL
                         Status= "Active",
                         section_num= "1",
                         semester="Winter",
-                        teacherId = users.FirstOrDefault(s => s.email == "nar19002@byui.edu").UserID
+                        teacherId = users.FirstOrDefault(s => s.email == "nar19002@byui.edu").UserID,
+                        VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
                         },
                         new Enrollment {
                         UserId = users.Single(s => s.email == "anand@gmail.com").UserID,
@@ -247,7 +283,8 @@ namespace vmProjectBackend.DAL
                         Status= "Active",
                         section_num= "1",
                         semester="Winter",
-                        teacherId = users.FirstOrDefault(s => s.email == "nar19002@byui.edu").UserID
+                        teacherId = users.FirstOrDefault(s => s.email == "nar19002@byui.edu").UserID,
+                        VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
                         },
 
 
@@ -259,7 +296,8 @@ namespace vmProjectBackend.DAL
                 Status= "Active",
                 section_num= "1",
                 semester="Winter",
-                teacherId = users.FirstOrDefault(s => s.email == "nar19002@byui.edu").UserID
+                teacherId = users.FirstOrDefault(s => s.email == "nar19002@byui.edu").UserID,
+                VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
                 },
                 /*************************/
                             new Enrollment {
@@ -268,7 +306,8 @@ namespace vmProjectBackend.DAL
                             Status= "Active",
                             section_num= "1",
                             semester="Winter",
-                            teacherId = users.FirstOrDefault(s => s.email == "nar19002@byui.edu").UserID
+                            teacherId = users.FirstOrDefault(s => s.email == "nar19002@byui.edu").UserID,
+                            VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
                             },
                             new Enrollment {
                             UserId = users.Single(s => s.email == "cristinacardenasmelgar@gmail.com").UserID,
@@ -276,7 +315,8 @@ namespace vmProjectBackend.DAL
                             Status= "Active",
                             section_num= "1",
                             semester="Winter",
-                            teacherId = users.FirstOrDefault(s => s.email == "nar19002@byui.edu").UserID
+                            teacherId = users.FirstOrDefault(s => s.email == "nar19002@byui.edu").UserID,
+                            VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
                             },
 
 
@@ -296,20 +336,7 @@ namespace vmProjectBackend.DAL
             }
             context.SaveChanges();
 
-            // create vm tables with data 
-            var vmtables = new VmTable[]
-            {
-                new VmTable{vm_image="windows 10 gb"},
-                new VmTable{vm_image="Linux 10 gb"},
-                new VmTable{vm_image="windows 5gb"},
 
-            };
-
-            foreach (VmTable v in vmtables)
-            {
-                context.VmTables.Add(v);
-            }
-            context.SaveChanges();
 
             // create the link on the vm and cousres table
 

@@ -56,9 +56,7 @@ namespace vmProjectBackend.Migrations
                 {
                     VmTableID = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    vm_image = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CourseID = table.Column<int>(type: "int", nullable: false),
-                    section_num = table.Column<int>(type: "int", nullable: false)
+                    vm_image = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -73,6 +71,8 @@ namespace vmProjectBackend.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CourseID = table.Column<long>(type: "bigint", nullable: false),
                     UserId = table.Column<long>(type: "bigint", nullable: false),
+                    teacherId = table.Column<long>(type: "bigint", nullable: false),
+                    VmTableID = table.Column<long>(type: "bigint", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     section_num = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     semester = table.Column<string>(type: "nvarchar(max)", nullable: true)
@@ -92,28 +92,8 @@ namespace vmProjectBackend.Migrations
                         principalTable: "Users",
                         principalColumn: "UserID",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "VmTableCourse",
-                columns: table => new
-                {
-                    VmTableCourseID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    CourseID = table.Column<long>(type: "bigint", nullable: false),
-                    VmTableID = table.Column<long>(type: "bigint", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_VmTableCourse", x => x.VmTableCourseID);
                     table.ForeignKey(
-                        name: "FK_VmTableCourse_Course_CourseID",
-                        column: x => x.CourseID,
-                        principalTable: "Course",
-                        principalColumn: "CourseID",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_VmTableCourse_VmTable_VmTableID",
+                        name: "FK_Enrollment_VmTable_VmTableID",
                         column: x => x.VmTableID,
                         principalTable: "VmTable",
                         principalColumn: "VmTableID",
@@ -131,13 +111,8 @@ namespace vmProjectBackend.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_VmTableCourse_CourseID",
-                table: "VmTableCourse",
-                column: "CourseID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_VmTableCourse_VmTableID",
-                table: "VmTableCourse",
+                name: "IX_Enrollment_VmTableID",
+                table: "Enrollment",
                 column: "VmTableID");
         }
 
@@ -150,13 +125,10 @@ namespace vmProjectBackend.Migrations
                 name: "Token");
 
             migrationBuilder.DropTable(
-                name: "VmTableCourse");
+                name: "Course");
 
             migrationBuilder.DropTable(
                 name: "Users");
-
-            migrationBuilder.DropTable(
-                name: "Course");
 
             migrationBuilder.DropTable(
                 name: "VmTable");

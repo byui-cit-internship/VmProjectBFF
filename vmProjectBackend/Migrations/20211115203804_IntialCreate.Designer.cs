@@ -9,7 +9,7 @@ using vmProjectBackend.DAL;
 namespace vmProjectBackend.Migrations
 {
     [DbContext(typeof(VmContext))]
-    [Migration("20211111230237_IntialCreate")]
+    [Migration("20211115203804_IntialCreate")]
     partial class IntialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -60,17 +60,25 @@ namespace vmProjectBackend.Migrations
                     b.Property<long>("UserId")
                         .HasColumnType("bigint");
 
+                    b.Property<long>("VmTableID")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("section_num")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("semester")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<long>("teacherId")
+                        .HasColumnType("bigint");
+
                     b.HasKey("EnrollmentID");
 
                     b.HasIndex("CourseID");
 
                     b.HasIndex("UserId");
+
+                    b.HasIndex("VmTableID");
 
                     b.ToTable("Enrollment");
                 });
@@ -129,12 +137,6 @@ namespace vmProjectBackend.Migrations
                         .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("CourseID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("section_num")
-                        .HasColumnType("int");
-
                     b.Property<string>("vm_image")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -142,28 +144,6 @@ namespace vmProjectBackend.Migrations
                     b.HasKey("VmTableID");
 
                     b.ToTable("VmTable");
-                });
-
-            modelBuilder.Entity("vmProjectBackend.Models.VmTableCourse", b =>
-                {
-                    b.Property<int>("VmTableCourseID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<long>("CourseID")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("VmTableID")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("VmTableCourseID");
-
-                    b.HasIndex("CourseID");
-
-                    b.HasIndex("VmTableID");
-
-                    b.ToTable("VmTableCourse");
                 });
 
             modelBuilder.Entity("vmProjectBackend.Models.Enrollment", b =>
@@ -180,33 +160,17 @@ namespace vmProjectBackend.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Course");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("vmProjectBackend.Models.VmTableCourse", b =>
-                {
-                    b.HasOne("vmProjectBackend.Models.Course", "Course")
-                        .WithMany()
-                        .HasForeignKey("CourseID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("vmProjectBackend.Models.VmTable", "VmTable")
-                        .WithMany("VmTableCourses")
+                        .WithMany()
                         .HasForeignKey("VmTableID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Course");
 
-                    b.Navigation("VmTable");
-                });
+                    b.Navigation("User");
 
-            modelBuilder.Entity("vmProjectBackend.Models.VmTable", b =>
-                {
-                    b.Navigation("VmTableCourses");
+                    b.Navigation("VmTable");
                 });
 #pragma warning restore 612, 618
         }
