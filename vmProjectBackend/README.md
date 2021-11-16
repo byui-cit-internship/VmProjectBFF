@@ -24,6 +24,7 @@ NOTE: The project is divided into a few key parts that you will spend most of yo
       }" change developement to match which env you want to run in. Each of the appseting files contains a Connection string to a different DATABASE.
 
     - Connection string: this tells you app which database to connect to. This configuration is set up in the Startup.cs file under the ConfigureServices class.
+
 5. Startup file: this files holds all of our configuration. From the config for Database to authentication config. This files gets called in the Program.cs file to config the App during start up.
 6. Migration Folder: this contains all our mapping and all our model to database creation. This folder is generated during what is called a "dotnet migration" Read more about it at : https://docs.microsoft.com/en-us/ef/core/managing-schemas/migrations/?tabs=dotnet-core-cli
    - We run migrations when we want to generate an database. Migration helps us to generate a database through what is called Code first database. The migration takes our models goes and connect to our sql server and genrates all the column and tables. This eliminates the need to go and create the Database first.
@@ -37,7 +38,8 @@ To run migration:
 1. dotnet ef migrations add InitialCreate
 2. dotnet ef database update
 
-To scafold a new controller:(creates a new controller for you withour you having to type everything)
+NOTE:
+To scafold a new controller:(creates a new controller for you without you having to type everything):
 1. dotnet aspnet-codegenerator controller -name [Nameofmodel]Controller -async -api -m [nameofModel] -dc VmContext -outDir Controllers
 
 To Drop a database:
