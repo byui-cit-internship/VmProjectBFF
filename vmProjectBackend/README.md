@@ -1,28 +1,51 @@
-The Link below should help you  get started on your own wep-api
-
+The Link below should help you  get started on your own wep-api:
 - https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-web-api?view=aspnetcore-5.0&tabs=visual-studio-code 
 
-- to use this after clonning add the following in your command line:
-1. dotnet add package Microsoft.EntityFrameworkCore.InMemory
-2. dotnet dev-certs https --trust
+TO DO after cloning the Repository:
+1. Make sure that you have C # EXtension installed in your VS Code.
+2. The following Link can be used to get all the Enviornment set up:https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-web-api?view=aspnetcore-5.0&tabs=visual-studio-code 
 
-To do an actual miration to create a database from exiting models:
+NOTE: The project is divided into a few key parts that you will spend most of your time:
+1. Controllers: This is where all your endpoints are created. Theses are the enpoints that
+   the front end will call. We have a few key Controllers that is used
+   - CourseController: this list all the End points that the Teacher will need to grab data from the database. If you want to edit and add more endpoints for the teacher this is where you will go.
+   - StudentCourseController: This list all the endpoints for the student. Any changes and addition to endpoints that students will use should be added here.
+   - EnrollmentController: this has endpoints that will create enrollement for Both student and teachers.
+   - TokenController: This as of now Validates a given token, compares the payload with What is in the database and creates a user. NOTE: Will be replacing this soon.
+   - VmTableController: this is Reponsible to create all the VM templates.
+2. DAL Folder: This folder as of now has two files:
+   - DbInitializer: This file prepopulates the Database with Data if the Database does not have any data. If you want to change any of the data and make it appilicable to the database, yiu must first drop the Database. RUN "dotnet ef database drop" to drop the current database and then make your changes. Then RUN "dotnet ef database update" then "dotnet run". NOTE: this will delete current data in the database and replaces it with the data in this file.
+   - VmContext: This helps to map our Models into our connected database. If you add any models into the Models folder, and want that to be represented inside your Database, you will have to intialize it here. Follow the patten already outlined.
+3. Models folder: This is maps identically to what we want our tables to look like in the Database.
+   - Every variable declared with a getter and setter are going to be columns in your tabales.
+   - Some of these variables have "[key]" or "[Required]" or "[StringLength(50)]" these are database annotations that can be added to be constrains on the databes. You can look more into it with: https://docs.microsoft.com/en-us/dotnet/api/system.componentmodel.dataannotations?view=net-5.0
+4. Appsettings.json, appsetting.Development etc. These are files that helps with the config for the different environment that you will want to run your application in. To change which appsettings to use. Go into the properties folder and then the launchSettings.json and change " "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }" change developement to match which env you want to run in. Each of the appseting files contains a Connection string to a different DATABASE.
+
+    - Connection string: this tells you app which database to connect to. This configuration is set up in the Startup.cs file under the ConfigureServices class.
+5. Startup file: this files holds all of our configuration. From the config for Database to authentication config. This files gets called in the Program.cs file to config the App during start up.
+6. Migration Folder: this contains all our mapping and all our model to database creation. This folder is generated during what is called a "dotnet migration" Read more about it at : https://docs.microsoft.com/en-us/ef/core/managing-schemas/migrations/?tabs=dotnet-core-cli
+   - We run migrations when we want to generate an database. Migration helps us to generate a database through what is called Code first database. The migration takes our models goes and connect to our sql server and genrates all the column and tables. This eliminates the need to go and create the Database first.
+   - We also run mirgation when we make changes to our Models.
+   - To run your first migration, RUN "dotnet ef migrations add [nameofyourMigration- make sure that there are no space], then RUN "dotnet ef database update" to apply the changes.
+7. Handlers Folder: This folder contains a file that secures our Endpoints. It helps to add authentication to our endpoints by requiring our user to place a valid token into the Auithorization Headerwhen sending request to the backend.
+
+
+NOTE:
+To run migration:
 1. dotnet ef migrations add InitialCreate
 2. dotnet ef database update
 
-dotnet aspnet-codegenerator controller -name TodoItemsController -async -api -m TodoItem -dc TodoContext -outDir Controllers
+To scafold a new controller:(creates a new controller for you withour you having to type everything)
+1. dotnet aspnet-codegenerator controller -name [Nameofmodel]Controller -async -api -m [nameofModel] -dc VmContext -outDir Controllers
 
-update datbase by adding a column to a table:
+To Drop a database:
+1. dotnet ef database drop
+
+update database by adding a column to a table:
 1. dotnet ef migrations add usercolumn
 2. dotnet ef database update
-
-Note to Developer:
-
-1. The Launch Url is changed  to : "api/VmApi" and it is changed in the launchSettings.json if it needs to be changed in the future.
-
-
-Model class:
-A model is a set of classes that represent the data that the app manages.
 
 Below are commands to create the connected database:
 
@@ -35,7 +58,7 @@ Below are commands to create the connected database:
  $env:ASPNETCORE_ENVIRONMENT = 'Production' or any other enviornment that you want to run
  2. Run $env:ASPNETCORE_ENVIRONMENT to make sure that the environment was created
 
- 3. Make sure that you have already created the intitial create to creat ethe migration:
+ 3. Make sure that you have already created the intitial create to create the migration:
  dotnet ef migrations add <name of your mirgation>
 
  4. Now apply that miragtion to the database with:
