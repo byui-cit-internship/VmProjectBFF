@@ -38,10 +38,10 @@ namespace vmProjectBackend.Controllers
             if (user_student != null)
             {
                 // give the enrollment, user and vmtable data  
-                var listOfCourse = _context.Enrollments
+                var listOfCourse = await _context.Enrollments
                                     .Include(c => c.Course)
                                     .Include(vm => vm.VmTable)
-                                    .Where(s => s.UserId == user_student.UserID);
+                                    .Where(s => s.UserId == user_student.UserID).ToArrayAsync();
 
                 return Ok(listOfCourse);
             }
@@ -62,13 +62,14 @@ namespace vmProjectBackend.Controllers
 
             if (user_student != null)
             {
-                var specificcourse = _context.Enrollments
+                var specificcourse = await _context.Enrollments
                                     .Include(c => c.Course)
                                     .Include(vm => vm.VmTable)
                                     .Where(sp => sp.UserId == user_student.UserID
                                                 && sp.CourseID == course_id
                                                 && sp.semester == course_semester
-                                                && sp.section_num == sectionNum);
+                                                && sp.section_num == sectionNum).FirstOrDefaultAsync();
+
                 return Ok(specificcourse);
             }
             return Unauthorized("You are not Authorized User");
