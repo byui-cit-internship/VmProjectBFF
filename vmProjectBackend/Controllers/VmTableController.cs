@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +12,7 @@ using vmProjectBackend.Models;
 
 namespace vmProjectBackend.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class VmTableController : ControllerBase
@@ -26,21 +28,40 @@ namespace vmProjectBackend.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<VmTable>>> GetVmTables()
         {
-            return await _context.VmTables.ToListAsync();
+            string useremail = HttpContext.User.Identity.Name;
+            // check if it is a professor
+            var user_prof = _context.Users
+                            .Where(p => p.email == useremail && p.userType == "Professor")
+                            .FirstOrDefault();
+
+            if (user_prof != null)
+            {
+                return await _context.VmTables.ToListAsync();
+            }
+            return Unauthorized("You are not Authorized and is not a professor");
         }
 
         // GET: api/VmTable/5
         [HttpGet("{id}")]
         public async Task<ActionResult<VmTable>> GetVmTable(long id)
         {
-            var vmTable = await _context.VmTables.FindAsync(id);
-
-            if (vmTable == null)
+            string useremail = HttpContext.User.Identity.Name;
+            // check if it is a professor
+            var user_prof = _context.Users
+                            .Where(p => p.email == useremail && p.userType == "Professor")
+                            .FirstOrDefault();
+            if (user_prof != null)
             {
-                return NotFound();
-            }
+                var vmTable = await _context.VmTables.FindAsync(id);
 
-            return vmTable;
+                if (vmTable == null)
+                {
+                    return NotFound();
+                }
+
+                return vmTable;
+            }
+            return Unauthorized();
         }
 
         // PUT: api/VmTable/5
@@ -48,30 +69,41 @@ namespace vmProjectBackend.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutVmTable(long id, VmTable vmTable)
         {
-            if (id != vmTable.VmTableID)
-            {
-                return BadRequest();
-            }
+            string useremail = HttpContext.User.Identity.Name;
+            // check if it is a professor
+            var user_prof = _context.Users
+                            .Where(p => p.email == useremail && p.userType == "Professor")
+                            .FirstOrDefault();
 
-            _context.Entry(vmTable).State = EntityState.Modified;
-
-            try
+            if (user_prof != null)
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!VmTableExists(id))
+                if (id != vmTable.VmTableID)
                 {
-                    return NotFound();
+                    return BadRequest();
                 }
-                else
-                {
-                    throw;
-                }
-            }
 
-            return NoContent();
+                _context.Entry(vmTable).State = EntityState.Modified;
+
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!VmTableExists(id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return NoContent();
+            }
+            return Unauthorized();
+
+
         }
 
         // POST: api/VmTable
@@ -79,26 +111,47 @@ namespace vmProjectBackend.Controllers
         [HttpPost]
         public async Task<ActionResult<VmTable>> PostVmTable(VmTable vmTable)
         {
-            _context.VmTables.Add(vmTable);
-            await _context.SaveChangesAsync();
+            string useremail = HttpContext.User.Identity.Name;
+            // check if it is a professor
+            var user_prof = _context.Users
+                            .Where(p => p.email == useremail && p.userType == "Professor")
+                            .FirstOrDefault();
 
-            return CreatedAtAction("GetVmTable", new { id = vmTable.VmTableID }, vmTable);
+            if (user_prof != null)
+            {
+                _context.VmTables.Add(vmTable);
+                await _context.SaveChangesAsync();
+
+                return CreatedAtAction("GetVmTable", new { id = vmTable.VmTableID }, vmTable);
+            }
+            return Unauthorized();
         }
 
         // DELETE: api/VmTable/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteVmTable(long id)
         {
-            var vmTable = await _context.VmTables.FindAsync(id);
-            if (vmTable == null)
+            string useremail = HttpContext.User.Identity.Name;
+            // check if it is a professor
+            var user_prof = _context.Users
+                            .Where(p => p.email == useremail && p.userType == "Professor")
+                            .FirstOrDefault();
+
+            if (user_prof != null)
             {
-                return NotFound();
+                var vmTable = await _context.VmTables.FindAsync(id);
+                if (vmTable == null)
+                {
+                    return NotFound();
+                }
+
+                _context.VmTables.Remove(vmTable);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
             }
+            return Unauthorized();
 
-            _context.VmTables.Remove(vmTable);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
         }
         // [HttpGet("vmdetails/{id}")]
         // public async Task<IActionResult> VmDetails(int id)

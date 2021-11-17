@@ -1,3 +1,27 @@
+Project Requirement:
+1. Student have the ability to access/ request a VM through a user interface for a specific class.
+2. Professors are able to provision a VM for the class that they are assigned to.
+3. Student can only see what classes they are enrolled in.
+4. Professor can only see the Class that they are enrolled in.
+5. Professor can only change Vm status for Students that are in their own class.
+
+User Stories (Professors):
+1. Professors signs In to application (Login page)
+2. Professors sees a list of their classes 
+3. Professors is able to click one of their classes and see the Students in that class and the Vm status for that student.
+4. Professors is able to add a class for specific section and also add a Canvas token to that class on that section.
+5. Professor is able to click a button to change the status of the Vm on a specifc student.
+6. Professor is able to change the VM status of all the students in a class for a specific section.
+
+User Stories(Student):
+1. Student signs into the application (Login Page)
+2. Student sees a list of the class that they are enrolled in.
+3. Student clicks on a class and then sees their Vm and the Status of that Vm for that class
+4. Student can send a request to Professor to chnage the Status of the VM.
+
+
+
+
 The Link below should help you  get started on your own wep-api:
 - https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-web-api?view=aspnetcore-5.0&tabs=visual-studio-code 
 
@@ -75,12 +99,11 @@ Below are commands to create the connected database:
 
 
 
-
+Note:
+Connection string to SQL on docker
 "DefaultConnection": "Server=host.docker.internal;Database=VmDB;Trusted_Connection=True;"
- "DefaultConnection": "Server=host.docker.internal,1433;Database=VmDB;Trusted_Connection=True;"
+"DefaultConnection": "Server=host.docker.internal,1433;Database=VmDB;Trusted_Connection=True;"
 
 
- "Server=DESKTOP-VV1SUF4;Database=VmDB;User Id=leonarine; Password=password;"
-
+"Server=DESKTOP-VV1SUF4;Database=VmDB;User Id=leonarine; Password=password;"
 Server=host.docker.internal,1433;Database=VmDB;User Id=leonarine; Password=password
- dotnet add package FluentEmail.Smtp --version 3.0.0

@@ -32,8 +32,8 @@ namespace vmProjectBackend.Controllers
         **************************************/
 
         // GET: api/Course/1/winter
-        [HttpGet("{sectionnum}/{course_semester}")]
-        public async Task<ActionResult> Get_Courses_section_specific(string sectionnum, string course_semester)
+        [HttpGet("professor/allcourses/{course_semester}/{sectionnum}")]
+        public async Task<ActionResult> Get_Courses_section_specific(string course_semester, string sectionnum)
         {
             // grabbing the user that signed in
             string useremail = HttpContext.User.Identity.Name;
@@ -68,7 +68,7 @@ namespace vmProjectBackend.Controllers
 
         ****************************************/
         // GET: api/Course/fall
-        [HttpGet("specificsemester/{course_semester}")]
+        [HttpGet("professor/semester/{course_semester}")]
         public async Task<ActionResult> GetCourses_semester(string course_semester)
         {
             // grabbing the user that signed in
@@ -102,8 +102,8 @@ namespace vmProjectBackend.Controllers
 
         ********************************/
         // GET: api/Course/5/3/fall
-        [HttpGet("specificcourse/{id}/{section_num}/{semester}")]
-        public async Task<ActionResult<Course>> GetCourse(long id, string section_num, string semester)
+        [HttpGet("professor/course/{course_Id}/{semester}/{sectionnum}")]
+        public async Task<ActionResult<Course>> GetCourse(long course_Id, string semester, string sectionnum)
         {
             string useremail = HttpContext.User.Identity.Name;
             // check if it is a professor
@@ -116,8 +116,8 @@ namespace vmProjectBackend.Controllers
             {
                 var singleCourse = await _context.Enrollments
                                 .Include(c => c.Course)
-                                .Where(c => c.CourseID == id
-                                        && c.section_num == section_num
+                                .Where(c => c.CourseID == course_Id
+                                        && c.section_num == sectionnum
                                         && c.semester == semester
                                         && c.UserId == user_prof.UserID)
                                 .ToListAsync();
@@ -132,8 +132,8 @@ namespace vmProjectBackend.Controllers
         Teacher wanting to know who is registered for their
         class
         **************************/
-        [HttpGet("studentsincourse/{sectionnum}/{course_semester}/{course_Id}")]
-        public async Task<ActionResult> Get_Students_section_specific(string sectionnum, string course_semester, long course_Id)
+        [HttpGet("professor/students/{course_Id}/{course_semester}/{sectionnum}")]
+        public async Task<ActionResult> Get_Students_section_specific(long course_Id, string course_semester,string sectionnum )
         {
             // grabbing the user that signed in
             string useremail = HttpContext.User.Identity.Name;
@@ -213,6 +213,7 @@ namespace vmProjectBackend.Controllers
         [HttpPost]
         public async Task<ActionResult<Course>> PostCourse(Course course)
         {
+            // Do I need to grab the section num, semester in the url and another body data with the Vm data
             string useremail = HttpContext.User.Identity.Name;
             // check if it is a professor
             var user_prof = _context.Users

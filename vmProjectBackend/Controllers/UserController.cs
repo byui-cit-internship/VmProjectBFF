@@ -45,25 +45,34 @@ namespace vmProjectBackend.Controllers
         }
 
         // GET: api/User/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUser(long id)
+        [HttpGet("specificUser")]
+        public async Task<ActionResult<User>> GetUser()
         {
-            var user = await _context.Users.FindAsync(id);
-
-            if (user == null)
+            string user_email = HttpContext.User.Identity.Name;
+            var auth_user = await _context.Users
+                            .Where(p => p.email == user_email)
+                            .FirstOrDefaultAsync();
+            if (auth_user != null)
             {
-                return NotFound();
+                return Ok(auth_user);
             }
+            return Unauthorized();
 
-            return user;
+
         }
 
         // PUT: api/User/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(long id, User user)
+        // update the currect user
+        [HttpPut("updateUser")]
+        public async Task<IActionResult> PutUser(User user)
         {
-            if (id != user.UserID)
+            string user_email = HttpContext.User.Identity.Name;
+            var auth_user = await _context.Users
+                            .Where(p => p.email == user_email)
+                            .FirstOrDefaultAsync();
+
+            if (auth_user.UserID != user.UserID)
             {
                 return BadRequest();
             }
@@ -76,7 +85,7 @@ namespace vmProjectBackend.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!UserExists(id))
+                if (!UserExists(auth_user.UserID))
                 {
                     return NotFound();
                 }
