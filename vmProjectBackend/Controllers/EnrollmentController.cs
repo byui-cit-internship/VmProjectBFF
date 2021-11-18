@@ -27,13 +27,26 @@ namespace vmProjectBackend.Controllers
         /**********************************
         Teacher should be able to enroll students in a specific class to a specific Vm
         *********************************/
-        [HttpPost]
+        [HttpPost("professor/register/course")]
         public async Task<ActionResult<Enrollment>> PostEnrollment(Enrollment enrollment)
         {
-            _context.Enrollments.Add(enrollment);
-            await _context.SaveChangesAsync();
+            string useremail = HttpContext.User.Identity.Name;
+    
+            // check if it is a professor
+            var user_prof = _context.Users
+                            .Where(p => p.email == useremail
+                                    && p.userType == "Professor")
+                            .FirstOrDefault();
+            if (user_prof != null)
+            {
+                _context.Enrollments.Add(enrollment);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetEnrollment", new { id = enrollment.EnrollmentID }, enrollment);
+                return CreatedAtAction("GetEnrollment", new { id = enrollment.EnrollmentID }, enrollment);
+
+            }
+            return Unauthorized("you are not authorized to create enrollment");
+
         }
     }
 }

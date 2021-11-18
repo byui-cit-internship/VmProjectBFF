@@ -45,10 +45,14 @@ namespace vmProjectBackend.DAL
             //    creating data fro the courses
             var courses = new Course[]
             {
-                new Course {CourseName="Cit 123" , canvas_token= "11345fxb", description= "this is demo"},
-                new Course {CourseName="Cit 456" , canvas_token= "12345fxb", description= "this is demo"},
-                new Course {CourseName="Cit 798" , canvas_token= "1345fxb", description= "this is demo" },
-                new Course {CourseName="Cit 101" , canvas_token= "14345fxb", description= "this is demo" },
+                new Course {CourseName="Cit 123", description= "this is demo"},
+                new Course {CourseName="Cit 456" ,  description= "this is demo"},
+                new Course {CourseName="Cit 798" , description= "this is demo" },
+                new Course {CourseName="Cit 101" ,  description= "this is demo" },
+                // new Course {CourseName="Cit 123" , canvas_token= "11345fxb", description= "this is demo"},
+                // new Course {CourseName="Cit 456" , canvas_token= "12345fxb", description= "this is demo"},
+                // new Course {CourseName="Cit 798" , canvas_token= "1345fxb", description= "this is demo" },
+                // new Course {CourseName="Cit 101" , canvas_token= "14345fxb", description= "this is demo" },
 
             };
             foreach (Course c in courses)
@@ -82,15 +86,19 @@ namespace vmProjectBackend.DAL
                     CourseID = courses.Single(c => c.CourseName == "Cit 101").CourseID,
                     Status= "Active",
                     section_num= "1",
+                    canvas_token = "1234agdhgshd",
                     semester="Fall",
+                    
                     teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID,
                     VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
+                    
                     },
                 new Enrollment {
                     UserId = users.Single(s => s.email == "leonarine@gmail.com").UserID,
                     CourseID = courses.Single(c => c.CourseName == "Cit 798").CourseID,
                     Status= "Active",
                     section_num= "1",
+                    canvas_token = "1234agdhgshd",
                     semester="Fall",
                     teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID,
                     VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
@@ -100,6 +108,7 @@ namespace vmProjectBackend.DAL
                     CourseID = courses.Single(c => c.CourseName == "Cit 456").CourseID,
                     Status= "Active",
                     section_num= "1",
+                    canvas_token = "1234agdhgshd",
                     semester="Fall",
                     teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID,
                     VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
@@ -109,6 +118,7 @@ namespace vmProjectBackend.DAL
                     CourseID = courses.Single(c => c.CourseName == "Cit 456").CourseID,
                     Status= "Active",
                     section_num= "2",
+                    canvas_token = "1234agdhgshd",
                     semester="Fall",
                     teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID,
                     VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
@@ -139,6 +149,7 @@ namespace vmProjectBackend.DAL
                     CourseID = courses.Single(c => c.CourseName == "Cit 456").CourseID,
                     Status= "Active",
                     section_num= "2",
+                    canvas_token = "1234agdhgshd",
                     semester="Fall",
                     teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID,
                     VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
@@ -169,6 +180,7 @@ namespace vmProjectBackend.DAL
                 CourseID = courses.Single(c => c.CourseName == "Cit 798").CourseID,
                 Status= "Active",
                 section_num= "2",
+                canvas_token = "1234agdhgshd",
                 semester="Fall",
                 teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID,
                 VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
@@ -201,6 +213,7 @@ namespace vmProjectBackend.DAL
                 CourseID = courses.Single(c => c.CourseName == "Cit 456").CourseID,
                 Status= "Active",
                 section_num= "1",
+                canvas_token = "1234agdhgshd",
                 semester="Winter",
                 teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID,
                 VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
@@ -233,6 +246,7 @@ namespace vmProjectBackend.DAL
                 CourseID = courses.Single(c => c.CourseName == "Cit 798").CourseID,
                 Status= "Active",
                 section_num= "2",
+                canvas_token = "1234agdhgshd",
                 semester = "Fall",
                 teacherId = users.FirstOrDefault(s => s.email == "nar19002@byui.edu").UserID,
                 VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
@@ -263,6 +277,7 @@ namespace vmProjectBackend.DAL
                 CourseID = courses.Single(c => c.CourseName == "Cit 101").CourseID,
                 Status= "Active",
                 section_num= "1",
+                canvas_token = "1234agdhgshd",
                 semester="Winter",
                 teacherId = users.FirstOrDefault(s => s.email == "nar19002@byui.edu").UserID,
                 VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
@@ -296,6 +311,7 @@ namespace vmProjectBackend.DAL
                 Status= "Active",
                 section_num= "1",
                 semester="Winter",
+                canvas_token = "1234agdhgshd",
                 teacherId = users.FirstOrDefault(s => s.email == "nar19002@byui.edu").UserID,
                 VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
                 },

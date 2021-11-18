@@ -17,10 +17,8 @@ namespace vmProjectBackend.Models
         [Required]
         [StringLength(50)]
         public string CourseName { get; set; }
-        [StringLength(20)]
         
-        public string canvas_token { get; set; }
-
+        // public string canvas_token { get; set; }
         public string description { get; set; }
        
         
