@@ -133,7 +133,7 @@ namespace vmProjectBackend.Controllers
         class
         **************************/
         [HttpGet("professor/students/{course_Id}/{course_semester}/{sectionnum}")]
-        public async Task<ActionResult> Get_Students_section_specific(long course_Id, string course_semester,string sectionnum )
+        public async Task<ActionResult> Get_Students_section_specific(long course_Id, string course_semester, string sectionnum)
         {
             // grabbing the user that signed in
             string useremail = HttpContext.User.Identity.Name;
@@ -165,6 +165,41 @@ namespace vmProjectBackend.Controllers
                 return NotFound("You are not Authorized and not a Professor");
             }
         }
+        /************************************************
+        Teacher changing the status of a vm for a student
+        ***********************/
+        [HttpPatch("professor/changeVmStatus/{studentId}/{courseId}/{sectionNum}/{coursesemester}")]
+        public async Task<ActionResult> ChangeVmStatus(long studentId, long courseId, string sectionNum, string coursesemester, JsonPatchDocument<Enrollment> patchDoc)
+        {
+            // verify it is a teacher
+            string useremail = HttpContext.User.Identity.Name;
+            var user_prof = _context.Users
+                            .Where(p => p.email == useremail
+                                    && p.userType == "Professor")
+                            .FirstOrDefault();
+            if (user_prof != null)
+            {
+                // need the StudentId and the student Enrollment, check if the enrollment
+                //  has a teacher that matches with the teacher Id. Then do the patch else, Professor is not 
+                // Authorized
+                var student_enrollment = await _context.Enrollments.FirstOrDefaultAsync(c => c.UserId == studentId
+                                       && c.teacherId == user_prof.UserID
+                                       && c.CourseID == courseId
+                                       && c.section_num == sectionNum
+                                       && c.semester == coursesemester);
+                if (student_enrollment == null)
+                {
+                    return NotFound();
+                }
+                patchDoc.ApplyTo(student_enrollment, ModelState);
+                await _context.SaveChangesAsync();
+
+                return Ok(student_enrollment);
+            }
+            return Unauthorized("You are not authorized");
+
+        }
+
 
 
         /***********************************************
@@ -288,15 +323,17 @@ namespace vmProjectBackend.Controllers
         {
             return _context.Courses.Any(e => e.CourseID == id);
         }
+        /************************************************
 
+                Teacher patch their course
+
+        ***********************/
 
         /************************************************
         
         Teacher patch their course
 
         ***********************/
-
-
         [HttpPatch("{id}")]
         public async Task<ActionResult> PartialUpdate(long id, JsonPatchDocument<Course> patchDoc)
         {
@@ -305,8 +342,6 @@ namespace vmProjectBackend.Controllers
             var user_prof = _context.Users
                             .Where(p => p.email == useremail && p.userType == "Professor")
                             .FirstOrDefault();
-
-
             // not complete as yet
             if (user_prof != null)
             {
