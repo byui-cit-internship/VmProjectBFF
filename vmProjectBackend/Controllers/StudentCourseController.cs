@@ -80,10 +80,9 @@ namespace vmProjectBackend.Controllers
         }
 
         /***********************************************
-        Student is able to send messeage to their Professor to chnage their VM status
-
+        Student is able to send messeage to their Professor 
+        to change their VM status fro that specific Class
         ************************************/
-
         [HttpGet("student/sendemail/{enrollmentID}")]
 
         public async Task<ActionResult<User>> GetEmail(long enrollmentID)

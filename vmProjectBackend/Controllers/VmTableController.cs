@@ -66,7 +66,7 @@ namespace vmProjectBackend.Controllers
 
         // PUT: api/VmTable/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
+        [HttpPut("update/{id}")]
         public async Task<IActionResult> PutVmTable(long id, VmTable vmTable)
         {
             string useremail = HttpContext.User.Identity.Name;
@@ -108,7 +108,7 @@ namespace vmProjectBackend.Controllers
 
         // POST: api/VmTable
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
+        [HttpPost()]
         public async Task<ActionResult<VmTable>> PostVmTable(VmTable vmTable)
         {
             string useremail = HttpContext.User.Identity.Name;
@@ -153,44 +153,36 @@ namespace vmProjectBackend.Controllers
             return Unauthorized();
 
         }
-        // [HttpGet("vmdetails/{id}")]
-        // public async Task<IActionResult> VmDetails(int id)
-        // {
-
-        //     var vmDetail = await _context.VmTables
-        //     .Include(s => s.VmTableCourses)
-        //     .ThenInclude(e => e.Course.Enrollments)
-        //     .AsNoTracking()
-        //     .FirstOrDefaultAsync(m => m.VmTableID == id);
-
-        //     // if the user is not found
-        //     if (vmDetail == null)
-        //     {
-        //         return NotFound();
-        //     }
-
-        //     return Ok(vmDetail);
-        // }
 
         private bool VmTableExists(long id)
         {
             return _context.VmTables.Any(e => e.VmTableID == id);
         }
 
-        [HttpPatch("{id}")]
+        [HttpPatch("update/{id}")]
         public async Task<ActionResult> PartialUpdate(long id, JsonPatchDocument<VmTable> patchDoc)
         {
-            var orginalVm = await _context.VmTables.FirstOrDefaultAsync(c => c.VmTableID == id);
-
-            if (orginalVm == null)
+            string useremail = HttpContext.User.Identity.Name;
+            // check if it is a professor
+            var user_prof = _context.Users
+                            .Where(p => p.email == useremail && p.userType == "Professor")
+                            .FirstOrDefault();
+            if (user_prof != null)
             {
-                return NotFound();
+                var orginalVm = await _context.VmTables.FirstOrDefaultAsync(c => c.VmTableID == id);
+
+                if (orginalVm == null)
+                {
+                    return NotFound();
+                }
+
+                patchDoc.ApplyTo(orginalVm, ModelState);
+                await _context.SaveChangesAsync();
+
+                return Ok(orginalVm);
             }
+            return Unauthorized();
 
-            patchDoc.ApplyTo(orginalVm, ModelState);
-            await _context.SaveChangesAsync();
-
-            return Ok(orginalVm);
         }
     }
 }

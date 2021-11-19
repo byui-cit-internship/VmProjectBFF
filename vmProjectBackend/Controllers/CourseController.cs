@@ -33,11 +33,11 @@ namespace vmProjectBackend.Controllers
 
         // GET: api/Course/1/winter
         [HttpGet("professor/allcourses/{course_semester}/{sectionnum}")]
+        // The Url param should match the varibales that you will pass into function below
         public async Task<ActionResult> Get_Courses_section_specific(string course_semester, string sectionnum)
         {
             // grabbing the user that signed in
             string useremail = HttpContext.User.Identity.Name;
-
             // check if it is a professor
             var user_prof = _context.Users
                             .Where(p => p.email == useremail
@@ -47,6 +47,7 @@ namespace vmProjectBackend.Controllers
             // Console.WriteLine("this is the user email" + useremail);
             if (user_prof != null)
             {
+                // Query the Enrollment table and doing a Join with Course table by using include
                 var listOfCourse = await _context.Enrollments
                                 .Include(c => c.Course)
                                 .Where(u => u.UserId == user_prof.UserID
@@ -69,6 +70,7 @@ namespace vmProjectBackend.Controllers
         ****************************************/
         // GET: api/Course/fall
         [HttpGet("professor/semester/{course_semester}")]
+        // The Url param should match the varibales that you will pass into function below
         public async Task<ActionResult> GetCourses_semester(string course_semester)
         {
             // grabbing the user that signed in
@@ -103,6 +105,7 @@ namespace vmProjectBackend.Controllers
         ********************************/
         // GET: api/Course/5/3/fall
         [HttpGet("professor/course/{course_Id}/{semester}/{sectionnum}")]
+        // The Url param should match the varibales that you will pass into function below
         public async Task<ActionResult<Course>> GetCourse(long course_Id, string semester, string sectionnum)
         {
             string useremail = HttpContext.User.Identity.Name;
@@ -133,6 +136,7 @@ namespace vmProjectBackend.Controllers
         class
         **************************/
         [HttpGet("professor/students/{course_Id}/{course_semester}/{sectionnum}")]
+        // The Url param should match the varibales that you will pass into function below
         public async Task<ActionResult> Get_Students_section_specific(long course_Id, string course_semester, string sectionnum)
         {
             // grabbing the user that signed in
@@ -169,6 +173,7 @@ namespace vmProjectBackend.Controllers
         Teacher changing the status of a vm for a student
         ***********************/
         [HttpPatch("professor/changeVmStatus/{studentId}/{courseId}/{sectionNum}/{coursesemester}")]
+        // The Url param should match the varibales that you will pass into function below
         public async Task<ActionResult> ChangeVmStatus(long studentId, long courseId, string sectionNum, string coursesemester, JsonPatchDocument<Enrollment> patchDoc)
         {
             // verify it is a teacher
@@ -182,11 +187,13 @@ namespace vmProjectBackend.Controllers
                 // need the StudentId and the student Enrollment, check if the enrollment
                 //  has a teacher that matches with the teacher Id. Then do the patch else, Professor is not 
                 // Authorized
-                var student_enrollment = await _context.Enrollments.FirstOrDefaultAsync(c => c.UserId == studentId
+                var student_enrollment = await _context.Enrollments
+                    .FirstOrDefaultAsync(c => c.UserId == studentId
                                        && c.teacherId == user_prof.UserID
                                        && c.CourseID == courseId
                                        && c.section_num == sectionNum
                                        && c.semester == coursesemester);
+                                       
                 if (student_enrollment == null)
                 {
                     return NotFound();

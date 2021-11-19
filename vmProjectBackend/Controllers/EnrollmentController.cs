@@ -47,6 +47,12 @@ namespace vmProjectBackend.Controllers
             _context = context;
 
         }
+
+        /******************************************
+        Teacher is able to Register themselves to a class.
+        This will also create the class along with the enrollment 
+        of them selve to that class. Along with a Vm Template assignment
+        ***************************************/
         [HttpPost("professor/register/course")]
         public async Task<ActionResult<CourseCreate>> CreateCourseEnrollment([FromBody] CourseCreates courseDetails)
         {
@@ -89,89 +95,7 @@ namespace vmProjectBackend.Controllers
             return Unauthorized();
 
         }
-        /**********************************
-        Teacher should be able to register a new class to a section
-        along with a Vm for that class
-        *********************************/
-        // [HttpPost("professor/register/course")]
-        // public async Task<ActionResult> CreateCourseEnrollment([FromBody] Object CourseDetails)
-        // {
-        //     string useremail = HttpContext.User.Identity.Name;
-        //     var user_prof = _context.Users
-        //                     .Where(p => p.email == useremail
-        //                             && p.userType == "Professor")
-        //                     .FirstOrDefault();
 
-        //     if (user_prof != null)
-        //     {
-        //         if (CourseDetails != null)
-
-        //         {
-        //             // this deserialize the Json object to a .net object, It is then 
-        //             // Cast to a Dictionary format which is then accessed by key value pair
-        //             var list = JsonConvert.DeserializeObject<Dictionary<string, string>>(CourseDetails.ToString());
-
-        //             // Create varibale for creating a new Course
-        //             string coursename = list["courseName"];
-        //             string coursedescription = list["description"];
-        //             // Create a new course Object
-        //             Course course = new Course();
-        //             course.CourseName = coursename;
-        //             course.description = coursedescription;
-        //             // create the course
-        //             _context.Courses.Add(course);
-        //             await _context.SaveChangesAsync();
-        //             // Create the enrollment
-        //             Enrollment enrollment = new Enrollment();
-        //             enrollment.UserId = user_prof.UserID;
-        //             var courseid = await _context.Courses
-        //                                 .Where(c => c.CourseName == coursename)
-        //                                 .FirstOrDefaultAsync();
-
-        //             enrollment.CourseID = courseid.CourseID;
-        //             enrollment.Status = "Active";
-        //             enrollment.section_num = list["section_num"];
-        //             enrollment.semester = list["semester"];
-        //             enrollment.teacherId = user_prof.UserID;
-        //             // convert the string value of vamtable id to a long
-        //             long vmtableid = long.Parse(list["vmTableID"]);
-        //             enrollment.VmTableID = vmtableid;
-
-        //             _context.Enrollments.Add(enrollment);
-        //             await _context.SaveChangesAsync();
-
-        //             return Ok("Enrollment was created");
-        //         }
-        //         else
-        //         {
-        //             return BadRequest("Enrollment Failed to Be Created");
-        //         }
-        //     }
-        //     return Unauthorized();
-
-        // }
-
-
-        [HttpPost("professor/register/")]
-        public async Task<ActionResult<Enrollment>> PostEnrollment([FromBody] Enrollment enrollment)
-        {
-
-            string useremail = HttpContext.User.Identity.Name;
-
-            // check if it is a professor
-            var user_prof = _context.Users
-                            .Where(p => p.email == useremail
-                                    && p.userType == "Professor")
-                            .FirstOrDefault();
-            if (user_prof != null)
-            {
-                _context.Enrollments.Add(enrollment);
-                await _context.SaveChangesAsync();
-
-                return CreatedAtAction("GetEnrollment", new { id = enrollment.EnrollmentID }, enrollment);
-            }
-            return Unauthorized("you are not authorized to create enrollment");
-        }
     }
 }
 
