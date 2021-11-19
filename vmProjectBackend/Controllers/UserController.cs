@@ -29,7 +29,7 @@ namespace vmProjectBackend.Controllers
         }
 
         // GET: api/User
-        [HttpGet]
+        [HttpGet("allusers")]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
             string user_email = HttpContext.User.Identity.Name;
@@ -133,42 +133,7 @@ namespace vmProjectBackend.Controllers
 
         // Sending the email to the teacher based on student
 
-        [HttpGet("sendemail/{studentid}")]
 
-        public async Task<ActionResult<User>> GetEmail(long studentid)
-        {
-
-            var mailMessage = new MimeMessage();
-            mailMessage.From.Add(new MailboxAddress("vmproject", "vmproject234@gmail.com"));
-            mailMessage.To.Add(MailboxAddress.Parse("vmproject234@gmail.com"));
-            mailMessage.Subject = "Test";
-            mailMessage.Body = new TextPart("plain")
-            {
-                Text = "Hello from backend"
-            };
-
-            SmtpClient client = new SmtpClient();
-
-            try
-            {
-
-                client.Connect("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
-                client.Authenticate("vmproject234@gmail.com", "vmProject199321");
-                client.Send(mailMessage);
-                return Ok("message was sent");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return NotFound("not sucessfull");
-            }
-            finally
-            {
-                client.Disconnect(true);
-                client.Dispose();
-            }
-
-        }
         // [HttpGet("userdetails/{id}")]
         // public async Task<IActionResult> UserDetails(int id)
         // {

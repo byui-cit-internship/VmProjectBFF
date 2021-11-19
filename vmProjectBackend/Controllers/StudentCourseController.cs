@@ -2,14 +2,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+using MailKit.Net.Smtp;
+using MailKit;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MimeKit;
 using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
-using Microsoft.AspNetCore.Identity;
+using MailKit.Security;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
+
 
 namespace vmProjectBackend.Controllers
 {
@@ -74,6 +78,80 @@ namespace vmProjectBackend.Controllers
             }
             return Unauthorized("You are not Authorized User");
         }
+
+        /***********************************************
+        Student is able to send messeage to their Professor to chnage their VM status
+
+        ************************************/
+
+        [HttpGet("student/sendemail/{enrollmentID}")]
+
+        public async Task<ActionResult<User>> GetEmail(long enrollmentID)
+        {
+            string useremail = HttpContext.User.Identity.Name;
+            // check if it is a Student
+            var user_student = _context.Users.Where(p => p.email == useremail
+                                                    && p.userType == "Student")
+                                             .FirstOrDefault();
+
+            // Check if it is valid enrollment and if the student is enrolled in that class
+            var enrollment_details = _context.Enrollments.Where(p => p.EnrollmentID == enrollmentID
+                                                                && p.UserId == user_student.UserID)
+                                                         .FirstOrDefault();
+
+            var professor_Id = enrollment_details.teacherId;
+            // Double check that this is valid teacher and get their details
+            var professor_details = _context.Users.Where(p => p.UserID == professor_Id
+                                                        && p.userType == "Professor")
+                                                  .FirstOrDefault();
+            var professor_email = professor_details.email;
+
+            // Getting the details of that course so that we can send the name of the course to the professor
+            var courseid = enrollment_details.CourseID;
+            var course_details = _context.Courses.Where(p => p.CourseID == courseid)
+                                                 .FirstOrDefault();
+
+            var className = course_details.CourseName;
+
+            if (user_student != null && professor_details != null)
+            {
+                Console.WriteLine(className);
+                string studentName = $"{user_student.firstName} {user_student.lastName}";
+                Console.WriteLine(studentName);
+                var mailMessage = new MimeMessage();
+                mailMessage.From.Add(new MailboxAddress(studentName, "vmproject234@gmail.com"));
+                mailMessage.To.Add(MailboxAddress.Parse($"{professor_email}"));
+                mailMessage.Subject = "Vm Request (Test)";
+                mailMessage.Body = new TextPart("plain")
+                {
+                    Text = $"{studentName} needs permission to activate Vm for {className} in Section {enrollment_details.section_num}"
+                };
+
+                SmtpClient client = new SmtpClient();
+
+                try
+                {
+                    client.Connect("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
+                    client.Authenticate("vmproject234@gmail.com", "vmProject199321");
+                    client.Send(mailMessage);
+                    return Ok("message was sent");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    return NotFound("not sucessfull");
+                }
+                finally
+                {
+                    client.Disconnect(true);
+                    client.Dispose();
+                }
+
+            }
+            return Unauthorized();
+
+        }
+
 
         // // GET: api/StudentCourse/5
         // [HttpGet("{id}")]

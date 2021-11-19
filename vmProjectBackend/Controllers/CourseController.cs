@@ -238,7 +238,6 @@ namespace vmProjectBackend.Controllers
                         throw;
                     }
                 }
-
                 return CreatedAtAction("GetCourse", new { id = course.CourseID }, course);
             }
             return Unauthorized("You are not a professor");

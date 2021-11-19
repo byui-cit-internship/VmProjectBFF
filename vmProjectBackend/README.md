@@ -5,6 +5,7 @@ Project Requirement:
 4. Professor can only see the Class that they are enrolled in.
 5. Professor can only change Vm status for Students that are in their own class.
 
+
 User Stories (Professors):
 1. Professors signs In to application (Login page)
 2. Professors sees a list of their classes 
@@ -12,12 +13,13 @@ User Stories (Professors):
 4. Professors is able to add a class for specific section and also add a Canvas token to that class on that section.
 5. Professor is able to click a button to change the status of the Vm on a specifc student.
 6. Professor is able to change the VM status of all the students in a class for a specific section.
+7. Professor is able to create and delete a Vm for their class.
 
 User Stories(Student):
 1. Student signs into the application (Login Page)
 2. Student sees a list of the class that they are enrolled in.
 3. Student clicks on a class and then sees their Vm and the Status of that Vm for that class
-4. Student can send a request to Professor to chnage the Status of the VM.
+4. Student can send a request to Professor to change the Status of the VM via email.
 
 
 
