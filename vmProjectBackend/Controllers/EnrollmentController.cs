@@ -25,6 +25,10 @@ namespace vmProjectBackend.Controllers
     [ApiController]
     public class EnrollmentController : ControllerBase
     {
+        /******************************
+        This class is to help with the post method below.
+        Trying to Apply Model Binding.
+        **************************/
         public class CourseCreates
         {
             public string courseName { get; set; }
