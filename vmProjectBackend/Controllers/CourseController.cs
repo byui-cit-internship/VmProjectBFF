@@ -54,6 +54,13 @@ namespace vmProjectBackend.Controllers
                                          && u.teacherId == user_prof.UserID
                                          && u.section_num == sectionnum
                                          && u.semester == course_semester)
+                                         .Select(c => new
+                                         {
+                                             course_name = c.Course.CourseName,
+                                             course_semester = c.semester,
+                                             course_section = c.section_num,
+                                             course_professor = $"{c.User.firstName} {c.User.lastName}"
+                                         })
                                 .ToListAsync();
                 return Ok(listOfCourse);
             }
@@ -89,6 +96,13 @@ namespace vmProjectBackend.Controllers
                                 .Where(u => u.UserId == user_prof.UserID
                                          && u.teacherId == user_prof.UserID
                                          && u.semester == course_semester)
+                                .Select(c => new
+                                {
+                                    course_name = c.Course.CourseName,
+                                    course_semester = c.semester,
+                                    course_section = c.section_num,
+                                    course_professor = $"{c.User.firstName} {c.User.lastName}"
+                                })
                                 .ToListAsync();
                 return Ok(listOfCourse);
             }
@@ -100,7 +114,7 @@ namespace vmProjectBackend.Controllers
         }
 
         /***********************************
-        Teacher searching for a specifc course
+        Teacher searching for a specifc course and check the VM for that class
 
         ********************************/
         // GET: api/Course/5/3/fall
@@ -119,10 +133,18 @@ namespace vmProjectBackend.Controllers
             {
                 var singleCourse = await _context.Enrollments
                                 .Include(c => c.Course)
+                                .Include(vm => vm.VmTable)
                                 .Where(c => c.CourseID == course_Id
                                         && c.section_num == sectionnum
                                         && c.semester == semester
                                         && c.UserId == user_prof.UserID)
+                                .Select(c => new
+                                {
+                                    course_name = c.Course.CourseName,
+                                    courses_semester = c.semester,
+                                    course_section = c.section_num,
+                                    course_vm = c.VmTable
+                                })
                                 .ToListAsync();
                 return Ok(singleCourse);
             }
@@ -154,12 +176,22 @@ namespace vmProjectBackend.Controllers
                 var listOfCourse = await _context.Enrollments
                                 .Include(c => c.User)
                                 .Include(c => c.Course)
+                                .Include(vm => vm.VmTable)
                                 .Where(u => u.teacherId == user_prof.UserID
                                         && u.section_num == sectionnum
                                         && u.semester == course_semester
                                         && u.Course.CourseID == course_Id
                                         && u.User.userType == "Student"
                                         )
+                                .Select(s => new
+                                {
+                                    course_name = s.Course.CourseName,
+                                    course_semester = s.semester,
+                                    course_sectionnum = s.section_num,
+                                    student_name = $"{s.User.firstName} {s.User.lastName}",
+                                    student_vm_status = s.Status,
+                                    course_vm = s.VmTable
+                                })
                                 .ToListAsync();
                 return Ok(listOfCourse);
             }
@@ -193,7 +225,7 @@ namespace vmProjectBackend.Controllers
                                        && c.CourseID == courseId
                                        && c.section_num == sectionNum
                                        && c.semester == coursesemester);
-                                       
+
                 if (student_enrollment == null)
                 {
                     return NotFound();

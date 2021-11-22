@@ -14,7 +14,6 @@ using MailKit.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 
-
 namespace vmProjectBackend.Controllers
 {
     [Authorize]
@@ -45,7 +44,15 @@ namespace vmProjectBackend.Controllers
                 var listOfCourse = await _context.Enrollments
                                     .Include(c => c.Course)
                                     .Include(vm => vm.VmTable)
-                                    .Where(s => s.UserId == user_student.UserID).ToArrayAsync();
+                                    .Where(s => s.UserId == user_student.UserID)
+                                    .Select(e => new
+                                    {
+                                        student_name = $"{e.User.firstName} {e.User.lastName}",
+                                        course_name = e.Course.CourseName,
+                                        course_semester = e.semester,
+                                        course_sectionnum = e.section_num
+                                    })
+                                    .ToArrayAsync();
 
                 return Ok(listOfCourse);
             }
@@ -72,7 +79,18 @@ namespace vmProjectBackend.Controllers
                                     .Where(sp => sp.UserId == user_student.UserID
                                                 && sp.CourseID == course_id
                                                 && sp.semester == course_semester
-                                                && sp.section_num == sectionNum).FirstOrDefaultAsync();
+                                                && sp.section_num == sectionNum)
+
+                                    .Select(e => new
+                                    {
+                                        student_name = $"{e.User.firstName} {e.User.lastName}",
+                                        course_name = e.Course.CourseName,
+                                        course_semester = e.semester,
+                                        course_sectionnum = e.section_num,
+                                        course_vm_status = e.Status,
+                                        course_vm = e.VmTable
+                                    })
+                                    .FirstOrDefaultAsync();
 
                 return Ok(specificcourse);
             }
@@ -150,83 +168,5 @@ namespace vmProjectBackend.Controllers
             return Unauthorized();
 
         }
-
-
-        // // GET: api/StudentCourse/5
-        // [HttpGet("{id}")]
-        // public async Task<ActionResult<Course>> GetCourse(long id)
-        // {
-        //     var course = await _context.Courses.FindAsync(id);
-
-        //     if (course == null)
-        //     {
-        //         return NotFound();
-        //     }
-
-        //     return course;
-        // }
-
-        // // PUT: api/StudentCourse/5
-        // // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        // [HttpPut("{id}")]
-        // public async Task<IActionResult> PutCourse(long id, Course course)
-        // {
-        //     if (id != course.CourseID)
-        //     {
-        //         return BadRequest();
-        //     }
-
-        //     _context.Entry(course).State = EntityState.Modified;
-
-        //     try
-        //     {
-        //         await _context.SaveChangesAsync();
-        //     }
-        //     catch (DbUpdateConcurrencyException)
-        //     {
-        //         if (!CourseExists(id))
-        //         {
-        //             return NotFound();
-        //         }
-        //         else
-        //         {
-        //             throw;
-        //         }
-        //     }
-
-        //     return NoContent();
-        // }
-
-        // // POST: api/StudentCourse
-        // // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        // [HttpPost]
-        // public async Task<ActionResult<Course>> PostCourse(Course course)
-        // {
-        //     _context.Courses.Add(course);
-        //     await _context.SaveChangesAsync();
-
-        //     return CreatedAtAction("GetCourse", new { id = course.CourseID }, course);
-        // }
-
-        // // DELETE: api/StudentCourse/5
-        // [HttpDelete("{id}")]
-        // public async Task<IActionResult> DeleteCourse(long id)
-        // {
-        //     var course = await _context.Courses.FindAsync(id);
-        //     if (course == null)
-        //     {
-        //         return NotFound();
-        //     }
-
-        //     _context.Courses.Remove(course);
-        //     await _context.SaveChangesAsync();
-
-        //     return NoContent();
-        // }
-
-        // private bool CourseExists(long id)
-        // {
-        //     return _context.Courses.Any(e => e.CourseID == id);
-        // }
     }
 }
