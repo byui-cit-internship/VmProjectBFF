@@ -57,6 +57,7 @@ namespace vmProjectBackend.Controllers
                                          .Select(c => new
                                          {
                                              course_name = c.Course.CourseName,
+                                             course_id = c.CourseID,
                                              course_semester = c.semester,
                                              course_section = c.section_num,
                                              course_professor = $"{c.User.firstName} {c.User.lastName}"
@@ -99,6 +100,7 @@ namespace vmProjectBackend.Controllers
                                 .Select(c => new
                                 {
                                     course_name = c.Course.CourseName,
+                                    course_id = c.CourseID,
                                     course_semester = c.semester,
                                     course_section = c.section_num,
                                     course_professor = $"{c.User.firstName} {c.User.lastName}"
@@ -141,6 +143,7 @@ namespace vmProjectBackend.Controllers
                                 .Select(c => new
                                 {
                                     course_name = c.Course.CourseName,
+                                    course_id = c.CourseID,
                                     courses_semester = c.semester,
                                     course_section = c.section_num,
                                     course_vm = c.VmTable
@@ -186,6 +189,7 @@ namespace vmProjectBackend.Controllers
                                 .Select(s => new
                                 {
                                     course_name = s.Course.CourseName,
+                                    course_id = s.CourseID,
                                     course_semester = s.semester,
                                     course_sectionnum = s.section_num,
                                     student_name = $"{s.User.firstName} {s.User.lastName}",

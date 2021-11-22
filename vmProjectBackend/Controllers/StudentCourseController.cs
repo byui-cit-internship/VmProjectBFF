@@ -22,7 +22,6 @@ namespace vmProjectBackend.Controllers
     public class StudentCourseController : ControllerBase
     {
         private readonly VmContext _context;
-
         public StudentCourseController(VmContext context)
         {
             _context = context;
@@ -49,6 +48,7 @@ namespace vmProjectBackend.Controllers
                                     {
                                         student_name = $"{e.User.firstName} {e.User.lastName}",
                                         course_name = e.Course.CourseName,
+                                        course_id = e.CourseID,
                                         course_semester = e.semester,
                                         course_sectionnum = e.section_num
                                     })
@@ -57,8 +57,6 @@ namespace vmProjectBackend.Controllers
                 return Ok(listOfCourse);
             }
             return Unauthorized("You are not an Authorized User");
-
-
         }
 
         // Student get to see a specific class that they are enrolled in for a specific semester
@@ -85,6 +83,7 @@ namespace vmProjectBackend.Controllers
                                     {
                                         student_name = $"{e.User.firstName} {e.User.lastName}",
                                         course_name = e.Course.CourseName,
+                                        course_id = e.CourseID,
                                         course_semester = e.semester,
                                         course_sectionnum = e.section_num,
                                         course_vm_status = e.Status,
