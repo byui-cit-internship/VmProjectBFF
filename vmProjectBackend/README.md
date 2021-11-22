@@ -22,8 +22,6 @@ User Stories(Student):
 4. Student can send a request to Professor to change the Status of the VM via email.
 
 
-
-
 The Link below should help you  get started on your own wep-api:
 - https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-web-api?view=aspnetcore-5.0&tabs=visual-studio-code 
 

@@ -109,7 +109,6 @@ namespace vmProjectBackend.Controllers
                 {
                     try
                     {
-
                         string fullName = validPayload.Name;
                         string[] names = fullName.Split(' ');
                         string firstname = names[0];

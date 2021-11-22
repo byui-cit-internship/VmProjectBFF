@@ -34,6 +34,9 @@ namespace vmProjectBackend
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // This helps to prevent the Reference Loop that is caused
+            // when you reference a model inside another model, model like
+            // enrollment which reference Course and User and both making a Reference back to enrollment
             services.AddControllers()
            .AddNewtonsoftJson(
                opts => opts.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
@@ -43,6 +46,7 @@ namespace vmProjectBackend
                 s.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
             });
 
+            // This allows for Cross-origin request Read more: https://docs.microsoft.com/en-us/aspnet/core/security/cors?view=aspnetcore-6.0 
             services.AddCors(c =>
             {
                 c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyHeader());
@@ -54,11 +58,8 @@ namespace vmProjectBackend
             //this helps to connect the authentication for controllers request to the BasicAuthenticationHandler 
             services.AddAuthentication("BasicAuthentication")
             .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
+
             // ********************ONLY FOR NOW USE****************************
-
-
-
-
             string connectionString = Configuration.GetConnectionString("DevelopmentString");
 
             services.AddDbContext<VmContext>(opt =>
@@ -85,15 +86,13 @@ namespace vmProjectBackend
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                // app.UseSwagger();
-                // app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "vmProjectBackend v1"));
             }
 
             app.UseHttpsRedirection();
 
             app.UseRouting();
 
-            // tell app that it will use autheication
+            // This tell app that it will use authentication
             app.UseAuthentication();
             app.UseAuthorization();
 
