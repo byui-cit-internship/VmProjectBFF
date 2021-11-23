@@ -6,7 +6,7 @@ namespace vmProjectBackend.Models
     public class VmTable
     {
         [Key]
-        public long VmTableID { get; set; }
+        public Guid VmTableID { get; set; }
         [Required]
         public string vm_image { get; set; }
 

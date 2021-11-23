@@ -95,7 +95,7 @@ namespace vmProjectBackend.DAL
                     },
                 new Enrollment {
                     UserId = users.Single(s => s.email == "leonarine@gmail.com").UserID,
-                    CourseID = courses.Single(c => c.CourseName == "Cit 798").CourseID,
+                    CourseID = courses.FirstOrDefault(c => c.CourseName == "Cit 798").CourseID,
                     Status= "Active",
                     section_num= "1",
                     canvas_token = "1234agdhgshd",

@@ -6,14 +6,14 @@ namespace vmProjectBackend.Models
     public class Enrollment
     {
         [Key]
-        public long EnrollmentID { get; set; }
+        public Guid EnrollmentID { get; set; }
 
-        public long CourseID { get; set; }
+        public Guid CourseID { get; set; }
 
-        public long UserId { get; set; }
+        public Guid UserId { get; set; }
         [Required]
-        public long teacherId { get; set; }
-        public long VmTableID { get; set; }
+        public Guid teacherId { get; set; }
+        public Guid VmTableID { get; set; }
 
         //Extra entities for the enrollment.
         public string Status { get; set; }

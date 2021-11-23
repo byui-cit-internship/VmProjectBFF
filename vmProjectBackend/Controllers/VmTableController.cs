@@ -43,7 +43,7 @@ namespace vmProjectBackend.Controllers
 
         // GET: api/VmTable/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<VmTable>> GetVmTable(long id)
+        public async Task<ActionResult<VmTable>> GetVmTable(Guid id)
         {
             string useremail = HttpContext.User.Identity.Name;
             // check if it is a professor
@@ -67,7 +67,7 @@ namespace vmProjectBackend.Controllers
         // PUT: api/VmTable/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> PutVmTable(long id, VmTable vmTable)
+        public async Task<IActionResult> PutVmTable(Guid id, VmTable vmTable)
         {
             string useremail = HttpContext.User.Identity.Name;
             // check if it is a professor
@@ -129,7 +129,7 @@ namespace vmProjectBackend.Controllers
 
         // DELETE: api/VmTable/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteVmTable(long id)
+        public async Task<IActionResult> DeleteVmTable(Guid id)
         {
             string useremail = HttpContext.User.Identity.Name;
             // check if it is a professor
@@ -154,13 +154,13 @@ namespace vmProjectBackend.Controllers
 
         }
 
-        private bool VmTableExists(long id)
+        private bool VmTableExists(Guid id)
         {
             return _context.VmTables.Any(e => e.VmTableID == id);
         }
 
         [HttpPatch("update/{id}")]
-        public async Task<ActionResult> PartialUpdate(long id, JsonPatchDocument<VmTable> patchDoc)
+        public async Task<ActionResult> PartialUpdate(Guid id, JsonPatchDocument<VmTable> patchDoc)
         {
             string useremail = HttpContext.User.Identity.Name;
             // check if it is a professor

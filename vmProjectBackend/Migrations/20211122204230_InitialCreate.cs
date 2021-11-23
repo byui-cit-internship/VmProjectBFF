@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace vmProjectBackend.Migrations
 {
-    public partial class IntialCreate : Migration
+    public partial class InitialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -10,10 +11,8 @@ namespace vmProjectBackend.Migrations
                 name: "Course",
                 columns: table => new
                 {
-                    CourseID = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CourseID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CourseName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    canvas_token = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     description = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
@@ -37,8 +36,7 @@ namespace vmProjectBackend.Migrations
                 name: "Users",
                 columns: table => new
                 {
-                    UserID = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     firstName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     lastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     email = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -54,8 +52,7 @@ namespace vmProjectBackend.Migrations
                 name: "VmTable",
                 columns: table => new
                 {
-                    VmTableID = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    VmTableID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     vm_image = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
@@ -67,14 +64,14 @@ namespace vmProjectBackend.Migrations
                 name: "Enrollment",
                 columns: table => new
                 {
-                    EnrollmentID = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    CourseID = table.Column<long>(type: "bigint", nullable: false),
-                    UserId = table.Column<long>(type: "bigint", nullable: false),
-                    teacherId = table.Column<long>(type: "bigint", nullable: false),
-                    VmTableID = table.Column<long>(type: "bigint", nullable: false),
+                    EnrollmentID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CourseID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    teacherId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    VmTableID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     section_num = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    canvas_token = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     semester = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>

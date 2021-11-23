@@ -36,9 +36,9 @@ namespace vmProjectBackend.Controllers
             public string canvas_token { get; set; }
             public string section_num { get; set; }
             public string semester { get; set; }
-            public long userId { get; set; }
-            public long teacherId { get; set; }
-            public long vmTableID { get; set; }
+            public Guid userId { get; set; }
+            public Guid teacherId { get; set; }
+            public Guid vmTableID { get; set; }
             public string status { get; set; }
         }
 

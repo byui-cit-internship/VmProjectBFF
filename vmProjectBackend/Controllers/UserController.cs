@@ -111,7 +111,7 @@ namespace vmProjectBackend.Controllers
 
         // DELETE: api/User/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(long id)
+        public async Task<IActionResult> DeleteUser(Guid id)
         {
             var user = await _context.Users.FindAsync(id);
             if (user == null)
@@ -125,7 +125,7 @@ namespace vmProjectBackend.Controllers
             return NoContent();
         }
 
-        private bool UserExists(long id)
+        private bool UserExists(Guid id)
         {
             return _context.Users.Any(e => e.UserID == id);
         }
@@ -154,7 +154,7 @@ namespace vmProjectBackend.Controllers
         // }
 
         [HttpPatch("{id}")]
-        public async Task<ActionResult> PartialUpdate(long id, JsonPatchDocument<User> patchDoc)
+        public async Task<ActionResult> PartialUpdate(Guid id, JsonPatchDocument<User> patchDoc)
         {
             var orginalUser = await _context.Users.FirstOrDefaultAsync(c => c.UserID == id);
 

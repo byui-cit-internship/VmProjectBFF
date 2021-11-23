@@ -36,7 +36,7 @@ namespace vmProjectBackend.Controllers
         // The Url param should match the varibales that you will pass into function below
         public async Task<ActionResult> Get_Courses_section_specific(string course_semester, string sectionnum)
         {
-            // grabbing the user that signed in
+            // grabbing the user that signed injj
             string useremail = HttpContext.User.Identity.Name;
             // check if it is a professor
             var user_prof = _context.Users
@@ -122,7 +122,7 @@ namespace vmProjectBackend.Controllers
         // GET: api/Course/5/3/fall
         [HttpGet("professor/course/{course_Id}/{semester}/{sectionnum}")]
         // The Url param should match the varibales that you will pass into function below
-        public async Task<ActionResult<Course>> GetCourse(long course_Id, string semester, string sectionnum)
+        public async Task<ActionResult<Course>> GetCourse(Guid course_Id, string semester, string sectionnum)
         {
             string useremail = HttpContext.User.Identity.Name;
             // check if it is a professor
@@ -162,7 +162,7 @@ namespace vmProjectBackend.Controllers
         **************************/
         [HttpGet("professor/students/{course_Id}/{course_semester}/{sectionnum}")]
         // The Url param should match the varibales that you will pass into function below
-        public async Task<ActionResult> Get_Students_section_specific(long course_Id, string course_semester, string sectionnum)
+        public async Task<ActionResult> Get_Students_section_specific(Guid course_Id, string course_semester, string sectionnum)
         {
             // grabbing the user that signed in
             string useremail = HttpContext.User.Identity.Name;
@@ -210,7 +210,7 @@ namespace vmProjectBackend.Controllers
         ***********************/
         [HttpPatch("professor/changeVmStatus/{studentId}/{courseId}/{sectionNum}/{coursesemester}")]
         // The Url param should match the varibales that you will pass into function below
-        public async Task<ActionResult> ChangeVmStatus(long studentId, long courseId, string sectionNum, string coursesemester, JsonPatchDocument<Enrollment> patchDoc)
+        public async Task<ActionResult> ChangeVmStatus(Guid studentId, Guid courseId, string sectionNum, string coursesemester, JsonPatchDocument<Enrollment> patchDoc)
         {
             // verify it is a teacher
             string useremail = HttpContext.User.Identity.Name;
@@ -251,10 +251,10 @@ namespace vmProjectBackend.Controllers
 
         // PUT: api/Course/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutCourse(long id, Course course)
+        [HttpPut("{course_id}")]
+        public async Task<IActionResult> PutCourse(Guid course_id, Course course)
         {
-            if (id != course.CourseID)
+            if (course_id != course.CourseID)
             {
                 return BadRequest();
             }
@@ -267,7 +267,7 @@ namespace vmProjectBackend.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!CourseExists(id))
+                if (!CourseExists(course_id))
                 {
                     return NotFound();
                 }
@@ -330,7 +330,7 @@ namespace vmProjectBackend.Controllers
 
         // DELETE: api/Course/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCourse(long id)
+        public async Task<IActionResult> DeleteCourse(Guid id)
         {
             string useremail = HttpContext.User.Identity.Name;
             // check if it is a professor
@@ -362,7 +362,7 @@ namespace vmProjectBackend.Controllers
 
         }
 
-        private bool CourseExists(long id)
+        private bool CourseExists(Guid id)
         {
             return _context.Courses.Any(e => e.CourseID == id);
         }
@@ -378,7 +378,7 @@ namespace vmProjectBackend.Controllers
 
         ***********************/
         [HttpPatch("{id}")]
-        public async Task<ActionResult> PartialUpdate(long id, JsonPatchDocument<Course> patchDoc)
+        public async Task<ActionResult> PartialUpdate(Guid id, JsonPatchDocument<Course> patchDoc)
         {
             string useremail = HttpContext.User.Identity.Name;
             // check if it is a professor

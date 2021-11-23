@@ -61,7 +61,7 @@ namespace vmProjectBackend.Controllers
 
         // Student get to see a specific class that they are enrolled in for a specific semester
         [HttpGet("student/course/{course_id}/{course_semester}/{sectionNum}")]
-        public async Task<ActionResult<Course>> GetSpecificCourse(long course_id, string course_semester, string sectionNum)
+        public async Task<ActionResult<Course>> GetSpecificCourse(Guid course_id, string course_semester, string sectionNum)
         {
             string useremail = HttpContext.User.Identity.Name;
             // check if it is a Student
@@ -102,7 +102,7 @@ namespace vmProjectBackend.Controllers
         ************************************/
         [HttpGet("student/sendemail/{enrollmentID}")]
 
-        public async Task<ActionResult<User>> GetEmail(long enrollmentID)
+        public async Task<ActionResult<User>> GetEmail(Guid enrollmentID)
         {
             string useremail = HttpContext.User.Identity.Name;
             // check if it is a Student
