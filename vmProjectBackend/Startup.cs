@@ -17,6 +17,7 @@ using vmProjectBackend.Models;
 using vmProjectBackend.DAL;
 using Microsoft.AspNetCore.Authentication;
 using vmProjectBackend.Handlers;
+using vmProjectBackend.Services;
 
 namespace vmProjectBackend
 {
@@ -37,10 +38,15 @@ namespace vmProjectBackend
             // This helps to prevent the Reference Loop that is caused
             // when you reference a model inside another model, model like
             // enrollment which reference Course and User and both making a Reference back to enrollment
+
             services.AddControllers()
            .AddNewtonsoftJson(
                opts => opts.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
            );
+            //    This is needed to register my BAckground service
+            services.AddHostedService<BackgroundService1>();
+            services.AddHttpClient();
+
             services.AddControllers().AddNewtonsoftJson(s =>
             {
                 s.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
