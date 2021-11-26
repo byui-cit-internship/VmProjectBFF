@@ -111,3 +111,4 @@ Server=host.docker.internal,1433;Database=VmDB;User Id=leonarine; Password=passw
 
 
 jenkins: Password: password, username:leonarine
+hello
