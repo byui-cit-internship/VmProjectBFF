@@ -8,21 +8,21 @@ pipeline {
     
         stages {
             
-            stage('Checkout') {
+            stage("Checkout") {
                 steps {
-                    echo "Checking out ........"
+                    echo 'Checking out ........'
 
                     }   
             }
-            stage('Build') {
-                echo "Building the application ........"
+            stage("Build") {
+                echo 'Building the application ........'
             }
 
-            stage('Test') {
-                echo "testing the application ........"
+            stage("Test") {
+                echo 'testing the application ........'
             }
-            stage('Deploying') {
-                echo "Deploying the application to production ........"
+            stage("Deploying") {
+                echo 'Deploying the application to production ........'
             }
 
         }
