@@ -106,15 +106,29 @@ namespace vmProjectBackend.Services
                                     // turn the Object into json, will convert this to be a type to work with soon
                                     // We are grabing the Student info for that class
                                     dynamic studentObject = JsonConvert.DeserializeObject<dynamic>(studentResponseString);
+                                    // grab the student Id and the email and name to create the student if they don't exits
+                                    // and enroll them in that class
                                     Console.WriteLine("here in the student object");
                                     Console.WriteLine(studentObject);
+                                    Console.WriteLine("this is student_id");
+                                    Console.WriteLine(student_id);
+                                    Console.WriteLine("this is course_id");
+                                    Console.WriteLine(_course_id);
+                                    Console.WriteLine("this is section_num");
+                                    Console.WriteLine(_course_sectionnum);
+                                    Console.WriteLine("this is teacher_id");
+                                    Console.WriteLine(enroll.teacherId);
+                                    Console.WriteLine("this is vmtable_id");
+                                    Console.WriteLine(enroll.VmTableID);
+                                    Console.WriteLine("this is semester");
+                                    Console.WriteLine(enroll.semester);
+
 
                                 }
                                 // From that Response, find the Email, and name of student and store it.
                                 // Now we have, student_id and email, we check if we have that student in the database, if not we create that user
                                 // and enroll that use into that course 
-                                Console.WriteLine("here");
-                                Console.WriteLine(student_id);
+
                             }
                             else
                             {
