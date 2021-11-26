@@ -108,3 +108,6 @@ Connection string to SQL on docker
 
 "Server=DESKTOP-VV1SUF4;Database=VmDB;User Id=leonarine; Password=password;"
 Server=host.docker.internal,1433;Database=VmDB;User Id=leonarine; Password=password
+
+
+jenkins: Password: password, username:leonarine
