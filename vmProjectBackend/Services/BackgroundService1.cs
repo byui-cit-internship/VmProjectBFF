@@ -13,6 +13,9 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Authorization;
 using System.Collections;
+using Microsoft.Extensions.Configuration;
+using System.Linq;
+using System.Data.Entity;
 
 namespace vmProjectBackend.Services
 {
@@ -21,27 +24,18 @@ namespace vmProjectBackend.Services
         public IServiceProvider Services;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<BackgroundService1> _logger;
+        private readonly IConfiguration _Configuration;
+
         // private readonly VmContext _context;
         // public List<CourseCreate> coursedata = new List<CourseCreate>();
 
 
-        public BackgroundService1(ILogger<BackgroundService1> logger, IServiceProvider service, IHttpClientFactory httpClientFactory)
+        public BackgroundService1(ILogger<BackgroundService1> logger, IServiceProvider service, IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
             _logger = logger;
             Services = service;
             _httpClientFactory = httpClientFactory;
-        }
-        public class ApiUser
-        {
-            public long course_id { get; set; }
-
-            public long id { get; set; }
-
-            public long user_id { get; set; }
-
-            public long course_section_id { get; set; }
-
-
+            _Configuration = configuration;
         }
 
         // View the database
@@ -52,9 +46,10 @@ namespace vmProjectBackend.Services
             {
                 var _context = scope.ServiceProvider.GetRequiredService<VmContext>();
                 Guid g = new Guid("cbaef875-6ea0-4c6c-0d49-08d9adf8a71c");
-                var _listOfCourse = _context.Courses;
-                var listOfenroll = _context.Enrollments;
-
+                // var _listOfCourse = _context.Courses.ToList();
+                Console.WriteLine("Enrollment");
+                List<Enrollment> listOfenroll = _context.Enrollments.Where(e => e.teacherId == e.UserId).ToList();
+                Console.WriteLine(listOfenroll);
                 if (listOfenroll != null)
                 {
                     // Figure out a better way to just filter only enrollment with Teachers
@@ -64,6 +59,8 @@ namespace vmProjectBackend.Services
                         // check if it is a Teacher enrollment
                         if (enroll.UserId == enroll.teacherId)
                         {
+                            Console.WriteLine("here is teacher Id");
+                            Console.WriteLine(enroll.teacherId);
                             // grab the id, canvas_token, section_num for every course
                             // var _course_id = enroll.CourseID;
                             var _course_id = 117072;
@@ -71,25 +68,26 @@ namespace vmProjectBackend.Services
                             var _course_canvas_token = enroll.canvas_token;
                             Console.WriteLine($"Course Id: {_course_id},Section Num: {_course_sectionnum}, CanvasToken: {_course_canvas_token}");
 
+                            // This varible is changeable, it will chnage depending of the environment that the 
+                            // project uses. We are using tutors to test this function and in Production we will use actual students
+                            var user_role_id = _Configuration["Canvas:StudentRoleId"];
 
                             // call the Api for that course with the canvas token
                             // create an httpclient instance
-                            Console.WriteLine("here 1");
                             var httpClient = _httpClientFactory.CreateClient();
-                            Console.WriteLine("here 2");
-
+                            // Console.WriteLine("here 2");
                             // Authorization Token for the Canvas url that we are hitting, we need this for every courese
                             // and we will grab it 
-                            httpClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer 10706~rHehDPiCWLgCaPGMqZJJSN9AlB9yhX595C1w1NKYUPKu6Iar7i1xHsSFU8nzvITr");
-
+                            httpClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer 10706~dMj9lrtPek3cvjbK5ZpnpMHGpY5T6oN9mlDsNqgKnbdZ3UZnA5REJSajwQTXMXo2");
                             // contains our base Url where individula course_id is added
-                            // This URL enpoint gives a list of all the Student in that class : role_id= 3 list all the student
-                            var response = await httpClient.GetAsync($"https://byui.instructure.com/api/v1/courses/{_course_id}/enrollments?per_page=1000&role_id=3");
+                            // This URL enpoint gives a list of all the Student in that class : role_id= 3 list all the student for that Professor
+                            var response = await httpClient.GetAsync($"https://byui.test.instructure.com/api/v1/courses/{_course_id}/enrollments?per_page=1000&role_id={user_role_id}");
 
                             if (response.IsSuccessStatusCode)
                             {
-                                Console.WriteLine("passed here 3 ");
+                                // Console.WriteLine("passed here 3 ");
                                 string responseString = await response.Content.ReadAsStringAsync();
+                                // Console.WriteLine(responseString);
                                 // turn the Object into json, will convert this to be a type to work with soon
                                 // We are grabing the all the Student enrolled for that class
 
@@ -97,9 +95,8 @@ namespace vmProjectBackend.Services
                                 dynamic responseObject = JsonConvert.DeserializeObject<dynamic>(responseString);
                                 var student_id = responseObject[0]["user_id"];
 
-
                                 // Take the student_id and call the other Api to get just user Information
-                                var studentInfoResponse = await httpClient.GetAsync($"https://byui.instructure.com/api/v1/courses/{_course_id}/users?search_term={student_id}");
+                                var studentInfoResponse = await httpClient.GetAsync($"https://byui.test.instructure.com/api/v1/courses/{_course_id}/users?search_term={student_id}");
                                 if (studentInfoResponse.IsSuccessStatusCode)
                                 {
                                     string studentResponseString = await studentInfoResponse.Content.ReadAsStringAsync();
@@ -109,19 +106,74 @@ namespace vmProjectBackend.Services
                                     // grab the student Id and the email and name to create the student if they don't exits
                                     // and enroll them in that class
                                     Console.WriteLine("here in the student object");
-                                    Console.WriteLine(studentObject);
-                                    Console.WriteLine("this is student_id");
-                                    Console.WriteLine(student_id);
-                                    Console.WriteLine("this is course_id");
-                                    Console.WriteLine(_course_id);
-                                    Console.WriteLine("this is section_num");
-                                    Console.WriteLine(_course_sectionnum);
-                                    Console.WriteLine("this is teacher_id");
-                                    Console.WriteLine(enroll.teacherId);
-                                    Console.WriteLine("this is vmtable_id");
-                                    Console.WriteLine(enroll.VmTableID);
-                                    Console.WriteLine("this is semester");
-                                    Console.WriteLine(enroll.semester);
+                                    Console.WriteLine(studentObject[0]["id"]);
+                                    Console.WriteLine(studentObject[0]["email"]);
+
+                                    var current_student_id = studentObject[0]["id"];
+                                    string current_student_email = studentObject[0]["email"];
+
+                                    // check if the student is already created, if not then create and enroll in that class
+                                    var _studentDetails = _context.Users.Where(u => u.email == current_student_email).FirstOrDefault();
+                                    string studentnames = studentObject[0]["name"];
+                                    // string[] names = studentnames.Split(' ');
+                                    // Console.WriteLine(names[0]);
+                                    Console.WriteLine("here is the student details");
+                                    if (_studentDetails != null)
+                                    {
+                                        Console.WriteLine("student already exits");
+                                        // Check if they are enrolled in that class also, because they can be in the Database, but not in
+                                        // the class that is same as canvas and this application.
+
+                                        // check if they are enrolled in the same course as canvas and the database
+
+
+
+                                    }
+                                    else
+                                    {
+                                        //  We now know that the student is not in the Database so we create a new user
+                                        // create the course
+                                        Console.WriteLine("student does not exit in database");
+                                        // User student_user = new User();
+                                        // student_user.firstName = studentnames;
+                                        // student_user.email = current_student_email;
+                                        // student_user.userType = "Student";
+                                        // _context.Users.Add(student_user);
+                                        // await _context.SaveChangesAsync();
+
+                                        // // Enroll that Student to that course                                                            
+                                        // Enrollment enrollment = new Enrollment();
+
+                                        // var _courseObject = await _context.Courses
+                                        //                     .Where(c => c.CourseName == courseDetails.courseName)
+                                        //                     .FirstOrDefaultAsync();
+                                        // enrollment.CourseID = _courseObject.CourseID;
+                                        // enrollment.UserId = user_prof.UserID;
+                                        // enrollment.teacherId = courseDetails.teacherId;
+                                        // enrollment.VmTableID = courseDetails.vmTableID;
+                                        // enrollment.Status = courseDetails.status;
+                                        // enrollment.section_num = courseDetails.section_num;
+                                        // enrollment.canvas_token = courseDetails.canvas_token;
+                                        // enrollment.semester = courseDetails.semester;
+
+                                        // _context.Enrollments.Add(enrollment);
+                                        // await _context.SaveChangesAsync();
+
+                                    }
+
+
+                                    // Console.WriteLine("this is student_id");
+                                    // Console.WriteLine(student_id);
+                                    // Console.WriteLine("this is course_id");
+                                    // Console.WriteLine(_course_id);
+                                    // Console.WriteLine("this is section_num");
+                                    // Console.WriteLine(_course_sectionnum);
+                                    // Console.WriteLine("this is teacher_id");
+                                    // Console.WriteLine(enroll.teacherId);
+                                    // Console.WriteLine("this is vmtable_id");
+                                    // Console.WriteLine(enroll.VmTableID);
+                                    // Console.WriteLine("this is semester");
+                                    // Console.WriteLine(enroll.semester);
 
 
                                 }

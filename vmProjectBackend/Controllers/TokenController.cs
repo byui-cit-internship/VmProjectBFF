@@ -134,7 +134,7 @@ namespace vmProjectBackend.Controllers
                 }
 
                 // outside return statment
-                return Ok(user_detail);
+                return Ok(validPayload);
             }
             catch (Exception ex)
             {
