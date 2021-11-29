@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: vmproject-dev
+  name: vmproject-api-dev
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: vmproject-dev
+      app: vmproject-api-dev
   template:
     metadata:
       labels:
-        app: vmproject-dev
+        app: vmproject-api-dev
     spec:
       containers:
-      - name: vmproject-dev
+      - name: vmproject-api-dev
         image: gcr.io/constellation-275522/vmproject
         ports:
         - containerPort: 80        
@@ -28,10 +28,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: vmproject-dev
+  name: vmproject-api-dev
 spec:
   selector:
-    app: vmproject-dev
+    app: vmproject-api-dev
   type: LoadBalancer
   ports:
   - port: 80
