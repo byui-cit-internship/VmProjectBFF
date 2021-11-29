@@ -99,7 +99,7 @@ namespace vmProjectBackend.Services
 
 
                                 // Take the student_id and call the other Api to get just user Information
-                                var studentInfoResponse = await httpClient.GetAsync($"https://byui.instructure.com//api/v1/courses/{_course_id}/users?search_term={student_id}");
+                                var studentInfoResponse = await httpClient.GetAsync($"https://byui.instructure.com/api/v1/courses/{_course_id}/users?search_term={student_id}");
                                 if (studentInfoResponse.IsSuccessStatusCode)
                                 {
                                     string studentResponseString = await studentInfoResponse.Content.ReadAsStringAsync();
