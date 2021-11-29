@@ -55,6 +55,7 @@ NOTE: The project is divided into a few key parts that you will spend most of yo
    - We also run mirgation when we make changes to our Models.
    - To run your first migration, RUN "dotnet ef migrations add [nameofyourMigration- make sure that there are no space], then RUN "dotnet ef database update" to apply the changes.
 7. Handlers Folder: This folder contains a file that secures our Endpoints. It helps to add authentication to our endpoints by requiring our user to place a valid token into the Auithorization Headerwhen sending request to the backend.
+8. Service folder: This folder contains a file called BackgroundService that runs two canvas api call every 1hour to update the database to enroll new students to the course that the teacher created.
 
 
 NOTE:
@@ -107,3 +108,7 @@ Connection string to SQL on docker
 
 "Server=DESKTOP-VV1SUF4;Database=VmDB;User Id=leonarine; Password=password;"
 Server=host.docker.internal,1433;Database=VmDB;User Id=leonarine; Password=password
+
+
+jenkins: Password: password, username:leonarine
+hello
