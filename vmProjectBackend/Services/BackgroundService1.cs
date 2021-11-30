@@ -113,11 +113,34 @@ namespace vmProjectBackend.Services
                                         if (_studentDetails != null)
                                         {
                                             Console.WriteLine("student already exits");
-                                            // Check if they are enrolled in that class also, because they can be in the Database, but not in
-                                            // the class that is same as canvas and this application.
 
-                                            // check if they are enrolled in the same course as canvas and the database
+                                            // find the student in the user db
+                                            var current_student_in_db = _context.Users.Where(u => u.email == current_student_email).FirstOrDefault();
 
+                                            //  search to see if the current student if enrolled in the class
+                                            var current_student_enrollment = _context.Enrollments
+                                            .Where(e => e.UserId == current_student_in_db.UserID && e.CourseID == _course_id).FirstOrDefault();
+
+                                            if (current_student_enrollment != null)
+                                            {
+                                                // Enroll that Student to that course                                                            
+                                                Enrollment enrollment = new Enrollment();
+                                                long enroll_course_id = _context.Courses.FirstOrDefault(c => c.CourseID == _course_id).CourseID;
+                                                enrollment.CourseID = enroll_course_id;
+                                                enrollment.UserId = current_student_enrollment.UserId;
+                                                enrollment.teacherId = enroll.teacherId;
+                                                enrollment.VmTableID = enroll.VmTableID;
+                                                enrollment.Status = "InActive";
+                                                enrollment.section_num = _course_sectionnum;
+                                                enrollment.semester = enroll.semester;
+                                                _context.Enrollments.Add(enrollment);
+                                                await _context.SaveChangesAsync();
+                                                Console.WriteLine("Student now enrolled into the course");
+                                            }
+                                            else
+                                            {
+                                                Console.WriteLine("Student already enrolled");
+                                            }
                                         }
                                         else
                                         {
@@ -151,9 +174,6 @@ namespace vmProjectBackend.Services
                                         }
                                     }
                                 }
-                                // From that Response, find the Email, and name of student and store it.
-                                // Now we have, student_id and email, we check if we have that student in the database, if not we create that user
-                                // and enroll that use into that course 
 
                             }
                             else
@@ -171,23 +191,6 @@ namespace vmProjectBackend.Services
                 {
                     Console.WriteLine("There is no Enrollment");
                 }
-
-
-                // Ask for a easier way to just filter the enrollment for the Teachers 
-
-
-
-                // Loop through all the courses in the database
-                // store those course name and course ID in a list and their canvas_token
-                // Take an course Id and canvas_token from that List and call the canvas API to get a list of Student
-                // And for every student that you get, take their ID and call the Individual Canvas API to get their Infomation 
-                // which is primarily their email.Check if that User is already created, if not Use that to create a user(student user)
-                // Then create a list of Users(student). Then enroll them into a class for that section.
-                //  Do this for every course in the Database.
-
-
-
-                // foreach (var )
             }
 
         }
