@@ -45,7 +45,7 @@ namespace vmProjectBackend.DAL
             //    creating data fro the courses
             var courses = new Course[]
             {
-                new Course {CourseID = 1,CourseName="Cit 123", description= "this is demo"},
+                new Course {CourseID = 117072,CourseName="Cit 123", description= "this is demo"},
                 new Course {CourseID = 2,CourseName="Cit 456" ,  description= "this is demo"},
                 new Course {CourseID = 3,CourseName="Cit 798" , description= "this is demo" },
                 new Course {CourseID = 4,CourseName="Cit 101" ,  description= "this is demo" },
