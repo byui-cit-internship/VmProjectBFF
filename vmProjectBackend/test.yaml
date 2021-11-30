@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vmproject-api-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vmproject-api-test
+  template:
+    metadata:
+      labels:
+        app: vmproject-api-test
+    spec:
+      containers:
+      - name: vmproject-api-test
+        image: gcr.io/constellation-275522/vmproject
+        ports:
+        - containerPort: 80        
+        resources:
+          limits:
+            cpu: ".5"
+            memory: "500Mi"
+          requests:
+            cpu: ".25"
+            memory: "250Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vmproject-api-test
+spec:
+  selector:
+    app: vmproject-api-test
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 80    
