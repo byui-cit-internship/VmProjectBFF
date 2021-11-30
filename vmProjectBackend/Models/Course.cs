@@ -13,7 +13,7 @@ namespace vmProjectBackend.Models
         [Key]
 
         // [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid CourseID { get; set; }
+        public long CourseID { get; set; }
         [Required]
         [StringLength(50)]
         public string CourseName { get; set; }

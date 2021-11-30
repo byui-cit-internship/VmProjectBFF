@@ -11,7 +11,8 @@ namespace vmProjectBackend.Migrations
                 name: "Course",
                 columns: table => new
                 {
-                    CourseID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CourseID = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     CourseName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     description = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
@@ -65,7 +66,7 @@ namespace vmProjectBackend.Migrations
                 columns: table => new
                 {
                     EnrollmentID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CourseID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CourseID = table.Column<long>(type: "bigint", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     teacherId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     VmTableID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),

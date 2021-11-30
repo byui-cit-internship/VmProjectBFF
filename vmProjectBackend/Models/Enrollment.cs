@@ -8,7 +8,7 @@ namespace vmProjectBackend.Models
         [Key]
         public Guid EnrollmentID { get; set; }
 
-        public Guid CourseID { get; set; }
+        public long CourseID { get; set; }
 
         public Guid UserId { get; set; }
         [Required]

@@ -134,31 +134,27 @@ namespace vmProjectBackend.Services
                                         //  We now know that the student is not in the Database so we create a new user
                                         // create the course
                                         Console.WriteLine("student does not exit in database");
+
                                         // User student_user = new User();
+
                                         // student_user.firstName = studentnames;
                                         // student_user.email = current_student_email;
                                         // student_user.userType = "Student";
                                         // _context.Users.Add(student_user);
                                         // await _context.SaveChangesAsync();
 
-                                        // // Enroll that Student to that course                                                            
+                                        // // // Enroll that Student to that course                                                            
                                         // Enrollment enrollment = new Enrollment();
 
-                                        // var _courseObject = await _context.Courses
-                                        //                     .Where(c => c.CourseName == courseDetails.courseName)
-                                        //                     .FirstOrDefaultAsync();
-                                        // enrollment.CourseID = _courseObject.CourseID;
-                                        // enrollment.UserId = user_prof.UserID;
-                                        // enrollment.teacherId = courseDetails.teacherId;
-                                        // enrollment.VmTableID = courseDetails.vmTableID;
-                                        // enrollment.Status = courseDetails.status;
-                                        // enrollment.section_num = courseDetails.section_num;
-                                        // enrollment.canvas_token = courseDetails.canvas_token;
-                                        // enrollment.semester = courseDetails.semester;
-
+                                        // enrollment.CourseID = _course_id;
+                                        // enrollment.UserId = student_user.UserID;
+                                        // enrollment.teacherId = enroll.teacherId;
+                                        // enrollment.VmTableID = enroll.VmTableID;
+                                        // enrollment.Status = "InActive";
+                                        // enrollment.section_num = _course_sectionnum;
+                                        // enrollment.semester = enroll.semester;
                                         // _context.Enrollments.Add(enrollment);
                                         // await _context.SaveChangesAsync();
-
                                     }
 
 

@@ -21,9 +21,10 @@ namespace vmProjectBackend.Migrations
 
             modelBuilder.Entity("vmProjectBackend.Models.Course", b =>
                 {
-                    b.Property<Guid>("CourseID")
+                    b.Property<long>("CourseID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("CourseName")
                         .IsRequired()
@@ -44,8 +45,8 @@ namespace vmProjectBackend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CourseID")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<long>("CourseID")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
