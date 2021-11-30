@@ -66,7 +66,7 @@ namespace vmProjectBackend
             .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
 
             // ********************ONLY FOR NOW USE****************************
-            string connectionString = Configuration.GetConnectionString("DevelopmentString");
+            string connectionString = Configuration.GetConnectionString("DatabaseString");
 
             services.AddDbContext<VmContext>(opt =>
                                              opt.UseSqlServer(connectionString));
