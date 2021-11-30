@@ -1,22 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: vmproject-api-dev
+  name: vmproject-api-test
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: vmproject-api-dev
+      app: vmproject-api-test
   template:
     metadata:
       labels:
-        app: vmproject-api-dev
+        app: vmproject-api-test
     spec:
       containers:
-      - name: vmproject-api-dev
-        env:
-        - name: APSNETCORE_ENVIRONMENT
-          value: development
+      - name: vmproject-api-test
         image: gcr.io/constellation-275522/vmproject
         ports:
         - containerPort: 80        
@@ -31,10 +28,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: vmproject-api-dev
+  name: vmproject-api-test
 spec:
   selector:
-    app: vmproject-api-dev
+    app: vmproject-api-test
   type: LoadBalancer
   ports:
   - port: 80
