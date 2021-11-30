@@ -63,7 +63,7 @@ namespace vmProjectBackend.Services
                             Console.WriteLine(enroll.teacherId);
                             // grab the id, canvas_token, section_num for every course
                             // var _course_id = enroll.CourseID;
-                            var _course_id = 117072;
+                            long _course_id = 117072;
                             var _course_sectionnum = enroll.section_num;
                             var _course_canvas_token = enroll.canvas_token;
                             Console.WriteLine($"Course Id: {_course_id},Section Num: {_course_sectionnum}, CanvasToken: {_course_canvas_token}");
@@ -115,8 +115,11 @@ namespace vmProjectBackend.Services
                                     // check if the student is already created, if not then create and enroll in that class
                                     var _studentDetails = _context.Users.Where(u => u.email == current_student_email).FirstOrDefault();
                                     string studentnames = studentObject[0]["name"];
-                                    // string[] names = studentnames.Split(' ');
-                                    // Console.WriteLine(names[0]);
+                                    string[] names = studentnames.Split(' ');
+                                    int lastIndex = names.GetUpperBound(0);
+                                    string current_student_firstName = names[0];
+                                    string current_student_lastName = names[lastIndex];
+
                                     Console.WriteLine("here is the student details");
                                     if (_studentDetails != null)
                                     {
@@ -126,35 +129,50 @@ namespace vmProjectBackend.Services
 
                                         // check if they are enrolled in the same course as canvas and the database
 
-
-
                                     }
                                     else
                                     {
                                         //  We now know that the student is not in the Database so we create a new user
                                         // create the course
-                                        Console.WriteLine("student does not exit in database");
+                                        Console.WriteLine("Student does not exit in Db");
 
                                         // User student_user = new User();
-
-                                        // student_user.firstName = studentnames;
+                                        // Console.WriteLine("Student mode 1");
+                                        // student_user.firstName = current_student_firstName;
+                                        // Console.WriteLine("Student mode 2");
+                                        // student_user.lastName = current_student_lastName;
+                                        // Console.WriteLine("Student mode 3");
                                         // student_user.email = current_student_email;
+                                        // Console.WriteLine("Student mode 4");
                                         // student_user.userType = "Student";
+                                        // Console.WriteLine("Student mode 5");
                                         // _context.Users.Add(student_user);
+                                        // Console.WriteLine("Student mode 6");
                                         // await _context.SaveChangesAsync();
+                                        // Console.WriteLine("Student mode 7");
 
                                         // // // Enroll that Student to that course                                                            
                                         // Enrollment enrollment = new Enrollment();
+                                        // Console.WriteLine("Student mode 1");
 
                                         // enrollment.CourseID = _course_id;
+                                        // Console.WriteLine("Student mode 8");
                                         // enrollment.UserId = student_user.UserID;
+                                        // Console.WriteLine("Student mode 9");
                                         // enrollment.teacherId = enroll.teacherId;
+                                        // Console.WriteLine("Student mode 10");
                                         // enrollment.VmTableID = enroll.VmTableID;
+                                        // Console.WriteLine("Student mode 11");
                                         // enrollment.Status = "InActive";
+                                        // Console.WriteLine("Student mode 12");
                                         // enrollment.section_num = _course_sectionnum;
+                                        // Console.WriteLine("Student mode 13");
                                         // enrollment.semester = enroll.semester;
+                                        // Console.WriteLine("Student mode 14");
                                         // _context.Enrollments.Add(enrollment);
-                                        // await _context.SaveChangesAsync();
+                                        // Console.WriteLine("Student mode 15");
+
+                                        // Console.WriteLine("Student mode 16");
                                     }
 
 

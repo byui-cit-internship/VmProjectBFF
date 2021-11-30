@@ -45,10 +45,10 @@ namespace vmProjectBackend.DAL
             //    creating data fro the courses
             var courses = new Course[]
             {
-                new Course {CourseName="Cit 123", description= "this is demo"},
-                new Course {CourseName="Cit 456" ,  description= "this is demo"},
-                new Course {CourseName="Cit 798" , description= "this is demo" },
-                new Course {CourseName="Cit 101" ,  description= "this is demo" },
+                new Course {CourseID = 1,CourseName="Cit 123", description= "this is demo"},
+                new Course {CourseID = 2,CourseName="Cit 456" ,  description= "this is demo"},
+                new Course {CourseID = 3,CourseName="Cit 798" , description= "this is demo" },
+                new Course {CourseID = 4,CourseName="Cit 101" ,  description= "this is demo" },
                 // new Course {CourseName="Cit 123" , canvas_token= "11345fxb", description= "this is demo"},
                 // new Course {CourseName="Cit 456" , canvas_token= "12345fxb", description= "this is demo"},
                 // new Course {CourseName="Cit 798" , canvas_token= "1345fxb", description= "this is demo" },
@@ -88,10 +88,10 @@ namespace vmProjectBackend.DAL
                     section_num= "1",
                     canvas_token = "1234agdhgshd",
                     semester="Fall",
-                    
+
                     teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID,
                     VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
-                    
+
                     },
                 new Enrollment {
                     UserId = users.Single(s => s.email == "leonarine@gmail.com").UserID,

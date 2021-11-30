@@ -11,8 +11,7 @@ namespace vmProjectBackend.Migrations
                 name: "Course",
                 columns: table => new
                 {
-                    CourseID = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CourseID = table.Column<long>(type: "bigint", nullable: false),
                     CourseName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     description = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },

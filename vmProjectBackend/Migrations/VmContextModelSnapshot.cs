@@ -22,9 +22,7 @@ namespace vmProjectBackend.Migrations
             modelBuilder.Entity("vmProjectBackend.Models.Course", b =>
                 {
                     b.Property<long>("CourseID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
 
                     b.Property<string>("CourseName")
                         .IsRequired()

@@ -31,6 +31,7 @@ namespace vmProjectBackend.Controllers
         **************************/
         public class CourseCreates
         {
+            public long course_id { get; set; }
             public string courseName { get; set; }
             public string description { get; set; }
             public string canvas_token { get; set; }
@@ -70,6 +71,7 @@ namespace vmProjectBackend.Controllers
             {
                 // create the course
                 Course course = new Course();
+                course.CourseID= courseDetails.course_id;
                 course.CourseName = courseDetails.courseName;
                 course.description = courseDetails.description;
                 _context.Courses.Add(course);

@@ -10,7 +10,7 @@ using vmProjectBackend.DAL;
 namespace vmProjectBackend.Migrations
 {
     [DbContext(typeof(VmContext))]
-    [Migration("20211130174521_InitialCreate")]
+    [Migration("20211130193432_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,9 +24,7 @@ namespace vmProjectBackend.Migrations
             modelBuilder.Entity("vmProjectBackend.Models.Course", b =>
                 {
                     b.Property<long>("CourseID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
 
                     b.Property<string>("CourseName")
                         .IsRequired()
