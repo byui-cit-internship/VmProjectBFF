@@ -117,13 +117,13 @@ namespace vmProjectBackend.Services
                                             // find the student in the user db
                                             var current_student_in_db = _context.Users.Where(u => u.email == current_student_email).FirstOrDefault();
 
-                                            //  search to see if the current student if enrolled in the class
+                                            //  search to see if the current student tif enrolled in the class
                                             var current_student_enrollment = _context.Enrollments
                                             .Where(e => e.UserId == current_student_in_db.UserID && e.CourseID == _course_id).FirstOrDefault();
 
-                                            if (current_student_enrollment != null)
+                                            if (current_student_enrollment == null)
                                             {
-                                                // Enroll that Student to that course                                                            
+                                                // // // Enroll that Student to that course                                                            
                                                 Enrollment enrollment = new Enrollment();
                                                 long enroll_course_id = _context.Courses.FirstOrDefault(c => c.CourseID == _course_id).CourseID;
                                                 enrollment.CourseID = enroll_course_id;
@@ -135,12 +135,18 @@ namespace vmProjectBackend.Services
                                                 enrollment.semester = enroll.semester;
                                                 _context.Enrollments.Add(enrollment);
                                                 await _context.SaveChangesAsync();
-                                                Console.WriteLine("Student now enrolled into the course");
+                                                Console.WriteLine("Student enrolled into the course");
                                             }
                                             else
                                             {
                                                 Console.WriteLine("Student already enrolled");
                                             }
+
+                                            // Check if they are enrolled in that class also, because they can be in the Database, but not in
+                                            // the class that is same as canvas and this application.
+
+                                            // check if they are enrolled in the same course as canvas and the database
+
                                         }
                                         else
                                         {
