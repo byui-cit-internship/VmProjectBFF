@@ -73,7 +73,7 @@ namespace vmProjectBackend.Controllers
 
                         _context.Users.Add(user); ;
                         await _context.SaveChangesAsync();
-                        return Ok(user);
+                        return Ok(user.userType);
                     }
                     catch (Exception ex)
                     {
@@ -83,7 +83,7 @@ namespace vmProjectBackend.Controllers
                 }
 
                 // outside return statment
-                return Ok(validPayload);
+                return Ok(user_detail.userType);
             }
             catch (Exception ex)
             {
