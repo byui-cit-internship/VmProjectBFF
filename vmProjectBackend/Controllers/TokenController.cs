@@ -49,11 +49,6 @@ namespace vmProjectBackend.Controllers
 
                 var user_detail = _context.Users.Where(u => u.email == validEmail).FirstOrDefault();
 
-                // if (user_email == null)
-                // {
-                //     Console.WriteLine("this is the current email", user_email);
-                // }
-
                 if (user_detail == null)
                 {
                     try
