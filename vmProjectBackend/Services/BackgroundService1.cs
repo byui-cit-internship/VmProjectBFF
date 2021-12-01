@@ -38,6 +38,20 @@ namespace vmProjectBackend.Services
             _Configuration = configuration;
         }
 
+        // public async Task EnrollStudent(long _course_id)
+        // {
+        //     Enrollment enrollment = new Enrollment();
+        //     long enroll_course_id = _context.Courses.FirstOrDefault(c => c.CourseID == _course_id).CourseID;
+        //     enrollment.CourseID = enroll_course_id;
+        //     enrollment.UserId = current_student_enrollment.UserId;
+        //     enrollment.teacherId = enroll.teacherId;
+        //     enrollment.VmTableID = enroll.VmTableID;
+        //     enrollment.Status = "InActive";
+        //     enrollment.section_num = _course_sectionnum;
+        //     enrollment.semester = enroll.semester;
+        //     _context.Enrollments.Add(enrollment);
+        //     await _context.SaveChangesAsync();
+        // }
         // View the database
         public async Task ReadAndUpdateDB()
         {
@@ -45,6 +59,22 @@ namespace vmProjectBackend.Services
             {
                 var _context = scope.ServiceProvider.GetRequiredService<VmContext>();
                 List<Enrollment> listOfenroll = _context.Enrollments.Where(e => e.teacherId == e.UserId).ToList();
+
+                async Task EnrollStudent(long _course_id, Guid userid, Guid teacherid, Guid vmtableId, string sectionnum, string semester)
+                {
+                    Enrollment enrollment = new Enrollment();
+                    long enroll_course_id = _context.Courses.FirstOrDefault(c => c.CourseID == _course_id).CourseID;
+                    enrollment.CourseID = enroll_course_id;
+                    enrollment.UserId = userid;
+                    enrollment.teacherId = teacherid;
+                    enrollment.VmTableID = vmtableId;
+                    enrollment.Status = "InActive";
+                    enrollment.section_num = sectionnum;
+                    enrollment.semester = semester;
+                    _context.Enrollments.Add(enrollment);
+                    await _context.SaveChangesAsync();
+                }
+
                 if (listOfenroll != null)
                 {
                     // Figure out a better way to just filter only enrollment with Teachers
@@ -101,57 +131,40 @@ namespace vmProjectBackend.Services
                                         var current_student_id = current_studentObject[0]["id"];
                                         string current_student_email = current_studentObject[0]["email"];
 
-                                        // check if the student is already created, if not then create and enroll in that class
-                                        var _studentDetails = _context.Users.Where(u => u.email == current_student_email).FirstOrDefault();
+
                                         string studentnames = current_studentObject[0]["name"];
                                         string[] names = studentnames.Split(' ');
                                         int lastIndex = names.GetUpperBound(0);
                                         string current_student_firstName = names[0];
                                         string current_student_lastName = names[lastIndex];
 
+                                        // check if the student is already created, if not then create and enroll in that class
+                                        var current_student_in_db = _context.Users.Where(u => u.email == current_student_email).FirstOrDefault();
+
                                         Console.WriteLine("here is the student details");
-                                        if (_studentDetails != null)
+                                        if (current_student_in_db != null)
                                         {
                                             Console.WriteLine("student already exits");
-
-                                            // find the student in the user db
-                                            var current_student_in_db = _context.Users.Where(u => u.email == current_student_email).FirstOrDefault();
-
-                                            //  search to see if the current student tif enrolled in the class
-                                            var current_student_enrollment = _context.Enrollments
-                                            .Where(e => e.UserId == current_student_in_db.UserID && e.CourseID == _course_id).FirstOrDefault();
-
+                                            //  search to see if the current student is enrolled in the class
+                                            var current_student_enrollment = _context.Enrollments.Where(e => e.UserId == current_student_in_db.UserID
+                                                                                                  && e.CourseID == _course_id)
+                                                                                                  .FirstOrDefault();
+                                            Guid current_student_enrollid = current_student_enrollment.UserId;
                                             if (current_student_enrollment == null)
                                             {
-                                                // // // Enroll that Student to that course                                                            
-                                                Enrollment enrollment = new Enrollment();
-                                                long enroll_course_id = _context.Courses.FirstOrDefault(c => c.CourseID == _course_id).CourseID;
-                                                enrollment.CourseID = enroll_course_id;
-                                                enrollment.UserId = current_student_enrollment.UserId;
-                                                enrollment.teacherId = enroll.teacherId;
-                                                enrollment.VmTableID = enroll.VmTableID;
-                                                enrollment.Status = "InActive";
-                                                enrollment.section_num = _course_sectionnum;
-                                                enrollment.semester = enroll.semester;
-                                                _context.Enrollments.Add(enrollment);
-                                                await _context.SaveChangesAsync();
+                                                //Enroll that Student to that course  
+                                                await EnrollStudent(_course_id, current_student_enrollid, enroll.teacherId, enroll.VmTableID, _course_sectionnum, enroll.semester);
                                                 Console.WriteLine("Student enrolled into the course");
                                             }
                                             else
                                             {
                                                 Console.WriteLine("Student already enrolled");
                                             }
-
-                                            // Check if they are enrolled in that class also, because they can be in the Database, but not in
-                                            // the class that is same as canvas and this application.
-
-                                            // check if they are enrolled in the same course as canvas and the database
-
                                         }
                                         else
                                         {
                                             //  We now know that the student is not in the Database so we create a new user
-                                            // create the course
+
                                             Console.WriteLine("Student does not exit in Db");
 
                                             User student_user = new User();
@@ -164,18 +177,8 @@ namespace vmProjectBackend.Services
                                             await _context.SaveChangesAsync();
                                             Console.WriteLine("Student_user was created");
 
-                                            // // // Enroll that Student to that course                                                            
-                                            Enrollment enrollment = new Enrollment();
-                                            long enroll_course_id = _context.Courses.FirstOrDefault(c => c.CourseID == _course_id).CourseID;
-                                            enrollment.CourseID = enroll_course_id;
-                                            enrollment.UserId = student_user.UserID;
-                                            enrollment.teacherId = enroll.teacherId;
-                                            enrollment.VmTableID = enroll.VmTableID;
-                                            enrollment.Status = "InActive";
-                                            enrollment.section_num = _course_sectionnum;
-                                            enrollment.semester = enroll.semester;
-                                            _context.Enrollments.Add(enrollment);
-                                            await _context.SaveChangesAsync();
+                                            // Enroll the newly created student into that course
+                                            await EnrollStudent(_course_id, student_user.UserID, enroll.teacherId, enroll.VmTableID, _course_sectionnum, enroll.semester);
                                             Console.WriteLine("Student now created and enrolled into the course");
                                         }
                                     }
@@ -200,7 +203,6 @@ namespace vmProjectBackend.Services
             }
 
         }
-
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
