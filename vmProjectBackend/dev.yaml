@@ -16,7 +16,7 @@ spec:
       - name: vmproject-api-dev
         env:
         - name: APSNETCORE_ENVIRONMENT
-          value: development
+          value: Development
         image: gcr.io/constellation-275522/vmproject
         ports:
         - containerPort: 80        
