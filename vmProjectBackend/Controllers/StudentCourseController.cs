@@ -50,7 +50,8 @@ namespace vmProjectBackend.Controllers
                                         course_name = e.Course.CourseName,
                                         course_id = e.CourseID,
                                         course_semester = e.semester,
-                                        course_sectionnum = e.section_num
+                                        course_sectionnum = e.section_num,
+                                        course_status= e.Status
                                     })
                                     .ToArrayAsync();
 
