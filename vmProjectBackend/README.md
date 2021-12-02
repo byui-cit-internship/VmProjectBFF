@@ -54,8 +54,9 @@ NOTE: The project is divided into a few key parts that you will spend most of yo
    - We run migrations when we want to generate an database. Migration helps us to generate a database through what is called Code first database. The migration takes our models goes and connect to our sql server and genrates all the column and tables. This eliminates the need to go and create the Database first.
    - We also run mirgation when we make changes to our Models.
    - To run your first migration, RUN "dotnet ef migrations add [nameofyourMigration- make sure that there are no space], then RUN "dotnet ef database update" to apply the changes.
-7. Handlers Folder: This folder contains a file that secures our Endpoints. It helps to add authentication to our endpoints by requiring our user to place a valid token into the Auithorization Headerwhen sending request to the backend.
-8. Service folder: This folder contains a file called BackgroundService that runs two canvas api call every 1hour to update the database to enroll new students to the course that the teacher created.
+7. Handlers Folder: This folder contains a file that secures our Endpoints. It helps to add authentication to our endpoints by requiring our user to place a valid token into the Auithorization Headerwhen sending request to any backend api with the [Autorize] annotations.
+8. Service folder: This folder contains a file called BackgroundService that runs two canvas api call every 1hour to update the database to enroll new students to the course that the teacher created. it runs through a list of Professor enrollment, grab their courses, from a course it grab the course_id, runs the first api and grabs a list of student. From that list of student it grabs a student and their Id and call another Api which gives their. It then takes that Info, creates a user and then enroll them into that class.
+
 
 
 NOTE:
