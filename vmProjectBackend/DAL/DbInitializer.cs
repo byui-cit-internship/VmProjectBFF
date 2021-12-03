@@ -32,8 +32,9 @@ namespace vmProjectBackend.DAL
                 new User { firstName = "Peggy",   lastName = "Justice",
                     email="Justice@gmail.com", userType="Student", userAccess= false},
                 new User { firstName = "Lakeram",   lastName = "Narine",
-                    email="nar19002@byui.edu", userType="Student", userAccess= false}
-
+                    email="nar19002@byui.edu", userType="Professor", userAccess= false},
+                new User { firstName = "Tammy",   lastName = "Nolasco",
+                    email="nol18003@byui.edu", userType="Professor", userAccess= false}
 
             };
 
@@ -171,6 +172,37 @@ namespace vmProjectBackend.DAL
                             section_num= "2",
                             semester="Fall",
                             teacherId = users.FirstOrDefault(s => s.email == "leonarine@gmail.com").UserID,
+                            VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
+                            },
+
+                /************************teacher********************/
+                new Enrollment {
+                    UserId = users.Single(s => s.email == "nol18003@byui.edu").UserID,
+                    CourseID = courses.Single(c => c.CourseName == "Cit 456").CourseID,
+                    Status= "Active",
+                    section_num= "2",
+                    canvas_token = "1234agdhgshd",
+                    semester="Fall",
+                    teacherId = users.FirstOrDefault(s => s.email == "nol18003@byui.edu").UserID,
+                    VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
+                    },
+                /*************************/
+                            new Enrollment {
+                            UserId = users.FirstOrDefault(s => s.email == "anand@gmail.com").UserID,
+                            CourseID = courses.FirstOrDefault(c => c.CourseName == "Cit 456").CourseID,
+                            Status= "Active",
+                            section_num= "2",
+                            semester="Fall",
+                            teacherId = users.FirstOrDefault(s => s.email == "nol18003@byui.edu").UserID,
+                            VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
+                            },
+                            new Enrollment {
+                            UserId = users.FirstOrDefault(s => s.email == "Barzdukas@gmail.com").UserID,
+                            CourseID = courses.FirstOrDefault(c => c.CourseName == "Cit 456").CourseID,
+                            Status= "Active",
+                            section_num= "2",
+                            semester="Fall",
+                            teacherId = users.FirstOrDefault(s => s.email == "nol18003@byui.edu").UserID,
                             VmTableID = vmtables.FirstOrDefault(vm => vm.vm_image=="windows 10 gb").VmTableID
                             },
 
