@@ -81,7 +81,7 @@ namespace vmProjectBackend.Controllers
                 Enrollment enrollment = new Enrollment();
 
                 var _courseObject = await _context.Courses
-                                    .Where(c => c.CourseName == courseDetails.courseName)
+                                    .Where(c => c.CourseID == courseDetails.course_id)
                                     .FirstOrDefaultAsync();
                 enrollment.CourseID = _courseObject.CourseID;
                 enrollment.UserId = user_prof.UserID;

@@ -191,10 +191,8 @@ namespace vmProjectBackend.Services
                                 Console.WriteLine(response.StatusCode);
                             }
                             Console.WriteLine("here 5");
-
                         }
                     }
-
                 }
                 else
                 {
