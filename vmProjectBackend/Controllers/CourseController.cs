@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore;
 using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
 using Microsoft.AspNetCore.Identity;
+using System.Net.Http;
+using Microsoft.Net.Http.Headers;
 
 namespace vmProjectBackend.Controllers
 {
@@ -20,9 +22,12 @@ namespace vmProjectBackend.Controllers
     {
         private readonly VmContext _context;
 
-        public CourseController(VmContext context)
+        public IHttpClientFactory _httpClientFactory { get; }
+
+        public CourseController(VmContext context, IHttpClientFactory httpClientFactory)
         {
             _context = context;
+            _httpClientFactory = httpClientFactory;
         }
 
         /****************************************
@@ -401,6 +406,39 @@ namespace vmProjectBackend.Controllers
                 return Ok(orginalCourse);
 
 
+            }
+            return Unauthorized("You are not Authorized and is not a Professor");
+
+        }
+
+        /************************************************
+        
+        Teacher patch their course
+
+        ***********************/
+        [HttpPost("professor/checkCanvasToken")]
+        public async Task<ActionResult> CallCanvas([FromBody] CanvasCredentials canvasCredentials)
+        {
+            string useremail = HttpContext.User.Identity.Name;
+            // check if it is a professor
+            var user_prof = _context.Users
+                            .Where(p => p.email == useremail && p.userType == "Professor")
+                            .FirstOrDefault();
+            // not complete as yet
+            if (user_prof != null)
+            {
+                var httpClient = _httpClientFactory.CreateClient();
+                httpClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + canvasCredentials.canvas_token);
+                // contains our base Url where individula course_id is added
+                // This URL enpoint gives a list of all the Student in that class : role_id= 3 list all the student for that Professor
+                var response = await httpClient.GetAsync($"https://byui.test.instructure.com/api/v1/courses/{canvasCredentials.canvas_course_id}/enrollments?per_page=1000");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return Ok(canvasCredentials);
+                }
+                return Unauthorized("Invalid token");
+                // return Ok(canvasCredentials);
             }
             return Unauthorized("You are not Authorized and is not a Professor");
 

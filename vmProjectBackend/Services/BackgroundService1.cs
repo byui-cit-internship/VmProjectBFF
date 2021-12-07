@@ -203,14 +203,14 @@ namespace vmProjectBackend.Services
         }
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            while (!stoppingToken.IsCancellationRequested)
-            {
+            // while (!stoppingToken.IsCancellationRequested)
+            // {
 
-                await ReadAndUpdateDB();
-                // _logger.LogInformation("From background service");
-                await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
-            }
-            await Task.CompletedTask;
+            //     await ReadAndUpdateDB();
+            //     // _logger.LogInformation("From background service");
+            //     await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
+            // }
+            // await Task.CompletedTask;
         }
     }
 }

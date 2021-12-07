@@ -69,33 +69,43 @@ namespace vmProjectBackend.Controllers
 
             if (user_prof != null && courseDetails != null)
             {
-                // create the course
-                Course course = new Course();
-                course.CourseID= courseDetails.course_id;
-                course.CourseName = courseDetails.courseName;
-                course.description = courseDetails.description;
-                _context.Courses.Add(course);
-                await _context.SaveChangesAsync();
+                // check if the course is already create
+                var course_exit = _context.Courses.Where(p => p.CourseID == courseDetails.course_id).FirstOrDefault();
+                if (course_exit == null)
+                { // create the course
+                    Course course = new Course();
+                    course.CourseID = courseDetails.course_id;
+                    course.CourseName = courseDetails.courseName;
+                    course.description = courseDetails.description;
+                    _context.Courses.Add(course);
+                    await _context.SaveChangesAsync();
 
-                // Create the enrollment
-                Enrollment enrollment = new Enrollment();
+                    // Create the enrollment
+                    Enrollment enrollment = new Enrollment();
 
-                var _courseObject = await _context.Courses
-                                    .Where(c => c.CourseID == courseDetails.course_id)
-                                    .FirstOrDefaultAsync();
-                enrollment.CourseID = _courseObject.CourseID;
-                enrollment.UserId = user_prof.UserID;
-                enrollment.teacherId = courseDetails.teacherId;
-                enrollment.VmTableID = courseDetails.vmTableID;
-                enrollment.Status = courseDetails.status;
-                enrollment.section_num = courseDetails.section_num;
-                enrollment.canvas_token = courseDetails.canvas_token;
-                enrollment.semester = courseDetails.semester;
+                    var _courseObject = await _context.Courses
+                                        .Where(c => c.CourseID == courseDetails.course_id)
+                                        .FirstOrDefaultAsync();
+                    enrollment.CourseID = _courseObject.CourseID;
+                    enrollment.UserId = user_prof.UserID;
+                    enrollment.teacherId = courseDetails.teacherId;
+                    enrollment.VmTableID = courseDetails.vmTableID;
+                    enrollment.Status = courseDetails.status;
+                    enrollment.section_num = courseDetails.section_num;
+                    enrollment.canvas_token = courseDetails.canvas_token;
+                    enrollment.semester = courseDetails.semester;
 
-                _context.Enrollments.Add(enrollment);
-                await _context.SaveChangesAsync();
+                    _context.Enrollments.Add(enrollment);
+                    await _context.SaveChangesAsync();
 
-                return Ok("ID " + enrollment.EnrollmentID + " enrollment was created");
+                    return Ok("ID " + enrollment.EnrollmentID + " enrollment was created");
+
+                }
+                else
+                {
+                    return Conflict(new {message= $"A course already exits with this id {courseDetails.course_id}"});
+                }
+
 
             }
             return Unauthorized();
