@@ -1,4 +1,4 @@
-# VM project
+# VM-Backend project
 # Project Requirement:
 1. Student have the ability to access/ request a VM through a user interface for a specific class.
 2. Professors are able to provision a VM for the class that they are assigned to.
