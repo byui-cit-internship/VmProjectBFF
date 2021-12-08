@@ -85,22 +85,22 @@ namespace vmProjectBackend.Services
                         if (enroll.UserId == enroll.teacherId)
                         {
                             // grab the id, canvas_token, section_num for every course
-                            // var _course_id = enroll.CourseID;
-                            long _course_id = 117072;
+                            var _course_id = enroll.CourseID;
+                            // long _course_id = 117072;
                             var _course_sectionnum = enroll.section_num;
                             var _course_canvas_token = enroll.canvas_token;
 
                             // This varible is changeable, it will chnage depending of the environment that the 
                             // project uses. We are using tutors to test this function and in Production we will use actual students
-                            var user_role_id = _Configuration["Canvas:StudentRoleId"];
-
+                            // var user_role_id = _Configuration["Canvas:StudentRoleId"];
+                            var user_role_id = 3;
                             // call the Api for that course with the canvas token
                             // create an httpclient instance
                             var httpClient = _httpClientFactory.CreateClient();
 
                             // Authorization Token for the Canvas url that we are hitting, we need this for every courese
                             // and we will grab it 
-                            httpClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer 10706~dMj9lrtPek3cvjbK5ZpnpMHGpY5T6oN9mlDsNqgKnbdZ3UZnA5REJSajwQTXMXo2");
+                            httpClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + _course_canvas_token);
                             // contains our base Url where individula course_id is added
                             // This URL enpoint gives a list of all the Student in that class : role_id= 3 list all the student for that Professor
                             var response = await httpClient.GetAsync($"https://byui.test.instructure.com/api/v1/courses/{_course_id}/enrollments?per_page=1000&role_id={user_role_id}");
@@ -203,14 +203,14 @@ namespace vmProjectBackend.Services
         }
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            // while (!stoppingToken.IsCancellationRequested)
-            // {
+            while (!stoppingToken.IsCancellationRequested)
+            {
 
-            //     await ReadAndUpdateDB();
-            //     // _logger.LogInformation("From background service");
-            //     await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
-            // }
-            // await Task.CompletedTask;
+                await ReadAndUpdateDB();
+                // _logger.LogInformation("From background service");
+                await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken);
+            }
+            await Task.CompletedTask;
         }
     }
 }
