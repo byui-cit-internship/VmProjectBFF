@@ -103,10 +103,19 @@ namespace vmProjectBackend.Controllers
         [HttpPost]
         public async Task<ActionResult<User>> PostUser(User user)
         {
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            string user_email = HttpContext.User.Identity.Name;
+            var auth_user = await _context.Users
+                            .Where(p => p.email == user_email)
+                            .FirstOrDefaultAsync();
 
-            return CreatedAtAction("GetUser", new { id = user.UserID }, user);
+            if (auth_user != null)
+            {
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync();
+
+                return CreatedAtAction("GetUser", new { id = user.UserID }, user);
+            }
+            else { return Unauthorized(); }
         }
 
         // DELETE: api/User/5

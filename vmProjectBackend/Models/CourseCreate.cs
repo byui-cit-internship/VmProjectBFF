@@ -1,3 +1,5 @@
+// this model is not link to the Database, it is just used to recieve data from post methods,
+//  emrollmentController post method: [HttpPost("professor/register/course")]
 namespace vmProjectBackend.Models
 {
     public class CourseCreate

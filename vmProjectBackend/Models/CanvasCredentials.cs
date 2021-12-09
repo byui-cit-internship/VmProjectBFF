@@ -1,3 +1,4 @@
+// this model is not link to the Database, it is just used to recieve data from post methods [HttpPost("professor/checkCanvasToken")]
 namespace vmProjectBackend.Models
 {
     public class CanvasCredentials
