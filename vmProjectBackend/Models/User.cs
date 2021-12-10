@@ -9,7 +9,7 @@ namespace vmProjectBackend.Models
     {
         [Key]
         public Guid UserID { get; set; }
-        
+
         [Required]
         [StringLength(50)]
         public string firstName { get; set; }
@@ -22,6 +22,8 @@ namespace vmProjectBackend.Models
         [StringLength(20)]
         public string userType { get; set; }
         public bool userAccess { get; set; } = false;
+
+        public bool isAdmin { get; set; } = false;
         // [StringLength(20)]
 
 

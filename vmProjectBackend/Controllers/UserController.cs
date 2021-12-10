@@ -29,13 +29,14 @@ namespace vmProjectBackend.Controllers
         }
 
         // GET: api/User
-        [HttpGet("allusers")]
+        [HttpGet("admin/allusers")]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
             string user_email = HttpContext.User.Identity.Name;
             var auth_user = _context.Users
-                            .Where(p => p.email == user_email)
+                            .Where(p => p.email == user_email && p.isAdmin == true)
                             .FirstOrDefault();
+
             if (auth_user != null)
             {
                 return await _context.Users.ToListAsync();
@@ -43,28 +44,103 @@ namespace vmProjectBackend.Controllers
             return Unauthorized();
 
         }
-
-        // GET: api/User/5
-        [HttpGet("specificUser")]
-        public async Task<ActionResult<User>> GetUser()
+        // get all user who are professors
+        [HttpGet("admin/allprofessors")]
+        public async Task<ActionResult<IEnumerable<User>>> GetProfessors()
         {
             string user_email = HttpContext.User.Identity.Name;
-            var auth_user = await _context.Users
-                            .Where(p => p.email == user_email)
-                            .FirstOrDefaultAsync();
+            var auth_user = _context.Users
+                            .Where(p => p.email == user_email && p.isAdmin == true)
+                            .FirstOrDefault();
+
             if (auth_user != null)
             {
-                return Ok(auth_user);
+                return await _context.Users.Where(u => u.userType == "Professor").ToListAsync();
+            }
+            return Unauthorized();
+
+        }
+
+        // needs to be fixed to get any user in the database
+        // GET: api/User/5
+        [HttpGet("admin/specificUser/{user_id}")]
+        public async Task<ActionResult<User>> GetUser(Guid user_id)
+        {
+            string user_email = HttpContext.User.Identity.Name;
+            var auth_user = _context.Users
+                            .Where(p => p.email == user_email && p.isAdmin == true)
+                            .FirstOrDefault();
+
+            if (auth_user != null)
+            {
+                var specific_user = await _context.Users.Where(u => u.UserID == user_id).FirstOrDefaultAsync();
+                return Ok(specific_user);
             }
             return Unauthorized();
 
 
         }
 
+        // add/register a professor to a database
+        [HttpPost("admin/createuser")]
+        public async Task<ActionResult<User>> PostUser(User user)
+        {
+            string useremail = HttpContext.User.Identity.Name;
+            // check if it is a professor
+            var auth_user = _context.Users
+                            .Where(p => p.email == useremail && p.userType == "Professor" && p.isAdmin == true)
+                            .FirstOrDefault();
+
+            if (auth_user != null)
+            {
+                var validemail = _context.Users
+                            .Where(p => p.email == user.email)
+                            .FirstOrDefault();
+                if (validemail == null)
+                {
+                    _context.Users.Add(user);
+                    await _context.SaveChangesAsync();
+
+                    return Ok("created");
+                }
+                else
+                {
+                    return Conflict("user with same Email already exits");
+                }
+
+            }
+            return Unauthorized();
+        }
+
+        // Update/patch a user
+        [HttpPatch("admin/updateuser/{id}")]
+        public async Task<ActionResult> PartialUpdate(Guid id, JsonPatchDocument<User> patchDoc)
+        {
+            string user_email = HttpContext.User.Identity.Name;
+            var auth_user = _context.Users
+                            .Where(p => p.email == user_email && p.isAdmin == true)
+                            .FirstOrDefault();
+            if (auth_user != null)
+            {
+                var orginalUser = await _context.Users.FirstOrDefaultAsync(c => c.UserID == id);
+
+                if (orginalUser == null)
+                {
+                    return NotFound();
+                }
+
+                patchDoc.ApplyTo(orginalUser, ModelState);
+                await _context.SaveChangesAsync();
+
+                return Ok(orginalUser);
+            }
+            return Unauthorized();
+        }
+
         // PUT: api/User/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         // update the currect user
-        [HttpPut("updateUser")]
+        [HttpPut]
         public async Task<IActionResult> PutUser(User user)
         {
             string user_email = HttpContext.User.Identity.Name;
@@ -100,23 +176,6 @@ namespace vmProjectBackend.Controllers
 
         // POST: api/User
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<User>> PostUser(User user)
-        {
-            string user_email = HttpContext.User.Identity.Name;
-            var auth_user = await _context.Users
-                            .Where(p => p.email == user_email)
-                            .FirstOrDefaultAsync();
-
-            if (auth_user != null)
-            {
-                _context.Users.Add(user);
-                await _context.SaveChangesAsync();
-
-                return CreatedAtAction("GetUser", new { id = user.UserID }, user);
-            }
-            else { return Unauthorized(); }
-        }
 
         // DELETE: api/User/5
         [HttpDelete("{id}")]
@@ -140,42 +199,5 @@ namespace vmProjectBackend.Controllers
         }
 
 
-        // Sending the email to the teacher based on student
-
-
-        // [HttpGet("userdetails/{id}")]
-        // public async Task<IActionResult> UserDetails(int id)
-        // {
-        //     // searching for the a user that is enrolled in what course
-        //     var userDetail = await _context.Users
-        //     .Include(s => s.Enrollments)
-        //     .ThenInclude(e => e.Course)
-        //     .AsNoTracking()
-        //     .FirstOrDefaultAsync(m => m.UserID == id);
-
-        //     // if the user is not found
-        //     if (userDetail == null)
-        //     {
-        //         return NotFound();
-        //     }
-
-        //     return Ok(userDetail);
-        // }
-
-        [HttpPatch("{id}")]
-        public async Task<ActionResult> PartialUpdate(Guid id, JsonPatchDocument<User> patchDoc)
-        {
-            var orginalUser = await _context.Users.FirstOrDefaultAsync(c => c.UserID == id);
-
-            if (orginalUser == null)
-            {
-                return NotFound();
-            }
-
-            patchDoc.ApplyTo(orginalUser, ModelState);
-            await _context.SaveChangesAsync();
-
-            return Ok(orginalUser);
-        }
     }
 }
