@@ -1,4 +1,4 @@
-
+step:
 # This step deploys the dev application in Kubernetes
 - name: 'gcr.io/cloud-builders/gke-deploy'
   args:
