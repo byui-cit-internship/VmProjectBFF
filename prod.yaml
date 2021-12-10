@@ -16,7 +16,7 @@ spec:
       - name: vmproject-api-prod
         env:
         - name: ASPNETCORE_ENVIRONMENT
-          value: production
+          value: Production
         image: gcr.io/constellation-275522/vmproject
         ports:
         - containerPort: 80        
