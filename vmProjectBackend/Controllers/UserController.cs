@@ -34,7 +34,7 @@ namespace vmProjectBackend.Controllers
         {
             string user_email = HttpContext.User.Identity.Name;
             var auth_user = _context.Users
-                            .Where(p => p.email == user_email && p.isAdmin == true)
+                            .Where(p => p.email == user_email && p.userType == "Professor")
                             .FirstOrDefault();
 
             if (auth_user != null)
@@ -50,7 +50,7 @@ namespace vmProjectBackend.Controllers
         {
             string user_email = HttpContext.User.Identity.Name;
             var auth_user = _context.Users
-                            .Where(p => p.email == user_email && p.isAdmin == true)
+                            .Where(p => p.email == user_email && p.userType == "Professor")
                             .FirstOrDefault();
 
             if (auth_user != null)
@@ -68,7 +68,7 @@ namespace vmProjectBackend.Controllers
         {
             string user_email = HttpContext.User.Identity.Name;
             var auth_user = _context.Users
-                            .Where(p => p.email == user_email && p.isAdmin == true)
+                            .Where(p => p.email == user_email && p.userType == "Professor")
                             .FirstOrDefault();
 
             if (auth_user != null)
@@ -88,7 +88,7 @@ namespace vmProjectBackend.Controllers
             string useremail = HttpContext.User.Identity.Name;
             // check if it is a professor
             var auth_user = _context.Users
-                            .Where(p => p.email == useremail && p.userType == "Professor" && p.isAdmin == true)
+                            .Where(p => p.email == useremail && p.userType == "Professor")
                             .FirstOrDefault();
 
             if (auth_user != null)
@@ -118,7 +118,7 @@ namespace vmProjectBackend.Controllers
         {
             string user_email = HttpContext.User.Identity.Name;
             var auth_user = _context.Users
-                            .Where(p => p.email == user_email && p.isAdmin == true)
+                            .Where(p => p.email == user_email && p.userType == "Professor")
                             .FirstOrDefault();
             if (auth_user != null)
             {
@@ -144,9 +144,9 @@ namespace vmProjectBackend.Controllers
         public async Task<IActionResult> PutUser(User user)
         {
             string user_email = HttpContext.User.Identity.Name;
-            var auth_user = await _context.Users
-                            .Where(p => p.email == user_email)
-                            .FirstOrDefaultAsync();
+            var auth_user = _context.Users
+                            .Where(p => p.email == user_email && p.userType == "Professor")
+                            .FirstOrDefault();
 
             if (auth_user.UserID != user.UserID)
             {
