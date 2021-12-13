@@ -39,3 +39,36 @@ spec:
   ports:
   - port: 80
     targetPort: 80    
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vmproject-api-dev-nodeport
+spec:
+  selector:
+    app: vmproject-api-dev
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 80
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: vmproject-api-dev-ingress
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: vmproject-api-dev
+    networking.gke.io/managed-certificates: vmproject-api-dev-certificate
+#    kubernetes.io/ingress.allow-http: "false"
+spec:
+  backend:
+    serviceName: vmproject-api-dev-nodeport
+    servicePort: 80
+---
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: vmproject-api-dev-certificate
+spec:
+  domains:
+    - dev-vm-api.citwdd.net
