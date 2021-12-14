@@ -58,7 +58,7 @@ metadata:
   name: vmproject-api-dev-ingress
   annotations:
     kubernetes.io/ingress.global-static-ip-name: vmproject-api-dev
-    networking.gke.io/managed-certificates: vmproject-api-dev-certificate
+    networking.gke.io/managed-certificates: vmproject-api-dev-certificate-2
 #    kubernetes.io/ingress.allow-http: "false"
 spec:
   backend:
@@ -68,7 +68,7 @@ spec:
 apiVersion: networking.gke.io/v1
 kind: ManagedCertificate
 metadata:
-  name: vmproject-api-dev-certificate
+  name: vmproject-api-dev-certificate-2
 spec:
   domains:
     - dev-vm-api.citwdd.net
