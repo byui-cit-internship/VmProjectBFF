@@ -122,7 +122,7 @@ namespace vmProjectBackend.Controllers
                 _context.VmTables.Add(vmTable);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetVmTable", new { id = vmTable.VmTableID }, vmTable);
+                return Ok(vmTable);
             }
             return Unauthorized();
         }
