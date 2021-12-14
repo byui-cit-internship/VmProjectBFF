@@ -26,7 +26,18 @@ steps:
   - --filename=dev.yaml
   - --image=gcr.io/constellation-275522/vmproject:latest
   - --location=us-east1-b
-  - --output=/tmp/outputdev
   - --cluster=cluster-1  
 
+# This step scales up the EasyRent pod
+  - name: "gcr.io/cloud-builders/kubectl"
+    id: Start Pod
+    args:
+      - "scale"
+      - "deploy"
+      - "vmproject-api-dev"
+      - "--replicas=1"
+    env:
+      - "CLOUDSDK_COMPUTE_ZONE=us-east1-b"
+      - "CLOUDSDK_CONTAINER_CLUSTER=cluster-1"
 
+timeout: 3600s

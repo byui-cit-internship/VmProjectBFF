@@ -27,6 +27,12 @@ spec:
           requests:
             cpu: ".25"
             memory: "250Mi"
+          livenessProbe:
+            httpGet:
+              path: /api/liveprobe
+              port: 80
+            initialDelaySeconds: 3
+            periodSeconds: 3        
 ---
 apiVersion: v1
 kind: Service
