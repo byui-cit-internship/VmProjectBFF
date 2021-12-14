@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
 
+// this endpoint is needed for your cloudbuild-dev.yaml file for the livenssProbe.
+// may want to review whether you need to add the [Attorize] declarator.
 namespace vmProjectBackend.Controllers
 {
     [Route("api/[controller]")]
