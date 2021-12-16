@@ -58,51 +58,35 @@ namespace vmProjectBackend.Controllers
                 {
                     return NotFound();
                 }
-
-                return vmTable;
+                return Ok(vmTable);
             }
             return Unauthorized();
         }
 
-        // PUT: api/VmTable/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("update/{id}")]
-        public async Task<IActionResult> PutVmTable(Guid id, VmTable vmTable)
+        // patch a vm template
+        [HttpPatch("update/{id}")]
+        public async Task<ActionResult> PartialUpdate(Guid id, JsonPatchDocument<VmTable> patchDoc)
         {
             string useremail = HttpContext.User.Identity.Name;
             // check if it is a professor
             var user_prof = _context.Users
                             .Where(p => p.email == useremail && p.userType == "Professor")
                             .FirstOrDefault();
-
             if (user_prof != null)
             {
-                if (id != vmTable.VmTableID)
+                var orginalVm = await _context.VmTables.FirstOrDefaultAsync(c => c.VmTableID == id);
+
+                if (orginalVm == null)
                 {
-                    return BadRequest();
+                    return NotFound();
                 }
 
-                _context.Entry(vmTable).State = EntityState.Modified;
+                patchDoc.ApplyTo(orginalVm, ModelState);
+                await _context.SaveChangesAsync();
 
-                try
-                {
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!VmTableExists(id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return NoContent();
+                return Ok(orginalVm);
             }
             return Unauthorized();
-
 
         }
 
@@ -144,7 +128,6 @@ namespace vmProjectBackend.Controllers
                 {
                     return NotFound();
                 }
-
                 _context.VmTables.Remove(vmTable);
                 await _context.SaveChangesAsync();
 
@@ -153,36 +136,48 @@ namespace vmProjectBackend.Controllers
             return Unauthorized();
 
         }
-
-        private bool VmTableExists(Guid id)
-        {
-            return _context.VmTables.Any(e => e.VmTableID == id);
-        }
-
-        [HttpPatch("update/{id}")]
-        public async Task<ActionResult> PartialUpdate(Guid id, JsonPatchDocument<VmTable> patchDoc)
+        // PUT: api/VmTable/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("update/{id}")]
+        public async Task<IActionResult> PutVmTable(Guid id, VmTable vmTable)
         {
             string useremail = HttpContext.User.Identity.Name;
             // check if it is a professor
             var user_prof = _context.Users
                             .Where(p => p.email == useremail && p.userType == "Professor")
                             .FirstOrDefault();
+
             if (user_prof != null)
             {
-                var orginalVm = await _context.VmTables.FirstOrDefaultAsync(c => c.VmTableID == id);
-
-                if (orginalVm == null)
+                if (id != vmTable.VmTableID)
                 {
-                    return NotFound();
+                    return BadRequest();
                 }
 
-                patchDoc.ApplyTo(orginalVm, ModelState);
-                await _context.SaveChangesAsync();
+                _context.Entry(vmTable).State = EntityState.Modified;
 
-                return Ok(orginalVm);
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!VmTableExists(id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return NoContent();
             }
             return Unauthorized();
-
+        }
+        private bool VmTableExists(Guid id)
+        {
+            return _context.VmTables.Any(e => e.VmTableID == id);
         }
     }
 }

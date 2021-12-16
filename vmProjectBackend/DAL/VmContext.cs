@@ -9,11 +9,7 @@ namespace vmProjectBackend.DAL
 {
     public class VmContext : DbContext
     {
-        // public VmContext(): base("VmContext")
-        // {
-        // }
-        public VmContext(DbContextOptions<VmContext> options)
-           : base(options)
+        public VmContext(DbContextOptions<VmContext> options) : base(options)
         {
             this.ChangeTracker.LazyLoadingEnabled = false;
         }

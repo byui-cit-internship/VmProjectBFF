@@ -9,19 +9,14 @@ namespace vmProjectBackend.Models
     {
         // should we set courseCode to the primary key
         // this declarator makes us define the courseId instead of the database generating it
-
         [Key]
-
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public long CourseID { get; set; }
         [Required]
         [StringLength(50)]
         public string CourseName { get; set; }
-        
-        // public string canvas_token { get; set; }
         public string description { get; set; }
        
-        
         // this below is the can be emmited since enrollment will connect them
 
         // public long UserId { get; set; }

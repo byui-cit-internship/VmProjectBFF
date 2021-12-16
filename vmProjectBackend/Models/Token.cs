@@ -1,8 +1,11 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace vmProjectBackend.Models
 {
     public class Token
     {
-        public string ID {get; set;}
-        public string token {get;set;}
+        public string ID { get; set; }
+        [Required]
+        public string token { get; set; }
     }
 }

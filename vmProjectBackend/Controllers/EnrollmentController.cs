@@ -29,20 +29,16 @@ namespace vmProjectBackend.Controllers
     {
         private readonly VmContext _context;
         private readonly IHttpClientFactory _httpClientFactory;
-
-        // public List<CourseCreate> coursedata = new List<CourseCreate>();
-
         public EnrollmentController(VmContext context, IHttpClientFactory httpClientFactory)
         {
             _context = context;
             _httpClientFactory = httpClientFactory;
-
         }
 
         /******************************************
         Teacher is able to Register themselves to a class.
         This will also create the class along with the enrollment 
-        of them selve to that class. Along with a Vm Template assignment
+        of themselves to that class. Along with a Vm Template assignment
         ***************************************/
         [HttpPost("professor/register/course")]
         public async Task<ActionResult<CourseCreate>> CreateCourseEnrollment([FromBody] CourseCreate courseDetails)
@@ -72,6 +68,7 @@ namespace vmProjectBackend.Controllers
                     var _courseObject = await _context.Courses
                                         .Where(c => c.CourseID == courseDetails.course_id)
                                         .FirstOrDefaultAsync();
+
                     enrollment.CourseID = _courseObject.CourseID;
                     enrollment.UserId = user_prof.UserID;
                     enrollment.teacherId = courseDetails.teacherId;
@@ -91,8 +88,6 @@ namespace vmProjectBackend.Controllers
                 {
                     return Conflict(new { message = $"A course already exits with this id {courseDetails.course_id}" });
                 }
-
-
             }
             return Unauthorized();
         }
@@ -141,7 +136,6 @@ namespace vmProjectBackend.Controllers
                                     dynamic current_studentObject = JsonConvert.DeserializeObject<dynamic>(studentResponseString);
                                     if (current_studentObject.Count != 0)
                                     {
-
                                         var current_student_id = current_studentObject[0]["id"];
                                         string current_student_email = current_studentObject[0]["email"];
                                         string studentnames = current_studentObject[0]["name"];
@@ -154,7 +148,6 @@ namespace vmProjectBackend.Controllers
 
                                         if (current_student_in_db != null)
                                         {
-
                                             var current_student_enrollment = _context.Enrollments.Where(e => e.UserId == current_student_in_db.UserID
                                                                                                 && e.CourseID == course_id)
                                                                                                 .FirstOrDefault();
@@ -163,13 +156,7 @@ namespace vmProjectBackend.Controllers
                                             {
                                                 await EnrollStudent(course_id, current_student_enrollid, current_enrollment.teacherId, current_enrollment.VmTableID, current_enrollment.section_num, current_enrollment.semester);
                                                 Console.WriteLine("Student enrolled into the course");
-                                                return Ok("Student was enrolled");
                                             }
-                                            else
-                                            {
-                                                return Ok("student already enrolled");
-                                            }
-
                                         }
                                         else
                                         {
@@ -184,14 +171,13 @@ namespace vmProjectBackend.Controllers
                                             Console.WriteLine("Student_user was created");
                                             await EnrollStudent(course_id, student_user.UserID, current_enrollment.teacherId, current_enrollment.VmTableID, current_enrollment.section_num, current_enrollment.semester);
 
-                                            return Ok("student was created and enrolled");
+                                            // return Ok("student was created and enrolled");
                                         }
                                     }
-
-
                                 }
                             }
                         }
+                        return Ok("Students are being added to course");
 
                     }
                     return Unauthorized("was not allowed to call canvas Api");

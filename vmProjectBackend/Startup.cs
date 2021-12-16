@@ -45,6 +45,7 @@ namespace vmProjectBackend
            );
             //    This is needed to register my BAckground service
             services.AddHostedService<BackgroundService1>();
+            // Allow to use client Factory
             services.AddHttpClient();
 
             services.AddControllers().AddNewtonsoftJson(s =>
@@ -60,7 +61,6 @@ namespace vmProjectBackend
             });
             // ******************CHNAGE IN FUTURE**********************************
 
-
             //this helps to connect the authentication for controllers request to the BasicAuthenticationHandler 
             services.AddAuthentication("BasicAuthentication")
             .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
@@ -71,15 +71,6 @@ namespace vmProjectBackend
             services.AddDbContext<VmContext>(opt =>
                                              opt.UseSqlServer(connectionString));
 
-
-            // if (Environment.IsProduction())
-            // {
-            //     string connectionString = Configuration.GetConnectionString("ProductionString");
-
-            //     services.AddDbContext<VmContext>(opt =>
-            //                                      opt.UseSqlServer(connectionString));
-
-            // }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
