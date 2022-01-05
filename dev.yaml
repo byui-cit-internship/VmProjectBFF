@@ -39,3 +39,77 @@ spec:
   ports:
   - port: 80
     targetPort: 80    
+---
+---
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: confluence-prod-certificate
+spec:
+  domains:
+    - confluence.cit362.com
+---    
+apiVersion: v1
+kind: Service
+metadata:
+  name: confluence-prod-clusterip
+spec:
+  selector:
+    app: confluence-prod
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8090
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: confluence-prod-ingress
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: confluence-public
+    networking.gke.io/managed-certificates: confluence-prod-certificate
+    cloud.google.com/backend-config: confluence-prod-ingress-backend-config
+    networking.gke.io/v1beta1.FrontendConfig: confluence-prod-ingress-frontend-config
+spec:
+  backend:
+    serviceName: confluence-prod-nodeport
+    servicePort: 80      
+---
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: confluence-prod-ingress-backend-config
+spec:
+# This overrides the default Ingress/Load Balancer Health Check
+  healthCheck:
+    checkIntervalSec: 10
+    timeoutSec: 10
+    healthyThreshold: 2
+    unhealthyThreshold: 2
+# The type is the protocol used to connect to the Pod
+    type: HTTP
+    requestPath: /login.action
+# The below port is the port to use to connect to the Pod
+    port: 80
+---
+apiVersion: networking.gke.io/v1beta1
+kind: FrontendConfig
+metadata:
+  name: confluence-prod-ingress-frontend-config
+spec:
+  redirectToHttps:
+    enabled: true
+    responseCodeName: MOVED_PERMANENTLY_DEFAULT
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: confluence-prod-nodeport
+spec:
+  selector:
+    app: confluence-prod
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8090    
