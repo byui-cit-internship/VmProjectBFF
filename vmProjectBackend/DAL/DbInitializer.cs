@@ -1,8 +1,13 @@
 using vmProjectBackend.Models;
 using System;
 using System.Linq;
+
+// this may need to be updated or deleted as you change the models and update the database
+
+
 namespace vmProjectBackend.DAL
 {
+
     public class DbInitializer
     {
         public static void Initialize(VmContext context)

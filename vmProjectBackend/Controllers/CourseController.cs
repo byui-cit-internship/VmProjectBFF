@@ -248,8 +248,6 @@ namespace vmProjectBackend.Controllers
 
         }
 
-
-
         /***********************************************
         Teachers change their course
         ************************/
@@ -371,11 +369,6 @@ namespace vmProjectBackend.Controllers
         {
             return _context.Courses.Any(e => e.CourseID == id);
         }
-        /************************************************
-
-                Teacher patch their course
-
-        ***********************/
 
         /************************************************
         
@@ -412,9 +405,7 @@ namespace vmProjectBackend.Controllers
         }
 
         /************************************************
-        
-        Teacher patch their course
-
+        Endpoint that will check the validity of the courseId and canvas token
         ***********************/
         [HttpPost("professor/checkCanvasToken")]
         public async Task<ActionResult> CallCanvas([FromBody] CanvasCredentials canvasCredentials)

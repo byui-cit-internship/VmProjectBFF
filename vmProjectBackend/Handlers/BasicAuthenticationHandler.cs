@@ -38,7 +38,7 @@ namespace vmProjectBackend.Handlers
             // make sure that authorization tag is in header
             if (!Request.Headers.ContainsKey("Authorization"))
             {
-                return AuthenticateResult.Fail("Authorization was not found");
+                return AuthenticateResult.Fail("Authorization tag and bearer token was not found");
             }
 
             try
@@ -46,22 +46,11 @@ namespace vmProjectBackend.Handlers
                 // Read the authorization header
                 var authenticationHeaderValue = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
                 Console.WriteLine("this is headervalue" + authenticationHeaderValue);
-                
+
                 var validPayload = await GoogleJsonWebSignature.ValidateAsync(authenticationHeaderValue.Parameter);
                 string validemail = validPayload.Email;
-                // convert that header into byte
-                // var bytes = Convert.FromBase64String(authenticationHeaderValue.Parameter);
-                // Console.WriteLine("this is bytes", bytes);
-                // // convert bytes into string and split it into two
-                // string[] credentials = Encoding.UTF8.GetString(bytes).Split(":");
-
-                // // save the split string into two credentials
-                // string emailAddress = credentials[0];
-                // string userid = credentials[1];
-
                 // get users from the db and check if any match with what was send through the request
                 User user = _context.Users.Where(user => user.email == validemail).FirstOrDefault();
-
                 // If we get no user
                 if (user == null)
                 {
@@ -73,7 +62,6 @@ namespace vmProjectBackend.Handlers
                     var identity = new ClaimsIdentity(claims, Scheme.Name);
                     var principal = new ClaimsPrincipal(identity);
                     var ticket = new AuthenticationTicket(principal, Scheme.Name);
-
                     return AuthenticateResult.Success(ticket);
                 }
 

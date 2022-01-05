@@ -15,6 +15,8 @@ using System.Text.Json;
 using System.Collections;
 using Newtonsoft.Json;
 using System.Reflection;
+using System.Net.Http;
+using Microsoft.Net.Http.Headers;
 
 // using System.Collections.IEm
 
@@ -25,41 +27,21 @@ namespace vmProjectBackend.Controllers
     [ApiController]
     public class EnrollmentController : ControllerBase
     {
-        /******************************
-        This class is to help with the post method below.
-        Trying to Apply Model Binding.
-        **************************/
-        public class CourseCreates
-        {
-            public long course_id { get; set; }
-            public string courseName { get; set; }
-            public string description { get; set; }
-            public string canvas_token { get; set; }
-            public string section_num { get; set; }
-            public string semester { get; set; }
-            public Guid userId { get; set; }
-            public Guid teacherId { get; set; }
-            public Guid vmTableID { get; set; }
-            public string status { get; set; }
-        }
-
-
         private readonly VmContext _context;
-        // public List<CourseCreate> coursedata = new List<CourseCreate>();
-
-        public EnrollmentController(VmContext context)
+        private readonly IHttpClientFactory _httpClientFactory;
+        public EnrollmentController(VmContext context, IHttpClientFactory httpClientFactory)
         {
             _context = context;
-
+            _httpClientFactory = httpClientFactory;
         }
 
         /******************************************
         Teacher is able to Register themselves to a class.
         This will also create the class along with the enrollment 
-        of them selve to that class. Along with a Vm Template assignment
+        of themselves to that class. Along with a Vm Template assignment
         ***************************************/
         [HttpPost("professor/register/course")]
-        public async Task<ActionResult<CourseCreate>> CreateCourseEnrollment([FromBody] CourseCreates courseDetails)
+        public async Task<ActionResult<CourseCreate>> CreateCourseEnrollment([FromBody] CourseCreate courseDetails)
         {
             string useremail = HttpContext.User.Identity.Name;
             var user_prof = _context.Users
@@ -86,6 +68,7 @@ namespace vmProjectBackend.Controllers
                     var _courseObject = await _context.Courses
                                         .Where(c => c.CourseID == courseDetails.course_id)
                                         .FirstOrDefaultAsync();
+
                     enrollment.CourseID = _courseObject.CourseID;
                     enrollment.UserId = user_prof.UserID;
                     enrollment.teacherId = courseDetails.teacherId;
@@ -103,182 +86,122 @@ namespace vmProjectBackend.Controllers
                 }
                 else
                 {
-                    return Conflict(new {message= $"A course already exits with this id {courseDetails.course_id}"});
+                    return Conflict(new { message = $"A course already exits with this id {courseDetails.course_id}" });
                 }
-
-
             }
             return Unauthorized();
-
         }
 
+        // register students for the newly created course: this endpont needs to be tested
+        [HttpPost("professor/register/student")]
+        public async Task<ActionResult<CourseCreate>> CreateStudentEnrollment([FromBody] long course_id)
+        {
+            string useremail = HttpContext.User.Identity.Name;
+            var user_prof = await _context.Users
+                            .Where(p => p.email == useremail
+                                    && p.userType == "Professor")
+                            .FirstOrDefaultAsync();
+
+            if (user_prof != null)
+            {
+                // checking that the professor has such a class enrollment
+                var current_enrollment = await _context.Enrollments
+                                           .Where(e => e.CourseID == course_id
+                                                       && e.teacherId == user_prof.UserID)
+                                           .FirstOrDefaultAsync();
+
+                if (current_enrollment != null)
+                {
+                    var canvas_token = current_enrollment.canvas_token;
+
+                    var client = _httpClientFactory.CreateClient();
+                    client.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + canvas_token);
+
+                    var response = await client.GetAsync($"https://byui.test.instructure.com/api/v1/courses/{course_id}/enrollments?per_page=1000&role_id=3");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseString = await response.Content.ReadAsStringAsync();
+                        dynamic listOfcurrent_studentObject = JsonConvert.DeserializeObject<dynamic>(responseString);
+
+                        foreach (var student in listOfcurrent_studentObject)
+                        {
+                            if (student.Count != 0)
+                            {
+                                var student_id = student["user_id"];
+                                var studentInfoResponse = await client.GetAsync($"https://byui.test.instructure.com/api/v1/courses/{course_id}/users?search_term={student_id}");
+
+                                if (studentInfoResponse.IsSuccessStatusCode)
+                                {
+                                    string studentResponseString = await studentInfoResponse.Content.ReadAsStringAsync();
+                                    dynamic current_studentObject = JsonConvert.DeserializeObject<dynamic>(studentResponseString);
+                                    if (current_studentObject.Count != 0)
+                                    {
+                                        var current_student_id = current_studentObject[0]["id"];
+                                        string current_student_email = current_studentObject[0]["email"];
+                                        string studentnames = current_studentObject[0]["name"];
+                                        string[] names = studentnames.Split(' ');
+                                        int lastIndex = names.GetUpperBound(0);
+                                        string current_student_firstName = names[0];
+                                        string current_student_lastName = names[lastIndex];
+
+                                        var current_student_in_db = _context.Users.Where(u => u.email == current_student_email).FirstOrDefault();
+
+                                        if (current_student_in_db != null)
+                                        {
+                                            var current_student_enrollment = _context.Enrollments.Where(e => e.UserId == current_student_in_db.UserID
+                                                                                                && e.CourseID == course_id)
+                                                                                                .FirstOrDefault();
+                                            Guid current_student_enrollid = current_student_enrollment.UserId;
+                                            if (current_student_enrollment == null)
+                                            {
+                                                await EnrollStudent(course_id, current_student_enrollid, current_enrollment.teacherId, current_enrollment.VmTableID, current_enrollment.section_num, current_enrollment.semester);
+                                                Console.WriteLine("Student enrolled into the course");
+                                            }
+                                        }
+                                        else
+                                        {
+                                            User student_user = new User();
+
+                                            student_user.firstName = current_student_firstName;
+                                            student_user.lastName = current_student_lastName;
+                                            student_user.email = current_student_email;
+                                            student_user.userType = "Student";
+                                            _context.Users.Add(student_user);
+                                            await _context.SaveChangesAsync();
+                                            Console.WriteLine("Student_user was created");
+                                            await EnrollStudent(course_id, student_user.UserID, current_enrollment.teacherId, current_enrollment.VmTableID, current_enrollment.section_num, current_enrollment.semester);
+
+                                            // return Ok("student was created and enrolled");
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        return Ok("Students are being added to course");
+
+                    }
+                    return Unauthorized("was not allowed to call canvas Api");
+                    // check if the student is already in the database
+
+                }
+                return NotFound("You do not have access to such course or not authorized");
+            }
+            return Unauthorized();
+        }
+
+        public async Task EnrollStudent(long course_id, Guid userid, Guid teacherid, Guid vmtableId, string sectionnum, string semester)
+        {
+            Enrollment enrollment = new Enrollment();
+            long enroll_course_id = _context.Courses.FirstOrDefault(c => c.CourseID == course_id).CourseID;
+            enrollment.CourseID = enroll_course_id;
+            enrollment.UserId = userid;
+            enrollment.teacherId = teacherid;
+            enrollment.VmTableID = vmtableId;
+            enrollment.Status = "InActive";
+            enrollment.section_num = sectionnum;
+            enrollment.semester = semester;
+            _context.Enrollments.Add(enrollment);
+            await _context.SaveChangesAsync();
+        }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//         // GET: api/Enrollment
-//         [HttpGet]
-//         public async Task<ActionResult<IEnumerable<Enrollment>>> GetEnrollments()
-//         {
-//             string useremail = HttpContext.User.Identity.Name;
-//             var user_prof = _context.Users
-//                             .Where(p => p.email == useremail && p.userType == "Professor")
-//                             .FirstOrDefault();
-//             if (user_prof != null)
-//             {
-//                 return await _context.Enrollments
-//                             .Include(c => c.Course)
-//                             .Include(u => u.User)
-//                             .ToListAsync();
-//             }
-//             return Unauthorized("You are not Authorized");
-
-//         }
-//         /*********************Teacher getting theor course**************************************************/
-
-//         //Get : api/enrollment/usertype
-//         [HttpGet("usertype/{usertype}")]
-//         public async Task<ActionResult<Enrollment>> GetUsertypeEnrollment(string usertype)
-//         {
-//             string user_email = HttpContext.User.Identity.Name;
-//             Console.WriteLine("here 1");
-//             var auth_user = _context.Users
-//                             .Where(p => p.email == user_email)
-//                             .FirstOrDefault();
-
-//             Console.WriteLine("here 2");
-//             if (auth_user != null)
-//             {
-//                 Console.WriteLine("here 3");
-//                 var listOfEnrollments = await _context.Enrollments
-//                             .Include(c => c.Course)
-//                             .Include(u => u.User)
-//                             .Where(user => user.User.userType == usertype)
-//                             .ToListAsync();
-//                 Console.WriteLine("here 1");
-//                 return Ok(listOfEnrollments);
-
-//             }
-//             return Unauthorized();
-//         }
-
-//         /*********************Teacher getting theor course**************************************************/
-//         // GET: api/Enrollment/5
-//         [HttpGet("{id}")]
-//         public async Task<ActionResult<Enrollment>> GetEnrollment(long id)
-//         {
-//             string useremail = HttpContext.User.Identity.Name;
-//             var user_prof = _context.Users
-//                             .Where(p => p.email == useremail && p.userType == "Professor")
-//                             .FirstOrDefault();
-//             if (user_prof != null)
-//             {
-//                 var enrollment = await _context.Enrollments.FindAsync(id);
-//                 if (enrollment == null)
-//                 {
-//                     return NotFound();
-//                 }
-//                 return enrollment;
-//             }
-//             return Unauthorized("You are not Authorized");
-//         }
-
-//         /*********************Teacher getting theor course**************************************************/
-
-//         // PUT: api/Enrollment/5
-//         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-//         // 
-//         [HttpPut("{id}")]
-//         public async Task<IActionResult> PutEnrollment(long id, Enrollment enrollment)
-//         {
-//             string useremail = HttpContext.User.Identity.Name;
-//             var user_prof = _context.Users
-//                             .Where(p => p.email == useremail && p.userType == "Professor")
-//                             .FirstOrDefault();
-//             if (user_prof != null)
-//             {
-//                 if (id != enrollment.EnrollmentID)
-//                 {
-//                     return BadRequest();
-//                 }
-//                 _context.Entry(enrollment).State = EntityState.Modified;
-//                 try
-//                 {
-//                     await _context.SaveChangesAsync();
-//                 }
-//                 catch (DbUpdateConcurrencyException)
-//                 {
-//                     if (!EnrollmentExists(id))
-//                     {
-//                         return NotFound();
-//                     }
-//                     else
-//                     {
-//                         throw;
-//                     }
-//                 }
-//                 return NoContent();
-//             }
-//             return Unauthorized("You are not Authorized");
-//         }
-
-
-//         /*********************Teacher getting theor course**************************************************/
-//         // POST: api/Enrollment
-//         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-//         [HttpPost]
-//         public async Task<ActionResult<Enrollment>> PostEnrollment(Enrollment enrollment)
-//         {
-//             _context.Enrollments.Add(enrollment);
-//             await _context.SaveChangesAsync();
-
-//             return CreatedAtAction("GetEnrollment", new { id = enrollment.EnrollmentID }, enrollment);
-//         }
-
-
-//         /*********************Teacher getting theor course**************************************************/
-
-
-//         // DELETE: api/Enrollment/5
-//         [HttpDelete("{id}")]
-//         public async Task<IActionResult> DeleteEnrollment(long id)
-//         {
-//             string useremail = HttpContext.User.Identity.Name;
-//             var user_prof = _context.Users
-//                             .Where(p => p.email == useremail && p.userType == "Professor")
-//                             .FirstOrDefault();
-
-//             if (user_prof != null)
-//             {
-//                 var enrollment = await _context.Enrollments.FindAsync(id);
-//                 if (enrollment == null)
-//                 {
-//                     return NotFound();
-//                 }
-
-//                 _context.Enrollments.Remove(enrollment);
-//                 await _context.SaveChangesAsync();
-
-//                 return NoContent();
-//             }
-//             return Unauthorized("You are not a professor");
-//         }
-
-//         private bool EnrollmentExists(long id)
-//         {
-//             return _context.Enrollments.Any(e => e.EnrollmentID == id);
-//         }
-//     }
-// }

@@ -22,7 +22,6 @@ namespace vmProjectBackend.Controllers
     public class UserController : ControllerBase
     {
         private readonly VmContext _context;
-
         public UserController(VmContext context)
         {
             _context = context;
@@ -36,7 +35,6 @@ namespace vmProjectBackend.Controllers
             var auth_user = _context.Users
                             .Where(p => p.email == user_email && p.userType == "Professor")
                             .FirstOrDefault();
-
             if (auth_user != null)
             {
                 return await _context.Users.ToListAsync();
@@ -58,7 +56,6 @@ namespace vmProjectBackend.Controllers
                 return await _context.Users.Where(u => u.userType == "Professor").ToListAsync();
             }
             return Unauthorized();
-
         }
 
         // needs to be fixed to get any user in the database
@@ -77,8 +74,6 @@ namespace vmProjectBackend.Controllers
                 return Ok(specific_user);
             }
             return Unauthorized();
-
-
         }
 
         // add/register a professor to a database
@@ -107,7 +102,6 @@ namespace vmProjectBackend.Controllers
                 {
                     return Conflict("user with same Email already exits");
                 }
-
             }
             return Unauthorized();
         }
@@ -181,16 +175,25 @@ namespace vmProjectBackend.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(Guid id)
         {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
+            string user_email = HttpContext.User.Identity.Name;
+            var auth_user = _context.Users
+                            .Where(p => p.email == user_email && p.userType == "Professor")
+                            .FirstOrDefault();
+            if (auth_user != null)
             {
-                return NotFound();
+                var user = await _context.Users.FindAsync(id);
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
+                _context.Users.Remove(user);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
             }
+            return Unauthorized();
 
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
         }
 
         private bool UserExists(Guid id)

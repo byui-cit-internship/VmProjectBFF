@@ -14,8 +14,6 @@ using vmProjectBackend.Models;
 using Google.Apis.Auth;
 using Google.Apis.Auth.OAuth2;
 
-
-
 namespace vmProjectBackend.Controllers
 {
     [Route("api/[controller]")]
@@ -23,18 +21,18 @@ namespace vmProjectBackend.Controllers
     public class TokenController : ControllerBase
     {
         private readonly VmContext _context;
-
         public TokenController(VmContext context)
         {
             _context = context;
         }
 
+        /**************************************
+        Validate the token given by the front end
+        and then determines whether they are a teacher or professor
+        ****************************************/
         [HttpGet("{token}")]
         public async Task<ActionResult<Token>> PostToken(string token)
         {
-            // GoogleJsonWebSignature.Payload payload = await GoogleJsonWebSignature.ValidateAsync(Id_token);
-            // ValidateIdTokenAndGetUserInfoId(Id_token);
-
             try
             {
                 var validPayload = await GoogleJsonWebSignature.ValidateAsync(token);

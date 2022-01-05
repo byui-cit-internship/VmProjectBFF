@@ -1,32 +1,52 @@
 steps:
-
-
 # This step builds the container image.
-- name: 'gcr.io/cloud-builders/docker'
-  id: Build
-  args:
-  - 'build'
-  - '-t'
-  - 'gcr.io/constellation-275522/vmproject:latest'
-  - './vmProjectBackend'
+  - name: 'gcr.io/cloud-builders/docker'
+    id: Build
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/constellation-275522/vmproject:latest'
+      - './vmProjectBackend'
 
 # This step pushes the image to Container Registry
 # The PROJECT_ID and SHORT_SHA variables are automatically
 # replaced by Cloud Build.
-- name: 'gcr.io/cloud-builders/docker'
-  id: Push
-  args:
-  - 'push'
-  - 'gcr.io/constellation-275522/vmproject:latest'
+  - name: 'gcr.io/cloud-builders/docker'
+    id: Push
+    args:
+      - 'push'
+      - 'gcr.io/constellation-275522/vmproject:latest'
+# This step stops the nfs pod
+  - name: 'gcr.io/cloud-builders/kubectl'
+    id: Stop Pod
+    args:
+      - 'scale'
+      - 'deploy'
+      - 'vmproject-api-dev'
+      - '--replicas=0'
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=us-east1-b'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=cluster-1'  
 
 # This step deploys the dev application in Kubernetes
-- name: 'gcr.io/cloud-builders/gke-deploy'
-  args:
-  - run
-  - --filename=dev.yaml
-  - --image=gcr.io/constellation-275522/vmproject:latest
-  - --location=us-east1-b
-  - --output=/tmp/outputdev
-  - --cluster=cluster-1  
+  - name: 'gcr.io/cloud-builders/gke-deploy'
+    args:
+      - run
+      - --filename=dev.yaml
+      - --image=gcr.io/constellation-275522/vmproject:latest
+      - --location=us-east1-b
+      - --cluster=cluster-1  
 
+# This step scales up the EasyRent pod
+  - name: "gcr.io/cloud-builders/kubectl"
+    id: Start Pod
+    args:
+      - "scale"
+      - "deploy"
+      - "vmproject-api-dev"
+      - "--replicas=1"
+    env:
+      - "CLOUDSDK_COMPUTE_ZONE=us-east1-b"
+      - "CLOUDSDK_CONTAINER_CLUSTER=cluster-1"
 
+timeout: 3600s
