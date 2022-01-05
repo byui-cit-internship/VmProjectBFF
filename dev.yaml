@@ -65,11 +65,29 @@ metadata:
   annotations:
     kubernetes.io/ingress.global-static-ip-name: vmproject-api-dev
     networking.gke.io/managed-certificates: vmproject-api-dev-certificate-2
+    cloud.google.com/backend-config: vmproject-api-dev-ingress-backend-config
 #    kubernetes.io/ingress.allow-http: "false"
 spec:
   backend:
     serviceName: vmproject-api-dev-nodeport
     servicePort: 80
+---
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: vmproject-api-dev-ingress-backend-config
+spec:
+# This overrides the default Ingress/Load Balancer Health Check
+  healthCheck:
+    checkIntervalSec: 10
+    timeoutSec: 10
+    healthyThreshold: 2
+    unhealthyThreshold: 2
+# The type is the protocol used to connect to the Pod
+    type: HTTP
+    requestPath: /api/liveprobe
+# The below port is the port to use to connect to the Pod
+    port: 80
 ---
 apiVersion: networking.gke.io/v1
 kind: ManagedCertificate
