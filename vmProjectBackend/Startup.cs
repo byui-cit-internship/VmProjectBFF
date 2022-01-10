@@ -105,12 +105,13 @@ namespace vmProjectBackend
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope())
             {
-                using (var context = serviceScope.ServiceProvider.GetService<ConstellationWebappContext>())
+                using (var context = serviceScope.ServiceProvider.GetService<VmContext>())
                 {
                     context.Database.Migrate();
                 }
             }
-            )
+
+            
 
         }
     }
