@@ -51,7 +51,7 @@ namespace vmProjectBackend.Controllers
         }
 
         //GET: api/vmtable/templates
-         [HttpGet("templates")] 
+         [HttpGet("/templates")] 
          public async Task<ActionResult<IEnumerable<string>>> GetTemplates()
          {
          string useremail = HttpContext.User.Identity.Name;
