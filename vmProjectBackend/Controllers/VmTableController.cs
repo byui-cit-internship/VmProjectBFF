@@ -10,18 +10,27 @@ using Microsoft.EntityFrameworkCore;
 using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
 
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Http;
+using Microsoft.Extensions.DependencyInjection;
+using System.Net.Http;
+using Microsoft.Net.Http.Headers;
+
 namespace vmProjectBackend.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class VmTableController : ControllerBase
+    
     {
+        
         private readonly VmContext _context;
-
-        public VmTableController(VmContext context)
+        private readonly IHttpClientFactory _httpClientFactory;
+        public VmTableController(VmContext context, IHttpClientFactory httpClientFactory)
         {
             _context = context;
+            _httpClientFactory = httpClientFactory;
         }
 
         // GET: api/VmTable
@@ -40,6 +49,37 @@ namespace vmProjectBackend.Controllers
             }
             return Unauthorized("You are not Authorized and is not a professor");
         }
+
+        //GET: api/vmtable/templates
+         [HttpGet("templates")] 
+         public async Task<ActionResult<IEnumerable<string>>> GetTemplates()
+         {
+         string useremail = HttpContext.User.Identity.Name;
+         //check if it is a professor
+          var user_prof = _context.Users
+                            .Where(p => p.email == useremail && p.userType == "Professor")
+                            .FirstOrDefault();
+
+            if (user_prof != null)
+            {
+                var httpClient = _httpClientFactory.CreateClient();
+                httpClient.DefaultRequestHeaders.Add("vmware-api-session-id", "3f2a72c8aa647eb73fb88d3054bc22b1");
+                // contains our base Url where templates were added in vcenter
+                // This URL enpoint gives a list of all the Templates we have in our vcenter 
+                var response = await httpClient.GetAsync($"https://vctr.citwdd.net/api/vcenter/vm-template/library-items/");
+
+                string responseString = await response.Content.ReadAsStringAsync();
+     
+                if (response.IsSuccessStatusCode)
+                 {
+                    return Ok(response);
+                }
+               
+            }
+            return Unauthorized("You are not Authorized and is not a professor");
+
+         }
+
 
         // GET: api/VmTable/5
         [HttpGet("{id}")]
