@@ -63,6 +63,9 @@ namespace vmProjectBackend.Controllers
             if (user_prof != null)
             {
                 var httpClient = _httpClientFactory.CreateClient();
+                try{ 
+                    
+                
                 httpClient.DefaultRequestHeaders.Add("vmware-api-session-id", "3f2a72c8aa647eb73fb88d3054bc22b1");
                 // contains our base Url where templates were added in vcenter
                 // This URL enpoint gives a list of all the Templates we have in our vcenter 
@@ -73,6 +76,11 @@ namespace vmProjectBackend.Controllers
                 if (response.IsSuccessStatusCode)
                  {
                     return Ok(response);
+                }
+                }
+                catch
+                {
+                    Ok("You failed");
                 }
                
             }
