@@ -77,6 +77,9 @@ namespace vmProjectBackend.Controllers
                  {
                     return Ok(response);
                 }
+                else {
+                    return NotFound("Failed calling");
+                }
                 }
                 catch
                 {
