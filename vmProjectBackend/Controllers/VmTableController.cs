@@ -62,26 +62,26 @@ namespace vmProjectBackend.Controllers
 
             if (user_prof != null)
             {
-               
-                try{ 
-                    var httpClient = _httpClientFactory.CreateClient();
+               return Ok("you are here");
+                // try{ 
+                //     var httpClient = _httpClientFactory.CreateClient();
                 
-                httpClient.DefaultRequestHeaders.Add("vmware-api-session-id", "3f2a72c8aa647eb73fb88d3054bc22b1");
-                // contains our base Url where templates were added in vcenter
-                // This URL enpoint gives a list of all the Templates we have in our vcenter 
-                var response = await httpClient.GetAsync($"https://vctr.citwdd.net/api/vcenter/vm-template/library-items/");
+                // httpClient.DefaultRequestHeaders.Add("vmware-api-session-id", "3f2a72c8aa647eb73fb88d3054bc22b1");
+                // // contains our base Url where templates were added in vcenter
+                // // This URL enpoint gives a list of all the Templates we have in our vcenter 
+                // var response = await httpClient.GetAsync($"https://vctr.citwdd.net/api/vcenter/vm-template/library-items/");
 
-                string responseString = await response.Content.ReadAsStringAsync();
+                // string responseString = await response.Content.ReadAsStringAsync();
      
-                if (response.IsSuccessStatusCode)
-                 {
-                    return Ok(response);
-                }
-                }
-                catch
-                {
-                    Ok("You failed");
-                }
+                // if (response.IsSuccessStatusCode)
+                //  {
+                //     return Ok(response);
+                // }
+                // }
+                // catch
+                // {
+                //     Ok("You failed");
+                // }
                
             }
             return Unauthorized("You are not Authorized and is not a professor");
