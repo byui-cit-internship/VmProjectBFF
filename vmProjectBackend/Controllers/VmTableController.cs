@@ -51,7 +51,7 @@ namespace vmProjectBackend.Controllers
         }
 
         //GET: api/vmtable/templates
-         [HttpGet("/templates")] 
+         [HttpGet("pleasework")] 
          public async Task<ActionResult<IEnumerable<string>>> GetTemplates()
          {
          string useremail = HttpContext.User.Identity.Name;
@@ -65,8 +65,15 @@ namespace vmProjectBackend.Controllers
                
                 try{ 
                     var httpClient = _httpClientFactory.CreateClient();
+                var tokenResponse = await httpClient.GetAsync("https://vctr-dev.citwdd.net/api/session");
+                string tokenstring = " ";
+                if (tokenResponse.IsSuccessStatusCode)
+                {
+                 tokenstring = await tokenResponse.Content.ReadAsStringAsync();
+                    Console.WriteLine($"it was sucessfull {tokenstring}");
+                }
                 
-                httpClient.DefaultRequestHeaders.Add("vmware-api-session-id", "3f2a72c8aa647eb73fb88d3054bc22b1");
+                httpClient.DefaultRequestHeaders.Add("vmware-api-session-id", tokenstring);
                 // contains our base Url where templates were added in vcenter
                 // This URL enpoint gives a list of all the Templates we have in our vcenter 
                 var response = await httpClient.GetAsync($"https://vctr.citwdd.net/api/vcenter/vm-template/library-items/");
