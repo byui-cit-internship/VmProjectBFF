@@ -64,15 +64,20 @@ namespace vmProjectBackend.Controllers
             {
                
                 try{ 
-                    string userName = "api-test@vsphere.local";
-                    string password = "wnD<Dz[HZW@25{]q";
-                    var httpClient = _httpClientFactory.CreateClient();
-                     string basic = userName + ":" + password;
 
-                      var base64EncodedBytes = System.Convert.FromBase64String(basic); 
-                      var base64EncodedString = System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
+                //base64 credentials
+                static string Base64Decode(string base64EncodedData)
+        {
+            var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
+            return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
+        }
+                    var httpClient = _httpClientFactory.CreateClient();
+
+                    string base64 = "YXBpLXRlc3RAY2l0d2RkLm5ldDp3bkQ8RHpbSFpXQDI1e11x";
+                    string base64String = Base64Decode(base64);
+            
                       
-                 httpClient.DefaultRequestHeaders.Add("authorization", base64EncodedString);
+                 httpClient.DefaultRequestHeaders.Add("authorization", base64String);
 
                 var tokenResponse = await httpClient.GetAsync("https://vctr-dev.citwdd.net/api/session");
                 string tokenstring = " ";
