@@ -51,7 +51,7 @@ namespace vmProjectBackend.Controllers
         }
 
         //GET: api/vmtable/templates
-         [HttpGet("pleasework")] 
+         [HttpGet("templates/all")] 
          public async Task<ActionResult<IEnumerable<string>>> GetTemplates()
          {
          string useremail = HttpContext.User.Identity.Name;
@@ -64,7 +64,16 @@ namespace vmProjectBackend.Controllers
             {
                
                 try{ 
+                    string userName = "api-test@vsphere.local";
+                    string password = "wnD<Dz[HZW@25{]q";
                     var httpClient = _httpClientFactory.CreateClient();
+                     string basic = userName + ":" + password;
+
+                      var base64EncodedBytes = System.Convert.FromBase64String(basic); 
+                      var base64EncodedString = System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
+                      
+                 httpClient.DefaultRequestHeaders.Add("authorization", base64EncodedString);
+
                 var tokenResponse = await httpClient.GetAsync("https://vctr-dev.citwdd.net/api/session");
                 string tokenstring = " ";
                 if (tokenResponse.IsSuccessStatusCode)
