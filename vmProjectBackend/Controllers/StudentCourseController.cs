@@ -2,17 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using MailKit.Net.Smtp;
-using MailKit;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using MimeKit;
-using vmProjectBackend.DAL;
-using vmProjectBackend.Models;
-using MailKit.Security;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.JsonPatch;
 
 namespace vmProjectBackend.Controllers
 {
@@ -21,12 +10,12 @@ namespace vmProjectBackend.Controllers
     [ApiController]
     public class StudentCourseController : ControllerBase
     {
-        private readonly VmContext _context;
-        public StudentCourseController(VmContext context)
+        private readonly DatabaseContext _context;
+        public StudentCourseController(DatabaseContext context)
         {
             _context = context;
         }
-
+        ty65
         //Student get to see all their classes that they are enrolled in
         // GET: api/StudentCourse
         [HttpGet()]
@@ -51,7 +40,7 @@ namespace vmProjectBackend.Controllers
                                         course_id = e.CourseID,
                                         course_semester = e.semester,
                                         course_sectionnum = e.section_num,
-                                        course_status= e.Status
+                                        course_status = e.Status
                                     })
                                     .ToArrayAsync();
 

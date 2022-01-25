@@ -1,17 +1,12 @@
-using System;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.JsonPatch;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
-using Microsoft.AspNetCore.Identity;
-using System.Net.Http;
-using Microsoft.Net.Http.Headers;
 
 namespace vmProjectBackend.Controllers
 {
@@ -20,14 +15,27 @@ namespace vmProjectBackend.Controllers
     [ApiController]
     public class CourseController : ControllerBase
     {
-        private readonly VmContext _context;
+        private readonly DatabaseContext _context;
 
+        ILogger Logger { get; } = AppLogger.CreateLogger<CourseController>();
         public IHttpClientFactory _httpClientFactory { get; }
 
-        public CourseController(VmContext context, IHttpClientFactory httpClientFactory)
+        public CourseController(DatabaseContext context, IHttpClientFactory httpClientFactory)
         {
             _context = context;
             _httpClientFactory = httpClientFactory;
+        }
+
+        public string checkIfProfessor(string emailToTest)
+        {
+            List<string> professors = (from u in _context.Users
+                                       join usr in _context.UserSectionRoles
+                                       on u.UserId equals usr.UserId
+                                       join r in _context.Roles
+                                       on usr.RoleId equals r.RoleId
+                                       where r.RoleName == "Professor"
+                                       select u.Email).ToList();
+            return professors.Where(q => q == emailToTest).FirstOrDefault();
         }
 
         /****************************************
@@ -37,38 +45,50 @@ namespace vmProjectBackend.Controllers
         **************************************/
 
         // GET: api/Course/1/winter
-        [HttpGet("professor/allcourses/{course_semester}/{sectionnum}")]
+        [HttpGet("professor/allcourses/{year}/{term}")]
         // The Url param should match the varibales that you will pass into function below
-        public async Task<ActionResult> Get_Courses_section_specific(string course_semester, string sectionnum)
+        public async Task<ActionResult> Get_Courses_section_specific(int year, string term)
         {
-            // grabbing the user that signed injj
-            string useremail = HttpContext.User.Identity.Name;
+            // grabbing the user that signed in
+            string userEmail = HttpContext.User.Identity.Name;
             // check if it is a professor
-            var user_prof = _context.Users
-                            .Where(p => p.email == useremail
-                                    && p.userType == "Professor")
-                            .FirstOrDefault();
 
-            // Console.WriteLine("this is the user email" + useremail);
-            if (user_prof != null)
+            string professor = checkIfProfessor(userEmail);
+            Logger.LogInformation("User Email: " + professor);
+
+            if (professor != null)
             {
-                // Query the Enrollment table and doing a Join with Course table by using include
-                var listOfCourse = await _context.Enrollments
-                                .Include(c => c.Course)
-                                .Where(u => u.UserId == user_prof.UserID
-                                         && u.teacherId == user_prof.UserID
-                                         && u.section_num == sectionnum
-                                         && u.semester == course_semester)
-                                         .Select(c => new
-                                         {
-                                             course_name = c.Course.CourseName,
-                                             course_id = c.CourseID,
-                                             course_semester = c.semester,
-                                             course_section = c.section_num,
-                                             course_professor = $"{c.User.firstName} {c.User.lastName}"
-                                         })
-                                .ToListAsync();
-                return Ok(listOfCourse);
+                int semesterId = (from s in _context.Semesters
+                                  where s.SemesterYear == year
+                                  && s.SemesterTerm == term
+                                  select s.SemesterId).ToList().FirstOrDefault();
+
+                User profUser = (from u in _context.Users
+                                 where u.Email == professor
+                                 select u).ToList().First();
+
+                var sectionList = (from sem in _context.Semesters
+                                   join sec in _context.Sections
+                                   on sem.SemesterId equals sec.SemesterId
+                                   join c in _context.Courses
+                                   on sec.CourseId equals c.CourseId
+                                   join usr in _context.UserSectionRoles
+                                   on sec.SectionId equals usr.SectionId
+                                   join u in _context.Users
+                                   on usr.UserId equals u.UserId
+                                   where u.UserId == profUser.UserId
+                                   && sem.SemesterYear == year
+                                   && sem.SemesterTerm == term
+                                   select new
+                                   {
+                                       course_name = c.CourseCode,
+                                       course_id = sec.SectionCanvasId,
+                                       course_semester = $"{sem.SemesterTerm} {sem.SemesterYear}",
+                                       course_section = sec.SectionNumber,
+                                       course_professor = $"{profUser.FirstName} {profUser.LastName}"
+                                   }).ToList();
+
+                return Ok(sectionList);
             }
 
             else
@@ -82,7 +102,7 @@ namespace vmProjectBackend.Controllers
 
         ****************************************/
         // GET: api/Course/fall
-        [HttpGet("professor/semester/{course_semester}")]
+        /*[HttpGet("professor/semester/{course_semester}")]
         // The Url param should match the varibales that you will pass into function below
         public async Task<ActionResult> GetCourses_semester(string course_semester)
         {
@@ -118,14 +138,14 @@ namespace vmProjectBackend.Controllers
             {
                 return NotFound("You are not Authorized and not a Professor");
             }
-        }
+        }*/
 
         /***********************************
         Teacher searching for a specifc course and check the VM for that class
 
         ********************************/
         // GET: api/Course/5/3/fall
-        [HttpGet("professor/course/{course_Id}/{semester}/{sectionnum}")]
+        /*[HttpGet("professor/course/{course_Id}/{semester}/{sectionnum}")]
         // The Url param should match the varibales that you will pass into function below
         public async Task<ActionResult<Course>> GetCourse(long course_Id, string semester, string sectionnum)
         {
@@ -160,12 +180,13 @@ namespace vmProjectBackend.Controllers
             {
                 return NotFound("No such Course found");
             }
-        }
+        }*/
+
         /********************************************
         Teacher wanting to know who is registered for their
         class
         **************************/
-        [HttpGet("professor/students/{course_Id}/{course_semester}/{sectionnum}")]
+        /*[HttpGet("professor/students/{course_Id}/{course_semester}/{sectionnum}")]
         // The Url param should match the varibales that you will pass into function below
         public async Task<ActionResult> Get_Students_section_specific(long course_Id, string course_semester, string sectionnum)
         {
@@ -209,13 +230,14 @@ namespace vmProjectBackend.Controllers
             {
                 return NotFound("You are not Authorized and not a Professor");
             }
-        }
+        }*/
+
         /************************************************
         Teacher changing the status of a vm for a student
         ***********************/
-        [HttpPatch("professor/changeVmStatus/{studentId}/{courseId}/{sectionNum}/{coursesemester}")]
+        /*[HttpPatch("professor/changeVmStatus/{studentId}/{courseId}/{sectionNum}/{coursesemester}")]
         // The Url param should match the varibales that you will pass into function below
-        public async Task<ActionResult> ChangeVmStatus(Guid studentId, long courseId, string sectionNum, string coursesemester, JsonPatchDocument<Enrollment> patchDoc)
+        public async Task<ActionResult> ChangeVmStatus(Guid studentId, long courseId, string sectionNum, string coursesemester, JsonPatchDocument<Section> patchDoc)
         {
             // verify it is a teacher
             string useremail = HttpContext.User.Identity.Name;
@@ -246,7 +268,7 @@ namespace vmProjectBackend.Controllers
             }
             return Unauthorized("You are not authorized");
 
-        }
+        }*/
 
         /***********************************************
         Teachers change their course
@@ -254,7 +276,7 @@ namespace vmProjectBackend.Controllers
 
         // PUT: api/Course/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{course_id}")]
+        /*[HttpPut("{course_id}")]
         public async Task<IActionResult> PutCourse(long course_id, Course course)
         {
             if (course_id != course.CourseID)
@@ -281,16 +303,16 @@ namespace vmProjectBackend.Controllers
             }
 
             return NoContent();
-        }
+        }*/
 
         /**************************
-        
+
         Teacher change course
         ****************/
 
         // POST: api/Course
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-
+        /*
         [HttpPost]
         public async Task<ActionResult<Course>> PostCourse(Course course)
         {
@@ -323,16 +345,16 @@ namespace vmProjectBackend.Controllers
             }
             return Unauthorized("You are not a professor");
 
-        }
+        }*/
 
 
         /**************************************************
         Teacher delete course
-        
+
         ********************/
 
         // DELETE: api/Course/5
-        [HttpDelete("{id}")]
+        /*[HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCourse(long id)
         {
             string useremail = HttpContext.User.Identity.Name;
@@ -361,21 +383,21 @@ namespace vmProjectBackend.Controllers
             return Unauthorized("You are not a professor");
 
 
-            /***************************************************/
+
 
         }
 
         private bool CourseExists(long id)
         {
             return _context.Courses.Any(e => e.CourseID == id);
-        }
+        }*/
 
         /************************************************
-        
+
         Teacher patch their course
 
         ***********************/
-        [HttpPatch("{id}")]
+        /*[HttpPatch("{id}")]
         public async Task<ActionResult> PartialUpdate(long id, JsonPatchDocument<Course> patchDoc)
         {
             string useremail = HttpContext.User.Identity.Name;
@@ -402,12 +424,12 @@ namespace vmProjectBackend.Controllers
             }
             return Unauthorized("You are not Authorized and is not a Professor");
 
-        }
+        }*/
 
         /************************************************
         Endpoint that will check the validity of the courseId and canvas token
         ***********************/
-        [HttpPost("professor/checkCanvasToken")]
+        /*[HttpPost("professor/checkCanvasToken")]
         public async Task<ActionResult> CallCanvas([FromBody] CanvasCredentials canvasCredentials)
         {
             string useremail = HttpContext.User.Identity.Name;
@@ -433,6 +455,6 @@ namespace vmProjectBackend.Controllers
             }
             return Unauthorized("You are not Authorized and is not a Professor");
 
-        }
+        }*/
     }
 }

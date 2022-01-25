@@ -1,19 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.OpenApi.Models;
-using Microsoft.EntityFrameworkCore;
-
-using vmProjectBackend.Models;
+using System;
 using vmProjectBackend.DAL;
 
 
@@ -23,30 +14,21 @@ namespace vmProjectBackend
     {
         public static void Main(string[] args)
         {
-            var host = CreateHostBuilder(args).Build();
+            IHost host = CreateHostBuilder(args).Build();
 
-            CreateDbIfNotExists(host);
+            IServiceScope scope = host.Services.CreateScope();
+            IServiceProvider services = scope.ServiceProvider;
+
+            // Configures logging for the project. To use in each class, use the following template
+            // as a class level method as shown below. Then just use Logger any time to log a message in that class.
+            // ILogger Logger { get; } = AppLogger.CreateLogger<*ClassName*>();
+            ILoggerFactory LoggerFactory = services.GetRequiredService<ILoggerFactory>();
+            AppLogger.LoggerFactory = LoggerFactory;
+
+            CreateDbOrMigrate(services);
 
             host.Run();
         }
-        private static void CreateDbIfNotExists(IHost host)
-        {
-            using (var scope = host.Services.CreateScope())
-            {
-                var services = scope.ServiceProvider;
-                try
-                {
-                    var context = services.GetRequiredService<VmContext>();
-                    DbInitializer.Initialize(context);
-                }
-                catch (Exception ex)
-                {
-                    var logger = services.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(ex, "An error occurred creating the DB.");
-                }
-            }
-        }
-
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
@@ -54,5 +36,20 @@ namespace vmProjectBackend
                 {
                     webBuilder.UseStartup<Startup>();
                 });
+
+        private static void CreateDbOrMigrate(IServiceProvider services)
+        {
+            DatabaseContext context = services.GetRequiredService<DatabaseContext>();
+            ILogger logger = AppLogger.CreateLogger<Program>();
+            try
+            {
+                context.Database.Migrate();
+                logger.LogInformation("Database is working and migrations have been applied.");
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e, "An error occurred creating the DB.");
+            }
+        }
     }
 }

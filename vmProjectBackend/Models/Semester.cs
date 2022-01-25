@@ -10,15 +10,15 @@ namespace vmProjectBackend.Models
     {
         [Key]
         [Column("semester_id", Order = 1)]
-        public int SectionId { get; set; }
+        public int SemesterId { get; set; }
 
         [Required]
         [Column("semester_year", Order = 2)]
-        public int CourseId { get; set; }
+        public int SemesterYear { get; set; }
 
         [Required]
         [Column("semester_term", TypeName = "varchar(20)", Order = 3)]
-        public int SectionNumber { get; set; }
+        public string SemesterTerm { get; set; }
 
         [Required]
         [Column("start_date", TypeName = "datetime2(7)", Order = 4)]

@@ -20,8 +20,8 @@ namespace vmProjectBackend.Controllers
     [ApiController]
     public class TokenController : ControllerBase
     {
-        private readonly VmContext _context;
-        public TokenController(VmContext context)
+        private readonly DatabaseContext _context;
+        public TokenController(DatabaseContext context)
         {
             _context = context;
         }

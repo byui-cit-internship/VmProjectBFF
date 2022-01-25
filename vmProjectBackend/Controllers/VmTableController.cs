@@ -17,9 +17,9 @@ namespace vmProjectBackend.Controllers
     [ApiController]
     public class VmTableController : ControllerBase
     {
-        private readonly VmContext _context;
+        private readonly DatabaseContext _context;
 
-        public VmTableController(VmContext context)
+        public VmTableController(DatabaseContext context)
         {
             _context = context;
         }

@@ -21,8 +21,8 @@ namespace vmProjectBackend.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly VmContext _context;
-        public UserController(VmContext context)
+        private readonly DatabaseContext _context;
+        public UserController(DatabaseContext context)
         {
             _context = context;
         }

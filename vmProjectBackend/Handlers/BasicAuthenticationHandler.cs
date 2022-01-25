@@ -1,15 +1,14 @@
 
-using System;
-using System.Linq;
-using System.Net.Http.Headers;
-using System.Security.Claims;
-using System.Text;
-using System.Text.Encodings.Web;
-using System.Threading.Tasks;
 using Google.Apis.Auth;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System;
+using System.Linq;
+using System.Net.Http.Headers;
+using System.Security.Claims;
+using System.Text.Encodings.Web;
+using System.Threading.Tasks;
 using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
 
@@ -18,14 +17,14 @@ namespace vmProjectBackend.Handlers
     public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {
         // Inject the DBcontext into the handler so that we can compare te credentials
-        private readonly VmContext _context;
+        private readonly DatabaseContext _context;
 
         // BAsic Authentication needs contructor and this is it below
         public BasicAuthenticationHandler(
             IOptionsMonitor<AuthenticationSchemeOptions> options,
             ILoggerFactory logger,
             UrlEncoder encoder,
-            VmContext context,
+            DatabaseContext context,
             ISystemClock clock)
             : base(options, logger, encoder, clock)
         {
@@ -45,12 +44,12 @@ namespace vmProjectBackend.Handlers
             {
                 // Read the authorization header
                 var authenticationHeaderValue = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
-                Console.WriteLine("this is headervalue" + authenticationHeaderValue);
+                Logger.LogInformation("this is header value: " + authenticationHeaderValue);
 
                 var validPayload = await GoogleJsonWebSignature.ValidateAsync(authenticationHeaderValue.Parameter);
                 string validemail = validPayload.Email;
                 // get users from the db and check if any match with what was send through the request
-                User user = _context.Users.Where(user => user.email == validemail).FirstOrDefault();
+                User user = _context.Users.Where(user => user.Email == validemail).FirstOrDefault();
                 // If we get no user
                 if (user == null)
                 {
@@ -58,7 +57,7 @@ namespace vmProjectBackend.Handlers
                 }
                 else
                 {
-                    var claims = new[] { new Claim(ClaimTypes.Name, user.email) };
+                    var claims = new[] { new Claim(ClaimTypes.Name, user.Email) };
                     var identity = new ClaimsIdentity(claims, Scheme.Name);
                     var principal = new ClaimsPrincipal(identity);
                     var ticket = new AuthenticationTicket(principal, Scheme.Name);
@@ -69,7 +68,6 @@ namespace vmProjectBackend.Handlers
             catch (Exception)
             {
                 return AuthenticateResult.Fail("Error");
-
             }
 
             return AuthenticateResult.Fail("Need to implement");

@@ -1,23 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.OpenApi.Models;
-using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Serialization;
-using vmProjectBackend.Models;
 using vmProjectBackend.DAL;
-using Microsoft.AspNetCore.Authentication;
 using vmProjectBackend.Handlers;
-using vmProjectBackend.Services;
 
 namespace vmProjectBackend
 {
@@ -32,6 +23,8 @@ namespace vmProjectBackend
         public IConfiguration Configuration { get; }
         public IWebHostEnvironment Environment { get; }
 
+        ILogger Logger { get; } = AppLogger.CreateLogger<Startup>();
+
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
@@ -43,8 +36,8 @@ namespace vmProjectBackend
            .AddNewtonsoftJson(
                opts => opts.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
            );
-            //    This is needed to register my BAckground service
-            services.AddHostedService<BackgroundService1>();
+            //    This is needed to register my Background service
+            //UNCOMMENT LATER services.AddHostedService<BackgroundService1>();
             // Allow to use client Factory
             services.AddHttpClient();
 
@@ -68,9 +61,10 @@ namespace vmProjectBackend
             // ********************ONLY FOR NOW USE****************************
             string connectionString = Configuration.GetConnectionString("DatabaseString");
 
-            services.AddDbContext<VmContext>(opt =>
+            services.AddDbContext<DatabaseContext>(opt =>
                                              opt.UseSqlServer(connectionString));
 
+            Logger.LogInformation("Services Configured correctly");
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -97,6 +91,7 @@ namespace vmProjectBackend
             {
                 endpoints.MapControllers();
             });
+            Logger.LogInformation("Application configured successfully");
         }
 
         private static void UpdateDatabase(IApplicationBuilder app)
@@ -105,14 +100,11 @@ namespace vmProjectBackend
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope())
             {
-                using (var context = serviceScope.ServiceProvider.GetService<VmContext>())
+                using (var context = serviceScope.ServiceProvider.GetService<DatabaseContext>())
                 {
                     context.Database.Migrate();
                 }
             }
-
-            
-
         }
     }
 }

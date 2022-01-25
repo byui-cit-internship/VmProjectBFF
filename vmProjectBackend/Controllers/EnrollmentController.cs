@@ -1,22 +1,6 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using vmProjectBackend.DAL;
-using vmProjectBackend.Models;
-using System.Web;
-using System.Text;
-using System.Text.Json;
-using System.Collections;
-using Newtonsoft.Json;
-using System.Reflection;
-using System.Net.Http;
-using Microsoft.Net.Http.Headers;
 
 // using System.Collections.IEm
 
@@ -27,9 +11,9 @@ namespace vmProjectBackend.Controllers
     [ApiController]
     public class EnrollmentController : ControllerBase
     {
-        private readonly VmContext _context;
+        private readonly DatabaseContext _context;
         private readonly IHttpClientFactory _httpClientFactory;
-        public EnrollmentController(VmContext context, IHttpClientFactory httpClientFactory)
+        public EnrollmentController(DatabaseContext context, IHttpClientFactory httpClientFactory)
         {
             _context = context;
             _httpClientFactory = httpClientFactory;
@@ -63,7 +47,7 @@ namespace vmProjectBackend.Controllers
                     await _context.SaveChangesAsync();
 
                     // Create the enrollment
-                    Enrollment enrollment = new Enrollment();
+                    Section enrollment = new Section();
 
                     var _courseObject = await _context.Courses
                                         .Where(c => c.CourseID == courseDetails.course_id)
@@ -191,7 +175,7 @@ namespace vmProjectBackend.Controllers
 
         public async Task EnrollStudent(long course_id, Guid userid, Guid teacherid, Guid vmtableId, string sectionnum, string semester)
         {
-            Enrollment enrollment = new Enrollment();
+            Section enrollment = new Section();
             long enroll_course_id = _context.Courses.FirstOrDefault(c => c.CourseID == course_id).CourseID;
             enrollment.CourseID = enroll_course_id;
             enrollment.UserId = userid;

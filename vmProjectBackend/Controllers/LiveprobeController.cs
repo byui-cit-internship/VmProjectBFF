@@ -16,9 +16,9 @@ namespace vmProjectBackend.Controllers
     [ApiController]
     public class LiveprobeController : ControllerBase
     {
-        private readonly VmContext _context;
+        private readonly DatabaseContext _context;
 
-        public LiveprobeController(VmContext context)
+        public LiveprobeController(DatabaseContext context)
         {
             _context = context;
         }

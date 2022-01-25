@@ -1,21 +1,8 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.DependencyInjection;
-using vmProjectBackend.DAL;
-using vmProjectBackend.Models;
-using System.Net.Http;
-using Microsoft.Net.Http.Headers;
-using System.Text.Json;
-using System.Collections.Generic;
-using Newtonsoft.Json;
-using Microsoft.AspNetCore.Authorization;
-using System.Collections;
-using Microsoft.Extensions.Configuration;
-using System.Linq;
-using System.Data.Entity;
 
 namespace vmProjectBackend.Services
 {
@@ -26,7 +13,7 @@ namespace vmProjectBackend.Services
         private readonly ILogger<BackgroundService1> _logger;
         private readonly IConfiguration _Configuration;
 
-        // private readonly VmContext _context;
+        // private readonly DatabaseContext _context;
         // public List<CourseCreate> coursedata = new List<CourseCreate>();
 
 
@@ -42,12 +29,12 @@ namespace vmProjectBackend.Services
         {
             using (var scope = Services.CreateScope())
             {
-                var _context = scope.ServiceProvider.GetRequiredService<VmContext>();
-                List<Enrollment> listOfenroll = _context.Enrollments.Where(e => e.teacherId == e.UserId).ToList();
+                var _context = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+                List<Section> listOfenroll = _context.Enrollments.Where(e => e.teacherId == e.UserId).ToList();
 
                 async Task EnrollStudent(long _course_id, Guid userid, Guid teacherid, Guid vmtableId, string sectionnum, string semester)
                 {
-                    Enrollment enrollment = new Enrollment();
+                    Section enrollment = new Section();
                     long enroll_course_id = _context.Courses.FirstOrDefault(c => c.CourseID == _course_id).CourseID;
                     enrollment.CourseID = enroll_course_id;
                     enrollment.UserId = userid;
