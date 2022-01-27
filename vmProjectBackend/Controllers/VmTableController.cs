@@ -59,6 +59,7 @@ namespace vmProjectBackend.Controllers
           var user_prof = _context.Users
                             .Where(p => p.email == useremail && p.userType == "Professor")
                             .FirstOrDefault();
+                            Console.WriteLine("hola, do something" + user_prof.userType);
 
             if (user_prof != null)
             {
@@ -75,11 +76,12 @@ namespace vmProjectBackend.Controllers
 
                     string base64 = "YXBpLXRlc3RAY2l0d2RkLm5ldDp3bkQ8RHpbSFpXQDI1e11x";
                     string base64String = Base64Decode(base64);
-            
+                    Console.WriteLine(base64);
                       
-                 httpClient.DefaultRequestHeaders.Add("authorization", base64String);
+                 httpClient.DefaultRequestHeaders.Add("authorization", base64);
 
                 var tokenResponse = await httpClient.GetAsync("https://vctr-dev.citwdd.net/api/session");
+                Console.WriteLine(tokenResponse);
                 string tokenstring = " ";
                 if (tokenResponse.IsSuccessStatusCode)
                 {
