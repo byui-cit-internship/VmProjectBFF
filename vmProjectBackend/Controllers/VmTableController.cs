@@ -67,35 +67,43 @@ namespace vmProjectBackend.Controllers
                 try{ 
 
                 //base64 credentials
-                static string Base64Decode(string base64EncodedData)
-        {
-            var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
-            return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
-        }
+        //         static string Base64Decode(string base64EncodedData)
+        // {
+        //     var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
+        //     return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
+        // }
                     var httpClient = _httpClientFactory.CreateClient();
 
-                    string base64 = "YXBpLXRlc3RAY2l0d2RkLm5ldDp3bkQ8RHpbSFpXQDI1e11x";
-                    string base64String = Base64Decode(base64);
+                    string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
+                    // string base64String = Base64Decode(base64);
                     Console.WriteLine(base64);
                       
-                 httpClient.DefaultRequestHeaders.Add("authorization", base64);
+                 httpClient.DefaultRequestHeaders.Add("Authorization", base64);
 
-                var tokenResponse = await httpClient.GetAsync("https://vctr-dev.citwdd.net/api/session");
+                var tokenResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/api/session", null); 
                 Console.WriteLine(tokenResponse);
                 string tokenstring = " ";
                 if (tokenResponse.IsSuccessStatusCode)
                 {
                  tokenstring = await tokenResponse.Content.ReadAsStringAsync();
+                 //Taking quotes out of the tokenstring variable s = s.Replace("\"", "");
+                 tokenstring = tokenstring.Replace("\"", ""); 
+
                     Console.WriteLine($"it was sucessfull {tokenstring}");
+                    
+
                 }
-                
+                httpClient.DefaultRequestHeaders.Remove("Authorization");
+                //we are removing the basic auth because it require a new authorization
                 httpClient.DefaultRequestHeaders.Add("vmware-api-session-id", tokenstring);
                 // contains our base Url where templates were added in vcenter
                 // This URL enpoint gives a list of all the Templates we have in our vcenter 
-                var response = await httpClient.GetAsync($"https://vctr.citwdd.net/api/vcenter/vm-template/library-items/");
+                var response = await httpClient.GetAsync($"https://vctr-dev.citwdd.net/api/content/library/item?library_id=32793240-7e2c-461f-98dd-2ff944bd2b4d");
+                
+                Console.WriteLine($" response to the second call {response}");
 
                 string responseString = await response.Content.ReadAsStringAsync();
-     
+     Console.WriteLine("template response" + responseString);
                 if (response.IsSuccessStatusCode)
                  {
                     return Ok(response);
