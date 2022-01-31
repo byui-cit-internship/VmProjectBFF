@@ -93,15 +93,22 @@ namespace vmProjectBackend.Controllers
                     // contains our base Url where templates were added in vcenter
                     // This URL enpoint gives a list of all the Templates we have in our vcenter 
                     List<Templates> templates = null;
+                    List<String> templateIds = null ;
+    
+                
+
                     var response = await httpClient.GetAsync($"https://vctr-dev.citwdd.net/api/content/library/item?library_id=32793240-7e2c-461f-98dd-2ff944bd2b4d");
                     Console.WriteLine($" response to the second call {response}");
 
                     string responseString = await response.Content.ReadAsStringAsync();
-
-                    templates = JsonConvert.DeserializeObject<List<Templates>>(responseString);
-
-
                     Console.WriteLine("template response" + responseString);
+                    templateIds = JsonConvert.DeserializeObject<List<String>>(responseString);
+
+                  //call Api, convert it to templates, and get the list of templates
+                   foreach(string templateId in templateIds){
+                    
+                   }
+                  
                     if (templates != null)
                     {
                         return Ok(templates);
