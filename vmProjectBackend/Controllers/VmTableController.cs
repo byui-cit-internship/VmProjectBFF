@@ -92,23 +92,29 @@ namespace vmProjectBackend.Controllers
                     httpClient.DefaultRequestHeaders.Add("vmware-api-session-id", tokenstring);
                     // contains our base Url where templates were added in vcenter
                     // This URL enpoint gives a list of all the Templates we have in our vcenter 
-                    List<Templates> templates = null;
-                    List<String> templateIds = null ;
-    
-                
+                    List<Template> templates = new List<Template>();
 
                     var response = await httpClient.GetAsync($"https://vctr-dev.citwdd.net/api/content/library/item?library_id=32793240-7e2c-461f-98dd-2ff944bd2b4d");
                     Console.WriteLine($" response to the second call {response}");
 
                     string responseString = await response.Content.ReadAsStringAsync();
                     Console.WriteLine("template response" + responseString);
-                    templateIds = JsonConvert.DeserializeObject<List<String>>(responseString);
+                    List<String> templateIds = templateIds = JsonConvert.DeserializeObject<List<String>>(responseString);
 
-                  //call Api, convert it to templates, and get the list of templates
-                   foreach(string templateId in templateIds){
-                    
-                   }
-                  
+
+                    //call Api, convert it to templates, and get the list of templates
+                    foreach (string templateId in templateIds)
+                    {
+                        var response2 = await httpClient.GetAsync($"https://vctr-dev.citwdd.net/api/content/library/item/" + templateId);
+                        Console.WriteLine($"Second response {response2}");
+
+                        string response2String = await response2.Content.ReadAsStringAsync();
+                        Template template = JsonConvert.DeserializeObject<Template>(response2String);       
+                        templates.Add(template);
+
+                    }
+
+
                     if (templates != null)
                     {
                         return Ok(templates);
