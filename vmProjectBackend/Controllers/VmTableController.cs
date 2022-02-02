@@ -9,19 +9,28 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
-
+using vmProjectBackend.DTO;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Http;
+using Microsoft.Extensions.DependencyInjection;
+using System.Net.Http;
+using Microsoft.Net.Http.Headers;
+using Newtonsoft.Json;
 namespace vmProjectBackend.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class VmTableController : ControllerBase
-    {
-        private readonly VmContext _context;
 
-        public VmTableController(VmContext context)
+    {
+
+        private readonly VmContext _context;
+        private readonly IHttpClientFactory _httpClientFactory;
+        public VmTableController(VmContext context, IHttpClientFactory httpClientFactory)
         {
             _context = context;
+            _httpClientFactory = httpClientFactory;
         }
 
         // GET: api/VmTable
@@ -40,6 +49,92 @@ namespace vmProjectBackend.Controllers
             }
             return Unauthorized("You are not Authorized and is not a professor");
         }
+
+        //GET: api/vmtable/templates
+        [HttpGet("templates/all")]
+        public async Task<ActionResult<IEnumerable<string>>> GetTemplates()
+        {
+            string useremail = HttpContext.User.Identity.Name;
+            //check if it is a professor
+            var user_prof = _context.Users
+                              .Where(p => p.email == useremail && p.userType == "Professor")
+                              .FirstOrDefault();
+            Console.WriteLine("hola, do something" + user_prof.userType);
+
+            if (user_prof != null)
+            {
+
+                try
+                {
+
+                    // Creating the client request and setting headers
+                    var httpClient = _httpClientFactory.CreateClient();
+                    string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
+                    Console.WriteLine(base64);
+
+                    httpClient.DefaultRequestHeaders.Add("Authorization", base64);
+
+                    var tokenResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/api/session", null);
+                    Console.WriteLine(tokenResponse);
+                    string tokenstring = " ";
+                    if (tokenResponse.IsSuccessStatusCode)
+                    {
+                        tokenstring = await tokenResponse.Content.ReadAsStringAsync();
+                        //Taking quotes out of the tokenstring variable s = s.Replace("\"", "");
+                        tokenstring = tokenstring.Replace("\"", "");
+
+                        Console.WriteLine($"it was sucessfull {tokenstring}");
+
+
+                    }
+                    httpClient.DefaultRequestHeaders.Remove("Authorization");
+                    //we are removing the basic auth because it require a new authorization
+                    httpClient.DefaultRequestHeaders.Add("vmware-api-session-id", tokenstring);
+                    // contains our base Url where templates were added in vcenter
+                    // This URL enpoint gives a list of all the Templates we have in our vcenter 
+                    List<Template> templates = new List<Template>();
+
+                    var response = await httpClient.GetAsync($"https://vctr-dev.citwdd.net/api/content/library/item?library_id=32793240-7e2c-461f-98dd-2ff944bd2b4d");
+                    Console.WriteLine($" response to the second call {response}");
+
+                    string responseString = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine("template response" + responseString);
+                    List<String> templateIds = templateIds = JsonConvert.DeserializeObject<List<String>>(responseString);
+
+
+                    //call Api, convert it to templates, and get the list of templates
+                    foreach (string templateId in templateIds)
+                    {
+                        var response2 = await httpClient.GetAsync($"https://vctr-dev.citwdd.net/api/content/library/item/" + templateId);
+                        Console.WriteLine($"Second response {response2}");
+
+                        string response2String = await response2.Content.ReadAsStringAsync();
+                        Template template = JsonConvert.DeserializeObject<Template>(response2String);       
+                        templates.Add(template);
+
+                    }
+
+
+                    if (templates != null)
+                    {
+                        return Ok(templates);
+                    }
+                    else
+                    {
+                        return NotFound("Failed calling");
+                    }
+                }
+                catch
+                {
+                    return Problem("crash returning templates!");
+
+                }
+
+            }
+            return Unauthorized("You are not Authorized and is not a professor");
+
+        }
+
 
         // GET: api/VmTable/5
         [HttpGet("{id}")]
