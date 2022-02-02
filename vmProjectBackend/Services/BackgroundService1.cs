@@ -109,7 +109,7 @@ namespace vmProjectBackend.Services
                                     int target = listOfcurrent_StudentObject.Count;
                                     if (student.Count != 0)
                                     {
-                                        var student_id = student["user_id"];
+                                        int student_id = student["user_id"];
                                         // Take the student_id and call the other Api to get just user Information
                                         var studentInfoResponse = await httpClient.GetAsync($"https://byui.test.instructure.com/api/v1/courses/{_course_id}/users?search_term={student_id}");
                                         if (studentInfoResponse.IsSuccessStatusCode)
@@ -134,10 +134,11 @@ namespace vmProjectBackend.Services
                                                 // check if the student is already created, if not then create and enroll in that class
                                                 var current_student_in_db = _context.Users.Where(u => u.email == current_student_email).FirstOrDefault();
 
-                                                Console.WriteLine("here is the student details" + current_student_in_db.email);
+                                                
                                                 if (current_student_in_db != null)
                                                 {
                                                     Console.WriteLine("student already exits");
+                                                    Console.WriteLine("here is the student details" + current_student_in_db.email);
                                                     //  search to see if the current student is enrolled in the class
                                                     var current_student_enrollment = _context.Enrollments.Where(e => e.UserId == current_student_in_db.UserID
                                                                                                           && e.CourseID == _course_id)
