@@ -134,7 +134,7 @@ namespace vmProjectBackend.Services
                                                 // check if the student is already created, if not then create and enroll in that class
                                                 var current_student_in_db = _context.Users.Where(u => u.email == current_student_email).FirstOrDefault();
 
-                                                Console.WriteLine("here is the student details");
+                                                Console.WriteLine("here is the student details" + current_student_in_db.email);
                                                 if (current_student_in_db != null)
                                                 {
                                                     Console.WriteLine("student already exits");
@@ -142,11 +142,11 @@ namespace vmProjectBackend.Services
                                                     var current_student_enrollment = _context.Enrollments.Where(e => e.UserId == current_student_in_db.UserID
                                                                                                           && e.CourseID == _course_id)
                                                                                                           .FirstOrDefault();
-                                                    Guid current_student_enrollid = current_student_enrollment.UserId;
+                                    
                                                     if (current_student_enrollment == null)
                                                     {
                                                         //Enroll that Student to that course  
-                                                        await EnrollStudent(_course_id, current_student_enrollid, enroll.teacherId, enroll.VmTableID, _course_sectionnum, enroll.semester);
+                                                        await EnrollStudent(_course_id, current_student_in_db.UserID, enroll.teacherId, enroll.VmTableID, _course_sectionnum, enroll.semester);
                                                         Console.WriteLine("Student enrolled into the course");
                                                     }
                                                     else
