@@ -79,7 +79,9 @@ namespace vmProjectBackend.Services
                             // This varible is changeable, it will chnage depending of the environment that the 
                             // project uses. We are using tutors to test this function and in Production we will use actual students
 
-                            var user_role_id = 3;
+                            var user_role = _Configuration["Canvas:StudentRole"];
+                            //Configuration["Logging:LogLevel:Default"]
+
                             // call the Api for that course with the canvas token
                             // create an httpclient instance
                             var httpClient = _httpClientFactory.CreateClient();
@@ -89,7 +91,7 @@ namespace vmProjectBackend.Services
                             httpClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + _course_canvas_token);
                             // contains our base Url where individula course_id is added
                             // This URL enpoint gives a list of all the Student in that class : role_id= 3 list all the student for that Professor
-                            var response = await httpClient.GetAsync($"https://byui.test.instructure.com/api/v1/courses/{_course_id}/enrollments?per_page=1000&role_id={user_role_id}");
+                            var response = await httpClient.GetAsync($"https://byui.test.instructure.com/api/v1/courses/{_course_id}/enrollments?per_page=1000&role={user_role}");
 
                             if (response.IsSuccessStatusCode)
                             {
