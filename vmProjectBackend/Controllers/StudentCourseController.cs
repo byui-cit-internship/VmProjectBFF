@@ -88,7 +88,9 @@ namespace vmProjectBackend.Controllers
                                         course_semester = e.semester,
                                         course_sectionnum = e.section_num,
                                         course_vm_status = e.Status,
-                                        course_vm = e.VmTable
+                                        course_vm = e.VmTable,
+                                        enrollment_id = e.EnrollmentID
+
                                     })
                                     .FirstOrDefaultAsync();
 
