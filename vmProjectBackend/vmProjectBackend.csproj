@@ -6,7 +6,6 @@
 
   <ItemGroup>
     <Compile Remove="Controllers\EnrollmentController.cs" />
-    <Compile Remove="Controllers\LiveprobeController.cs" />
     <Compile Remove="Controllers\StudentCourseController.cs" />
     <Compile Remove="Controllers\TokenController.cs" />
     <Compile Remove="Controllers\UserController.cs" />
@@ -15,12 +14,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="Controllers\EnrollmentController.cs" />
     <None Include="Controllers\StudentCourseController.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Controllers\EnrollmentController.cs" />
-    <None Include="Controllers\LiveprobeController.cs" />
     <None Include="Controllers\TokenController.cs" />
     <None Include="Controllers\UserController.cs" />
     <None Include="Controllers\VmTableController.cs" />

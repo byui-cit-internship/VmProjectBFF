@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace vmProjectBackend.Models
 {
     [Table("vm_user_instance", Schema = "vmProject")]
-    public class VmUserInstance
+    public class VmInstance
     {
         [Key]
         [Column("vm_user_instance_id", Order = 1)]

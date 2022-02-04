@@ -14,5 +14,8 @@ namespace vmProjectBackend.Models
         [Required]
         [Column("role_name", TypeName = "varchar(20)", Order = 2)]
         public string RoleName { get; set; }
+
+        [Column("canvas_role_id", Order = 3)]
+        public int CanvasRoleId { get; set; }
     }
 }

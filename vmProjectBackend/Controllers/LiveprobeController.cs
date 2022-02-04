@@ -12,7 +12,7 @@ using vmProjectBackend.Models;
 // may want to review whether you need to add the [Attorize] declarator.
 namespace vmProjectBackend.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("/")]
     [ApiController]
     public class LiveprobeController : ControllerBase
     {

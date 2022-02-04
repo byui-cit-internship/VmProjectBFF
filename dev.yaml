@@ -58,41 +58,39 @@ spec:
     - port: 80
       targetPort: 80
 ---
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: vmproject-api-dev-ingress
   annotations:
     kubernetes.io/ingress.global-static-ip-name: vmproject-api-dev
-    networking.gke.io/managed-certificates: vmproject-api-dev-certificate-2
-    cloud.google.com/backend-config: vmproject-api-dev-ingress-backend-config
-#    kubernetes.io/ingress.allow-http: "false"
+    kubernetes.io/ingress.class: "nginx"
 spec:
-  backend:
-    serviceName: vmproject-api-dev-nodeport
-    servicePort: 80
----
-apiVersion: cloud.google.com/v1
-kind: BackendConfig
-metadata:
-  name: vmproject-api-dev-ingress-backend-config
-spec:
-# This overrides the default Ingress/Load Balancer Health Check
-  healthCheck:
-    checkIntervalSec: 10
-    timeoutSec: 10
-    healthyThreshold: 2
-    unhealthyThreshold: 2
-# The type is the protocol used to connect to the Pod
-    type: HTTP
-    requestPath: /api/liveprobe
-# The below port is the port to use to connect to the Pod
-    port: 80
----
-apiVersion: networking.gke.io/v1
-kind: ManagedCertificate
-metadata:
-  name: vmproject-api-dev-certificate-2
-spec:
-  domains:
+  tls:
+  - hosts:
     - dev-vm-api.citwdd.net
+    secretName: dev-vm-api-tls
+  rules:
+  - host: dev-vm-api.citwdd.net
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service: 
+            name: dev-vm-api-service
+            port: 
+              number: 80
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: vm-project-api-dev
+  namespace: vm-project-dev
+spec:
+  dnsNames:
+    - dev-vm-api.citwdd.net
+  secretName: dev-vm-api-tls
+  issuerRef:
+    name: letsencrypt-cluster-issuer
+    kind: ClusterIssuer

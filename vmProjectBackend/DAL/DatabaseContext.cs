@@ -20,7 +20,7 @@ namespace vmProjectBackend.DAL
         public DbSet<UserSectionRole> UserSectionRoles { get; set; }
         public DbSet<VmTemplate> VmTemplates { get; set; }
         public DbSet<VmTemplateCourse> VmTemplateCourses { get; set; }
-        public DbSet<VmUserInstance> vmUserInstances { get; set; }
+        public DbSet<VmInstance> vmUserInstances { get; set; }
         public object Configuration { get; }
     }
 }
