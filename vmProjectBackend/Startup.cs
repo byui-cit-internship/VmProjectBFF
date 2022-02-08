@@ -39,7 +39,9 @@ namespace vmProjectBackend
             // when you reference a model inside another model, model like
             // enrollment which reference Course and User and both making a Reference back to enrollment
 
+
             services.AddControllers()
+            
            .AddNewtonsoftJson(
                opts => opts.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
            );
@@ -85,7 +87,7 @@ namespace vmProjectBackend
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseHttpsRedirection();
+            // app.UseHttpsRedirection();
 
             app.UseRouting();
 

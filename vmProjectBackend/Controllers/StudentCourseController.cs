@@ -51,7 +51,8 @@ namespace vmProjectBackend.Controllers
                                         course_id = e.CourseID,
                                         course_semester = e.semester,
                                         course_sectionnum = e.section_num,
-                                        course_status= e.Status
+                                        course_status= e.Status, 
+                                        enrollment_id = e.EnrollmentID
                                     })
                                     .ToArrayAsync();
 
@@ -89,6 +90,9 @@ namespace vmProjectBackend.Controllers
                                         course_sectionnum = e.section_num,
                                         course_vm_status = e.Status,
                                         course_vm = e.VmTable
+                                        
+                                      
+                                        
                                     })
                                     .FirstOrDefaultAsync();
 
@@ -110,7 +114,7 @@ namespace vmProjectBackend.Controllers
             var user_student = _context.Users.Where(p => p.email == useremail
                                                     && p.userType == "Student")
                                              .FirstOrDefault();
-
+                                             
             // Check if it is valid enrollment and if the student is enrolled in that class
             var enrollment_details = _context.Enrollments.Where(p => p.EnrollmentID == enrollmentID
                                                                 && p.UserId == user_student.UserID)
