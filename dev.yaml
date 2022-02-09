@@ -76,7 +76,6 @@ spec:
     http:
       paths:
       - backend:
-          service: 
-            name: dev-vm-api-service
-            port: 
-              number: 80
+          serviceName: vmproject-api-dev-nodeport
+          servicePort: 80
+            
