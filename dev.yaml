@@ -63,34 +63,20 @@ kind: Ingress
 metadata:
   name: vmproject-api-dev-ingress
   annotations:
-    kubernetes.io/ingress.global-static-ip-name: vmproject-api-dev
+    nginx.ingress.kubernetes.io/rewrite-target: /
     kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-cluster-issuer"
 spec:
   tls:
   - hosts:
-    - dev-vm-api.citwdd.net
+    - rancher-dev-vm-api.citwdd.net
     secretName: dev-vm-api-tls
   rules:
-  - host: dev-vm-api.citwdd.net
+  - host: rancher-dev-vm-api.citwdd.net
     http:
       paths:
-      - path: /
-        pathType: Prefix
-        backend:
+      - backend:
           service: 
             name: dev-vm-api-service
             port: 
               number: 80
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: vm-project-api-dev
-  namespace: vm-project-dev
-spec:
-  dnsNames:
-    - dev-vm-api.citwdd.net
-  secretName: dev-vm-api-tls
-  issuerRef:
-    name: letsencrypt-cluster-issuer
-    kind: ClusterIssuer
