@@ -80,4 +80,5 @@ spec:
             name: vmproject-api-dev-nodeport
             port: 
               number: 80
+        pathType: ImplementationSpecific
             
