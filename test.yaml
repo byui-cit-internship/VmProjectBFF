@@ -81,4 +81,4 @@ spec:
             port: 
               number: 80
         pathType: ImplementationSpecific
-# vmfrontend-test
+# vmproject-api-test
