@@ -97,49 +97,7 @@ namespace vmProjectBackend.Controllers
             }
         }
 
-        /*******************************
-        teacher should see a list of their classes in all section for a specific semester
-
-        ****************************************/
-        // GET: api/Course/fall
-        /*[HttpGet("professor/semester/{course_semester}")]
-        // The Url param should match the varibales that you will pass into function below
-        public async Task<ActionResult> GetCourses_semester(string course_semester)
-        {
-            // grabbing the user that signed in
-            string useremail = HttpContext.User.Identity.Name;
-
-            // check if it is a professor
-            var user_prof = _context.Users
-                            .Where(p => p.email == useremail && p.userType == "Professor")
-                            .FirstOrDefault();
-
-            // Console.WriteLine("this is the user email" + useremail);
-            if (user_prof != null)
-            {
-                var listOfCourse = await _context.Enrollments
-                                .Include(c => c.Course)
-                                .Where(u => u.UserId == user_prof.UserID
-                                         && u.teacherId == user_prof.UserID
-                                         && u.semester == course_semester)
-                                .Select(c => new
-                                {
-                                    course_name = c.Course.CourseName,
-                                    course_id = c.CourseID,
-                                    course_semester = c.semester,
-                                    course_section = c.section_num,
-                                    course_professor = $"{c.User.firstName} {c.User.lastName}"
-                                })
-                                .ToListAsync();
-                return Ok(listOfCourse);
-            }
-
-            else
-            {
-                return NotFound("You are not Authorized and not a Professor");
-            }
-        }*/
-
+        
         /***********************************
         Teacher searching for a specifc course and check the VM for that class
 

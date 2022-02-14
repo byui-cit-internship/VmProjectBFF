@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
 
@@ -12,7 +7,7 @@ using vmProjectBackend.Models;
 // may want to review whether you need to add the [Attorize] declarator.
 namespace vmProjectBackend.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("/")]
     [ApiController]
     public class LiveprobeController : ControllerBase
     {
@@ -22,6 +17,7 @@ namespace vmProjectBackend.Controllers
         {
             _context = context;
         }
+
         // GET: api/Liveprobe
         [HttpGet]
         public async Task<ActionResult<User>> GetProbe()
