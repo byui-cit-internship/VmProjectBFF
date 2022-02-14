@@ -26,69 +26,57 @@ namespace vmProjectBackend.Controllers
             _httpClientFactory = httpClientFactory;
         }
 
-        public string checkIfProfessor(string emailToTest)
+        public User getProfessor(string emailToTest)
         {
-            List<string> professors = (from u in _context.Users
-                                       join usr in _context.UserSectionRoles
-                                       on u.UserId equals usr.UserId
-                                       join r in _context.Roles
-                                       on usr.RoleId equals r.RoleId
-                                       where r.RoleName == "Professor"
-                                       select u.Email).ToList();
-            return professors.Where(q => q == emailToTest).FirstOrDefault();
+            IQueryable<User> professors = (from u in _context.Users
+                                           join usr in _context.UserSectionRoles
+                                           on u.UserId equals usr.UserId
+                                           join r in _context.Roles
+                                           on usr.RoleId equals r.RoleId
+                                           where r.RoleName == "Professor"
+                                           && u.Email == emailToTest
+                                           select u);
+            return professors.DefaultIfEmpty(null).FirstOrDefault();
         }
 
-        /****************************************
-        Teachers should see a list of their classes 
-        that they have for that semester and that section
-
-        **************************************/
-
-        // GET: api/Course/1/winter
-        [HttpGet("professor/allcourses/{year}/{term}")]
+        /*******************************
+        teacher should see a list of their classes in all section for a specific semester
+        ****************************************/
+        // GET: api/Course/fall
+        [HttpGet("professor/semester/{course_semester}")]
         // The Url param should match the varibales that you will pass into function below
-        public async Task<ActionResult> Get_Courses_section_specific(int year, string term)
+        public async Task<ActionResult> GetCourses_semester(string course_semester)
         {
             // grabbing the user that signed in
-            string userEmail = HttpContext.User.Identity.Name;
+            string useremail = HttpContext.User.Identity.Name;
+
             // check if it is a professor
+            User professor = getProfessor(useremail);
 
-            string professor = checkIfProfessor(userEmail);
-            Logger.LogInformation("User Email: " + professor);
-
+            // Console.WriteLine("this is the user email" + useremail);
             if (professor != null)
             {
-                int semesterId = (from s in _context.Semesters
-                                  where s.SemesterYear == year
-                                  && s.SemesterTerm == term
-                                  select s.SemesterId).ToList().FirstOrDefault();
+                var listOfCourse = (from c in _context.Courses
+                                    join sec in _context.Sections
+                                    on c.CourseId equals sec.CourseId
+                                    join sem in _context.Semesters
+                                    on sec.SemesterId equals sem.SemesterId
+                                    join usr in _context.UserSectionRoles
+                                    on sec.SectionId equals usr.SectionId
+                                    join u in _context.Users
+                                    on usr.UserId equals u.UserId
+                                    where u.Email == professor.Email
+                                    && sem.SemesterTerm == course_semester
+                                    select new
+                                    {
+                                        course_name = c.CourseName,
+                                        course_id = sec.SectionId,
+                                        course_semester = sem.SemesterTerm,
+                                        course_section = sec.SectionNumber,
+                                        course_professor = $"{u.FirstName} {u.LastName}"
+                                    }).ToList();
 
-                User profUser = (from u in _context.Users
-                                 where u.Email == professor
-                                 select u).ToList().First();
-
-                var sectionList = (from sem in _context.Semesters
-                                   join sec in _context.Sections
-                                   on sem.SemesterId equals sec.SemesterId
-                                   join c in _context.Courses
-                                   on sec.CourseId equals c.CourseId
-                                   join usr in _context.UserSectionRoles
-                                   on sec.SectionId equals usr.SectionId
-                                   join u in _context.Users
-                                   on usr.UserId equals u.UserId
-                                   where u.UserId == profUser.UserId
-                                   && sem.SemesterYear == year
-                                   && sem.SemesterTerm == term
-                                   select new
-                                   {
-                                       course_name = c.CourseCode,
-                                       course_id = sec.SectionCanvasId,
-                                       course_semester = $"{sem.SemesterTerm} {sem.SemesterYear}",
-                                       course_section = sec.SectionNumber,
-                                       course_professor = $"{profUser.FirstName} {profUser.LastName}"
-                                   }).ToList();
-
-                return Ok(sectionList);
+                return Ok(listOfCourse);
             }
 
             else
@@ -97,7 +85,8 @@ namespace vmProjectBackend.Controllers
             }
         }
 
-        
+
+
         /***********************************
         Teacher searching for a specifc course and check the VM for that class
 
