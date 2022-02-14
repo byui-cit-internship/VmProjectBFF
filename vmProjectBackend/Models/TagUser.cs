@@ -4,19 +4,26 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace vmProjectBackend.Models
 {
-    [Table("", Schema = "vmProject")]
-    public class
+    [Table("tag_user", Schema = "vmProject")]
+    public class TagUser
     {
         [Key]
-    [Column("_id", Order = 1)]
-    public int Id { get; set; }
+        [Column("tag)_user_id", Order = 1)]
+        public int TagUserId { get; set; }
 
-    [Required]
-    [Column("role_name", TypeName = "varchar(20)", Order = 2)]
-    public string RoleName { get; set; }
+        [Required]
+        [Column("tag_id", Order = 2)]
+        public int TagId { get; set; }
+
+        [Required]
+        [Column("user_id", Order = 3)]
+        public int UserId { get; set; }
 
 
-    [ForeignKey("Id")]
-    public  { get; set; }
-}
+        [ForeignKey("TagId")]
+        public Tag Tag { get; set; }
+
+        [ForeignKey("UserId")]
+        public User User { get; set; }
+    }
 }

@@ -20,7 +20,7 @@ namespace vmProjectBackend.Models
         public byte[] SubnetMask { get; set; }
 
         [Required]
-        [Column("is_ipv6", TypeName = "bit(1)", Order = 4)]
+        [Column("is_ipv6", TypeName = "bit", Order = 4)]
         public bool IsIpv6 { get; set; }
     }
 }

@@ -26,16 +26,17 @@ namespace vmProjectBackend.Controllers
             _httpClientFactory = httpClientFactory;
         }
 
-        public string checkIfProfessor(string emailToTest)
+        public User getProfessor(string emailToTest)
         {
-            List<string> professors = (from u in _context.Users
-                                       join usr in _context.UserSectionRoles
-                                       on u.UserId equals usr.UserId
-                                       join r in _context.Roles
-                                       on usr.RoleId equals r.RoleId
-                                       where r.RoleName == "Professor"
-                                       select u.Email).ToList();
-            return professors.Where(q => q == emailToTest).FirstOrDefault();
+            IQueryable<User> professors = (from u in _context.Users
+                                           join usr in _context.UserSectionRoles
+                                           on u.UserId equals usr.UserId
+                                           join r in _context.Roles
+                                           on usr.RoleId equals r.RoleId
+                                           where r.RoleName == "Professor"
+                                           && u.Email == emailToTest
+                                           select u);
+            return professors.DefaultIfEmpty(null).FirstOrDefault();
         }
 
         /****************************************
@@ -53,20 +54,11 @@ namespace vmProjectBackend.Controllers
             string userEmail = HttpContext.User.Identity.Name;
             // check if it is a professor
 
-            string professor = checkIfProfessor(userEmail);
+            User professor = getProfessor(userEmail);
             Logger.LogInformation("User Email: " + professor);
 
             if (professor != null)
             {
-                int semesterId = (from s in _context.Semesters
-                                  where s.SemesterYear == year
-                                  && s.SemesterTerm == term
-                                  select s.SemesterId).ToList().FirstOrDefault();
-
-                User profUser = (from u in _context.Users
-                                 where u.Email == professor
-                                 select u).ToList().First();
-
                 var sectionList = (from sem in _context.Semesters
                                    join sec in _context.Sections
                                    on sem.SemesterId equals sec.SemesterId
@@ -76,7 +68,7 @@ namespace vmProjectBackend.Controllers
                                    on sec.SectionId equals usr.SectionId
                                    join u in _context.Users
                                    on usr.UserId equals u.UserId
-                                   where u.UserId == profUser.UserId
+                                   where u.UserId == professor.UserId
                                    && sem.SemesterYear == year
                                    && sem.SemesterTerm == term
                                    select new
@@ -85,7 +77,7 @@ namespace vmProjectBackend.Controllers
                                        course_id = sec.SectionCanvasId,
                                        course_semester = $"{sem.SemesterTerm} {sem.SemesterYear}",
                                        course_section = sec.SectionNumber,
-                                       course_professor = $"{profUser.FirstName} {profUser.LastName}"
+                                       course_professor = $"{professor.FirstName} {professor.LastName}"
                                    }).ToList();
 
                 return Ok(sectionList);
@@ -102,7 +94,7 @@ namespace vmProjectBackend.Controllers
 
         ****************************************/
         // GET: api/Course/fall
-        /*[HttpGet("professor/semester/{course_semester}")]
+        [HttpGet("professor/semester/{course_semester}")]
         // The Url param should match the varibales that you will pass into function below
         public async Task<ActionResult> GetCourses_semester(string course_semester)
         {
@@ -110,27 +102,31 @@ namespace vmProjectBackend.Controllers
             string useremail = HttpContext.User.Identity.Name;
 
             // check if it is a professor
-            var user_prof = _context.Users
-                            .Where(p => p.email == useremail && p.userType == "Professor")
-                            .FirstOrDefault();
+            User professor = getProfessor(useremail);
 
             // Console.WriteLine("this is the user email" + useremail);
-            if (user_prof != null)
+            if (professor != null)
             {
-                var listOfCourse = await _context.Enrollments
-                                .Include(c => c.Course)
-                                .Where(u => u.UserId == user_prof.UserID
-                                         && u.teacherId == user_prof.UserID
-                                         && u.semester == course_semester)
-                                .Select(c => new
-                                {
-                                    course_name = c.Course.CourseName,
-                                    course_id = c.CourseID,
-                                    course_semester = c.semester,
-                                    course_section = c.section_num,
-                                    course_professor = $"{c.User.firstName} {c.User.lastName}"
-                                })
-                                .ToListAsync();
+                var listOfCourse = (from c in _context.Courses
+                                    join sec in _context.Sections
+                                    on c.CourseId equals sec.CourseId
+                                    join sem in _context.Semesters
+                                    on sec.SemesterId equals sem.SemesterId
+                                    join usr in _context.UserSectionRoles
+                                    on sec.SectionId equals usr.SectionId
+                                    join u in _context.Users
+                                    on usr.UserId equals u.UserId
+                                    where u.Email == professor.Email
+                                    && sem.SemesterTerm == course_semester
+                                    select new
+                                    {
+                                        course_name = c.CourseName,
+                                        course_id = sec.SectionId,
+                                        course_semester = sem.SemesterTerm,
+                                        course_section = sec.SectionNumber,
+                                        course_professor = $"{u.FirstName} {u.LastName}"
+                                    }).ToList();
+
                 return Ok(listOfCourse);
             }
 
@@ -138,7 +134,7 @@ namespace vmProjectBackend.Controllers
             {
                 return NotFound("You are not Authorized and not a Professor");
             }
-        }*/
+        }
 
         /***********************************
         Teacher searching for a specifc course and check the VM for that class
@@ -147,18 +143,47 @@ namespace vmProjectBackend.Controllers
         // GET: api/Course/5/3/fall
         /*[HttpGet("professor/course/{course_Id}/{semester}/{sectionnum}")]
         // The Url param should match the varibales that you will pass into function below
-        public async Task<ActionResult<Course>> GetCourse(long course_Id, string semester, string sectionnum)
+        public async Task<ActionResult<Course>> GetCourse(long course_Id, string semester, int sectionnum)
         {
-            string useremail = HttpContext.User.Identity.Name;
+            string userEmail = HttpContext.User.Identity.Name;
             // check if it is a professor
-            var user_prof = _context.Users
-                            .Where(p => p.email == useremail
-                                    && p.userType == "Professor")
-                            .FirstOrDefault();
+            User professor = getProfessor(userEmail);
 
-            if (user_prof != null)
+            if (professor != null)
             {
-                var singleCourse = await _context.Enrollments
+                var courses = (from u in _context.Users
+                              join usr in _context.UserSectionRoles
+                              on u.UserId equals usr.UserId
+                              join sec in _context.Sections
+                              on usr.SectionId equals sec.SectionId
+                              join c in _context.Courses
+                              on sec.CourseId equals c.CourseId
+                              join sem in _context.Semesters
+                              on sec.SemesterId equals sem.SemesterId
+                              where u.Email == professor.Email
+                              && sec.SectionCanvasId == course_Id
+                              && sem.SemesterTerm == semester
+                              && sec.SectionNumber == sectionnum
+                              select new
+                              {
+                                  course_name = c.CourseName,
+                                  section_num = sec.SectionNumber,
+                                  semester = $"{sem.SemesterTerm} {sem.SemesterYear}"
+                              }).DefaultIfEmpty(null).FirstOrDefault();
+                int courseTag = (from t in _context.Tags
+                                where t.TagName == courses.course_name
+                                select t.TagId).FirstOrDefault();
+                int secTag = (from t in _context.Tags
+                              where t.TagName == $"{courses.section_num}"
+                              select t.TagId).FirstOrDefault();
+                int semTag = (from t in _context.Tags
+                              where t.TagName == courses.semester
+                              select t.TagId).FirstOrDefault();
+                var vms = from vmi in _context.VmInstances
+                          join tvm in _context.VmInstanceTags
+                          on vmi.VmUserInstanceId equals tvm.VmInstanceId
+                          where tvm.TagId ==
+                var singleCourse = await _context.Enrollment
                                 .Include(c => c.Course)
                                 .Include(vm => vm.VmTable)
                                 .Where(c => c.CourseID == course_Id
@@ -186,21 +211,18 @@ namespace vmProjectBackend.Controllers
         Teacher wanting to know who is registered for their
         class
         **************************/
-        /*[HttpGet("professor/students/{course_Id}/{course_semester}/{sectionnum}")]
+        [HttpGet("professor/students/{course_Id}/{course_semester}/{sectionnum}")]
         // The Url param should match the varibales that you will pass into function below
         public async Task<ActionResult> Get_Students_section_specific(long course_Id, string course_semester, string sectionnum)
         {
             // grabbing the user that signed in
-            string useremail = HttpContext.User.Identity.Name;
+            string userEmail = HttpContext.User.Identity.Name;
 
             // check if it is a professor
-            var user_prof = _context.Users
-                            .Where(p => p.email == useremail
-                                    && p.userType == "Professor")
-                            .FirstOrDefault();
+            User professor = getProfessor(userEmail);
 
             // Console.WriteLine("this is the user email" + useremail);
-            if (user_prof != null)
+            if (professor != null)
             {
                 var listOfCourse = await _context.Enrollments
                                 .Include(c => c.User)
@@ -230,7 +252,7 @@ namespace vmProjectBackend.Controllers
             {
                 return NotFound("You are not Authorized and not a Professor");
             }
-        }*/
+        }
 
         /************************************************
         Teacher changing the status of a vm for a student

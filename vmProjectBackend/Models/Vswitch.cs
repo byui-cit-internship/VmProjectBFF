@@ -4,19 +4,19 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace vmProjectBackend.Models
 {
-    [Table("", Schema = "vmProject")]
-    public class
+    [Table("vswitch", Schema = "vmProject")]
+    public class Vswitch
     {
         [Key]
-    [Column("_id", Order = 1)]
-    public int Id { get; set; }
+        [Column("vswitch_id", Order = 1)]
+        public int VswitchId { get; set; }
 
-    [Required]
-    [Column("role_name", TypeName = "varchar(20)", Order = 2)]
-    public string RoleName { get; set; }
+        [Required]
+        [Column("vswitch_name", TypeName = "varchar(45)", Order = 2)]
+        public string VswitchName { get; set; }
 
-
-    [ForeignKey("Id")]
-    public  { get; set; }
-}
+        [Required]
+        [Column("vswitch_description", TypeName = "varchar(45)", Order = 2)]
+        public string VswitchDescription { get; set; }
+    }
 }

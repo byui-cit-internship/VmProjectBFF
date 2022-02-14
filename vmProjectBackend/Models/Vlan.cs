@@ -4,19 +4,18 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace vmProjectBackend.Models
 {
-    [Table("", Schema = "vmProject")]
-    public class
+    [Table("vlan", Schema = "vmProject")]
+    public class Vlan
     {
         [Key]
-    [Column("_id", Order = 1)]
-    public int Id { get; set; }
+        [Column("vlan_id", Order = 1)]
+        public int VlanId { get; set; }
 
-    [Required]
-    [Column("role_name", TypeName = "varchar(20)", Order = 2)]
-    public string RoleName { get; set; }
+        [Required]
+        [Column("vlan_number", Order = 2)]
+        public int VlanNumber { get; set; }
 
-
-    [ForeignKey("Id")]
-    public  { get; set; }
-}
+        [Column("vlan_description", TypeName = "varchar(100)", Order = 3)]
+        public string VlanDescription { get; set; }
+    }
 }
