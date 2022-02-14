@@ -22,7 +22,11 @@ namespace vmProjectBackend.Models
         [Column("email", TypeName = "varchar(30)", Order = 4)]
         public string Email { get; set; }
 
-        [Column("canvas_token", TypeName = "varchar(100)", Order = 5)]
+        [Required]
+        [Column("is_admin", TypeName = "bit", Order = 5)]
+        public bool IsAdmin { get; set; }
+
+        [Column("canvas_token", TypeName = "varchar(100)", Order = 6)]
         public string CanvasToken { get; set; }
     }
 }

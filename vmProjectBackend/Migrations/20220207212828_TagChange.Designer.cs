@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using vmProjectBackend.DAL;
 
 namespace vmProjectBackend.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20220207212828_TagChange")]
+    partial class TagChange
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -410,7 +412,7 @@ namespace vmProjectBackend.Migrations
                     b.Property<int>("VmUserInstanceId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasColumnName("vm_instance_id")
+                        .HasColumnName("vm_user_instance_id")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<int>("VmTemplateId")
@@ -420,17 +422,17 @@ namespace vmProjectBackend.Migrations
                     b.Property<string>("VmUserInstanceVcenterId")
                         .IsRequired()
                         .HasColumnType("varchar(50)")
-                        .HasColumnName("vm_instance_vcenter_id");
+                        .HasColumnName("vm_user_instance_vcenter_id");
 
                     b.Property<DateTime>("vm_user_instance_expire_date")
                         .HasColumnType("datetime2(7)")
-                        .HasColumnName("vm_instance_expire_date");
+                        .HasColumnName("vm_user_instance_expire_date");
 
                     b.HasKey("VmUserInstanceId");
 
                     b.HasIndex("VmTemplateId");
 
-                    b.ToTable("vm_instance", "vmProject");
+                    b.ToTable("vm_user_instance", "vmProject");
                 });
 
             modelBuilder.Entity("vmProjectBackend.Models.VmInstanceIpAddress", b =>
@@ -505,7 +507,7 @@ namespace vmProjectBackend.Migrations
 
                     b.HasIndex("VswitchId");
 
-                    b.ToTable("vm_instance_vswitch", "vmProject");
+                    b.ToTable("VmInstanceVswitch", "vmProject");
                 });
 
             modelBuilder.Entity("vmProjectBackend.Models.VmTemplate", b =>

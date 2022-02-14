@@ -6,7 +6,6 @@
 
   <ItemGroup>
     <Compile Remove="Controllers\EnrollmentController.cs" />
-    <Compile Remove="Controllers\LiveprobeController.cs" />
     <Compile Remove="Controllers\StudentCourseController.cs" />
     <Compile Remove="Controllers\TokenController.cs" />
     <Compile Remove="Controllers\UserController.cs" />
@@ -15,12 +14,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="Controllers\EnrollmentController.cs" />
     <None Include="Controllers\StudentCourseController.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Controllers\EnrollmentController.cs" />
-    <None Include="Controllers\LiveprobeController.cs" />
     <None Include="Controllers\TokenController.cs" />
     <None Include="Controllers\UserController.cs" />
     <None Include="Controllers\VmTableController.cs" />
@@ -39,6 +37,10 @@
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="5.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.10">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="5.0.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
