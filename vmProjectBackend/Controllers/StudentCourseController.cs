@@ -42,7 +42,6 @@ namespace vmProjectBackend.Controllers
                 // give the enrollment, user and vmtable data  
                 var listOfCourse = await _context.Enrollments
                                     .Include(c => c.Course)
-                                    .Include(vm => vm.VmTable)
                                     .Where(s => s.UserId == user_student.UserID)
                                     .Select(e => new
                                     {
@@ -75,7 +74,6 @@ namespace vmProjectBackend.Controllers
             {
                 var specificcourse = await _context.Enrollments
                                     .Include(c => c.Course)
-                                    .Include(vm => vm.VmTable)
                                     .Where(sp => sp.UserId == user_student.UserID
                                                 && sp.CourseID == course_id
                                                 && sp.semester == course_semester
@@ -89,7 +87,7 @@ namespace vmProjectBackend.Controllers
                                         course_semester = e.semester,
                                         course_sectionnum = e.section_num,
                                         course_vm_status = e.Status,
-                                        course_vm = e.VmTable
+                                        course_vm = e.VmTableID
                                         
                                       
                                         

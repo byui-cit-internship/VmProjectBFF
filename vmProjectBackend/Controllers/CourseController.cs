@@ -140,7 +140,6 @@ namespace vmProjectBackend.Controllers
             {
                 var singleCourse = await _context.Enrollments
                                 .Include(c => c.Course)
-                                .Include(vm => vm.VmTable)
                                 .Where(c => c.CourseID == course_Id
                                         && c.section_num == sectionnum
                                         && c.semester == semester
@@ -151,7 +150,7 @@ namespace vmProjectBackend.Controllers
                                     course_id = c.CourseID,
                                     courses_semester = c.semester,
                                     course_section = c.section_num,
-                                    course_vm = c.VmTable
+                                    course_vm = c.VmTableID
                                 })
                                 .ToListAsync();
                 return Ok(singleCourse);
@@ -184,7 +183,6 @@ namespace vmProjectBackend.Controllers
                 var listOfCourse = await _context.Enrollments
                                 .Include(c => c.User)
                                 .Include(c => c.Course)
-                                .Include(vm => vm.VmTable)
                                 .Where(u => u.teacherId == user_prof.UserID
                                         && u.section_num == sectionnum
                                         && u.semester == course_semester
@@ -199,7 +197,7 @@ namespace vmProjectBackend.Controllers
                                     course_sectionnum = s.section_num,
                                     student_name = $"{s.User.firstName} {s.User.lastName}",
                                     student_vm_status = s.Status,
-                                    course_vm = s.VmTable
+                                    course_vm = s.VmTableID
                                 })
                                 .ToListAsync();
                 return Ok(listOfCourse);

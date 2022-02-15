@@ -27,6 +27,5 @@ namespace vmProjectBackend.Models
         //Reference the connection made with enrollment and user and course
         public virtual User User { get; set; }
         public virtual Course Course { get; set; }
-        public virtual VmTable VmTable { get; set; }
     }
 }
