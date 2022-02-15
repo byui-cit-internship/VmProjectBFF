@@ -53,7 +53,7 @@ namespace vmProjectBackend.Services
                     enrollment.UserId = userid;
                     enrollment.teacherId = teacherid;
                     enrollment.VmTableID = vmtableId;
-                    enrollment.Status = "InActive";
+                    enrollment.Status = "Active";
                     enrollment.section_num = sectionnum;
                     enrollment.semester = semester;
                     _context.Enrollments.Add(enrollment);
