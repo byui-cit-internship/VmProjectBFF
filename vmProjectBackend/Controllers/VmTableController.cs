@@ -16,6 +16,8 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http;
 using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
+using vmProjectBackend.DTO;
+
 namespace vmProjectBackend.Controllers
 {
     [Authorize]
@@ -134,8 +136,6 @@ namespace vmProjectBackend.Controllers
             return Unauthorized("You are not Authorized and is not a professor");
 
         }
-
-
         // GET: api/VmTable/5
         [HttpGet("{id}")]
         public async Task<ActionResult<VmTable>> GetVmTable(Guid id)
@@ -157,7 +157,6 @@ namespace vmProjectBackend.Controllers
             }
             return Unauthorized();
         }
-
         // patch a vm template
         [HttpPatch("update/{id}")]
         public async Task<ActionResult> PartialUpdate(Guid id, JsonPatchDocument<VmTable> patchDoc)
@@ -184,7 +183,24 @@ namespace vmProjectBackend.Controllers
             return Unauthorized();
 
         }
+        // POST: CreateVm
 
+        [HttpPost]
+        public async Task<ActionResult<VmDetail>> PostCreateVm(VmDetail vmDetail){
+            string useremail = HttpContext.User.Identity.Name;
+            //check if it is a student
+            var user_type = _context.Users
+                            .Where(p => p.email == useremail && p.userType == "Student")
+                            .FirstOrDefault();
+
+                            if (user_type != null){
+                                _context.VmDetails.Add(vmDetail);
+                await _context.SaveChangesAsync();
+
+                return Ok(vmDetail);                
+                            }  
+                            return Unauthorized();                  
+        }
         // POST: api/VmTable
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost()]

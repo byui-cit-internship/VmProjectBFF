@@ -16,7 +16,6 @@ using Microsoft.EntityFrameworkCore;
 using vmProjectBackend.Models;
 using vmProjectBackend.DAL;
 
-
 namespace vmProjectBackend
 {
     public class Program

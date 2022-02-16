@@ -20,6 +20,8 @@ namespace vmProjectBackend.DAL
         public DbSet<VmTable> VmTables { get; set; }
 
         public DbSet<Token> Tokens { get; set; }
+
+        public DbSet<VmDetail> VmDetails { get; set;}
         // public DbSet<VmTableCourse> VmTableCourse { get; set; }
         public object Configuration { get; }
 
