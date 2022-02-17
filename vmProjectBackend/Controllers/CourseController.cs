@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Net.Http.Headers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -41,7 +42,7 @@ namespace vmProjectBackend.Controllers
             string useremail = HttpContext.User.Identity.Name;
 
             // check if it is a professor
-            User professor = _auth.getProfessor(useremail);
+            User professor = _auth.getAdmin(useremail);
 
             // Console.WriteLine("this is the user email" + useremail);
             if (professor != null)
@@ -73,6 +74,35 @@ namespace vmProjectBackend.Controllers
             {
                 return NotFound("You are not Authorized and not a Professor");
             }
+        }
+
+        /************************************************
+        Endpoint that will check the validity of the courseId and canvas token
+        ***********************/
+        [HttpPost("professor/checkCanvasToken")]
+        public async Task<ActionResult> CallCanvas([FromBody] CanvasCredentials canvasCredentials)
+        {
+            string userEmail = HttpContext.User.Identity.Name;
+            // check if it is a professor
+            User professor = _auth.getAdmin(userEmail);
+            // not complete as yet
+            if (professor != null)
+            {
+                var httpClient = _httpClientFactory.CreateClient();
+                httpClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + canvasCredentials.canvas_token);
+                // contains our base Url where individula course_id is added
+                // This URL enpoint gives a list of all the Student in that class : role_id= 3 list all the student for that Professor
+                var response = await httpClient.GetAsync($"https://byui.test.instructure.com/api/v1/courses/{canvasCredentials.canvas_course_id}/enrollments?per_page=1000");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return Ok(canvasCredentials);
+                }
+                return Unauthorized("Invalid token");
+                // return Ok(canvasCredentials);
+            }
+            return Unauthorized("You are not Authorized and is not a Professor");
+
         }
     }
 }

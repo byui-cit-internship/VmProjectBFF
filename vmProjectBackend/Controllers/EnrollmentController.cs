@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Net.Http;
@@ -20,6 +21,10 @@ namespace vmProjectBackend.Controllers
         private readonly DatabaseContext _context;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly Authorization _auth;
+        private readonly BackgroundService1 _bs1;
+
+        ILogger Logger { get; } = AppLogger.CreateLogger<EnrollmentController>();
+
 
         public EnrollmentController(DatabaseContext context, IHttpClientFactory httpClientFactory)
         {
@@ -38,7 +43,7 @@ namespace vmProjectBackend.Controllers
         {
             string userEmail = HttpContext.User.Identity.Name;
 
-            User professor = _auth.getProfessor(userEmail);
+            User professor = _auth.getAdmin(userEmail);
 
             if (professor != null && courseDetails != null)
             {
@@ -62,8 +67,8 @@ namespace vmProjectBackend.Controllers
                     Semester term = (from s in _context.Semesters
                                      where s.SemesterTerm == courseDetails.semester
                                      && s.SemesterYear == 2022
-                                     select s).DefaultIfEmpty(null).FirstOrDefault();
-                    
+                                     select s).FirstOrDefault();
+
                     if (term == null)
                     {
                         term = new Semester();
@@ -77,7 +82,7 @@ namespace vmProjectBackend.Controllers
 
                     VmTemplate template = (from t in _context.VmTemplates
                                            where t.VmTemplateVcenterId == courseDetails.vmTableID
-                                           select t).DefaultIfEmpty(null).FirstOrDefault();
+                                           select t).FirstOrDefault();
 
                     if (template == null)
                     {
@@ -85,6 +90,8 @@ namespace vmProjectBackend.Controllers
                         template.VmTemplateVcenterId = courseDetails.vmTableID;
                         template.VmTemplateName = "test";
                         template.VmTemplateAccessDate = new DateTime(2022, 1, 1);
+                        _context.VmTemplates.Add(template);
+                        _context.SaveChanges();
                     }
 
                     Section newSection = new Section();
@@ -95,6 +102,18 @@ namespace vmProjectBackend.Controllers
                     _context.Sections.Add(newSection);
                     _context.SaveChanges();
 
+                    Role profRole = (from r in _context.Roles
+                                     where r.RoleName == "Professor"
+                                     select r).First();
+
+                    UserSectionRole enrollment = new UserSectionRole
+                    {
+                        UserId = professor.UserId,
+                        RoleId = profRole.RoleId,
+                        SectionId = newSection.SectionId
+                    };
+                    _context.UserSectionRoles.Add(enrollment);
+                    _context.SaveChanges();
 
                     return Ok("ID " + newSection.SectionId + " enrollment was created");
 
