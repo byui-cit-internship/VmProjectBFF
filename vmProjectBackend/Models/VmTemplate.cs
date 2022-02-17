@@ -14,7 +14,7 @@ namespace vmProjectBackend.Models
 
         [Required]
         [Column("vm_template_vcenter_id", TypeName = "varchar(50)", Order = 2)]
-        public int VmTemplateVcenterId { get; set; }
+        public string VmTemplateVcenterId { get; set; }
 
         [Required]
         [Column("vm_template_name", TypeName = "varchar(50)", Order = 3)]
@@ -22,6 +22,6 @@ namespace vmProjectBackend.Models
 
         [Required]
         [Column("vm_template_access_date", TypeName = "datetime2(7)", Order = 4)]
-        public DateTime VmTempalteAccessDate { get; set; }
+        public DateTime VmTemplateAccessDate { get; set; }
     }
 }

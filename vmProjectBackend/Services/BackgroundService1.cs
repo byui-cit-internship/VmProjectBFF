@@ -1,8 +1,16 @@
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Net.Http.Headers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using vmProjectBackend.DAL;
+using vmProjectBackend.Models;
 
 namespace vmProjectBackend.Services
 {
@@ -12,42 +20,32 @@ namespace vmProjectBackend.Services
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<BackgroundService1> _logger;
         private readonly IConfiguration _Configuration;
+        private readonly DatabaseContext _context;
 
         // private readonly DatabaseContext _context;
         // public List<CourseCreate> coursedata = new List<CourseCreate>();
 
 
-        public BackgroundService1(ILogger<BackgroundService1> logger, IServiceProvider service, IHttpClientFactory httpClientFactory, IConfiguration configuration)
+        public BackgroundService1(ILogger<BackgroundService1> logger, IServiceProvider service, IHttpClientFactory httpClientFactory, IConfiguration configuration, DatabaseContext context)
         {
             _logger = logger;
             Services = service;
             _httpClientFactory = httpClientFactory;
             _Configuration = configuration;
+            _context = context;
         }
 
         public async Task ReadAndUpdateDB()
         {
             using (var scope = Services.CreateScope())
             {
-                var _context = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-                List<Section> listOfenroll = _context.Enrollments.Where(e => e.teacherId == e.UserId).ToList();
+                List<User> canvasList = (from u in _context.Users
+                                         where u.CanvasToken != null
+                                         select u).ToList();
 
-                async Task EnrollStudent(long _course_id, Guid userid, Guid teacherid, Guid vmtableId, string sectionnum, string semester)
-                {
-                    Section enrollment = new Section();
-                    long enroll_course_id = _context.Courses.FirstOrDefault(c => c.CourseID == _course_id).CourseID;
-                    enrollment.CourseID = enroll_course_id;
-                    enrollment.UserId = userid;
-                    enrollment.teacherId = teacherid;
-                    enrollment.VmTableID = vmtableId;
-                    enrollment.Status = "InActive";
-                    enrollment.section_num = sectionnum;
-                    enrollment.semester = semester;
-                    _context.Enrollments.Add(enrollment);
-                    await _context.SaveChangesAsync();
-                }
+                
 
-                if (listOfenroll != null)
+                if (canvasList.Count > 0)
                 {
                     // Figure out a better way to just filter only enrollment with Teachers
                     // for now we are looping through all the enrollment and finding the ones that are for teachers.
@@ -182,6 +180,22 @@ namespace vmProjectBackend.Services
             }
 
         }
+
+        async Task EnrollStudent(long _course_id, Guid userid, Guid teacherid, Guid vmtableId, string sectionnum, string semester)
+        {
+            Section enrollment = new Section();
+            long enroll_course_id = _context.Courses.FirstOrDefault(c => c.CourseID == _course_id).CourseID;
+            enrollment.CourseID = enroll_course_id;
+            enrollment.UserId = userid;
+            enrollment.teacherId = teacherid;
+            enrollment.VmTableID = vmtableId;
+            enrollment.Status = "InActive";
+            enrollment.section_num = sectionnum;
+            enrollment.semester = semester;
+            _context.Enrollments.Add(enrollment);
+            await _context.SaveChangesAsync();
+        }
+
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)

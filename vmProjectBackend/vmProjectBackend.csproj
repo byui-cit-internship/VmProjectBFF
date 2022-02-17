@@ -5,27 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Controllers\EnrollmentController.cs" />
-    <Compile Remove="Controllers\StudentCourseController.cs" />
-    <Compile Remove="Controllers\TokenController.cs" />
-    <Compile Remove="Controllers\UserController.cs" />
-    <Compile Remove="Controllers\VmTableController.cs" />
-    <Compile Remove="Services\BackgroundService1.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Controllers\EnrollmentController.cs" />
-    <None Include="Controllers\StudentCourseController.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Controllers\TokenController.cs" />
-    <None Include="Controllers\UserController.cs" />
-    <None Include="Controllers\VmTableController.cs" />
-    <None Include="Services\BackgroundService1.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Google.Apis.Auth" Version="1.55.0" />
     <PackageReference Include="MailKit" Version="2.15.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.10" />
