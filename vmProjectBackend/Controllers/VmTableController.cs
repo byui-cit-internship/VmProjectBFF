@@ -16,8 +16,6 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http;
 using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
-using vmProjectBackend.DTO;
-
 namespace vmProjectBackend.Controllers
 {
     [Authorize]
@@ -183,8 +181,7 @@ namespace vmProjectBackend.Controllers
             return Unauthorized();
 
         }
-        // POST: CreateVm
-
+        // POST: Api/VmDetail
         [HttpPost]
         public async Task<ActionResult<VmDetail>> PostCreateVm(VmDetail vmDetail){
             string useremail = HttpContext.User.Identity.Name;
@@ -192,14 +189,16 @@ namespace vmProjectBackend.Controllers
             var user_type = _context.Users
                             .Where(p => p.email == useremail && p.userType == "Student")
                             .FirstOrDefault();
-
+            //Save what we have in vmDetail model into our database
                             if (user_type != null){
                                 _context.VmDetails.Add(vmDetail);
                 await _context.SaveChangesAsync();
 
                 return Ok(vmDetail);                
                             }  
-                            return Unauthorized();                  
+                            return Unauthorized();   
+
+
         }
         // POST: api/VmTable
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
