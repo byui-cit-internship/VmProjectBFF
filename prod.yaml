@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vmproject-api-prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vmproject-api-prod
+  template:
+    metadata:
+      labels:
+        app: vmproject-api-prod
+    spec:
+      containers:
+      - name: vmproject-api-prod
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: Production
+        image: gcr.io/constellation-275522/vmproject
+        ports:
+        - containerPort: 80        
+        resources:
+          limits:
+            cpu: ".5"
+            memory: "500Mi"
+          requests:
+            cpu: ".25"
+            memory: "250Mi"
+        livenessProbe:
+          httpGet:
+            path: /api/liveprobe
+            port: 80
+          initialDelaySeconds: 3
+          periodSeconds: 3               
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vmproject-api-prod
+spec:
+  selector:
+    app: vmproject-api-prod
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 80    
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vmproject-api-prod-nodeport
+spec:
+  selector:
+    app: vmproject-prod-dev
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 80
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: vmproject-api-prod-ingress
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: vmproject-api-prod
+    networking.gke.io/managed-certificates: vmproject-api-prod-certificate
+    cloud.google.com/backend-config: vmproject-api-prod-ingress-backend-config
+#    kubernetes.io/ingress.allow-http: "false"
+spec:
+  backend:
+    serviceName: vmproject-api-prod-nodeport
+    servicePort: 80
+---
+apiVersion: v1
+kind: BackendConfig
+metadata:
+  name: vmproject-api-prod-ingress-backend-config
+spec:
+# This overrides the default Ingress/Load Balancer Health Check
+  healthCheck:
+    checkIntervalSec: 10
+    timeoutSec: 10
+    healthyThreshold: 2
+    unhealthyThreshold: 2
+# The type is the protocol used to connect to the Pod
+    type: HTTP
+    requestPath: /api/liveprobe
+# The below port is the port to use to connect to the Pod
+    port: 80
+---
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: vmproject-api-prod-certificate
+spec:
+  domains:
+    - dev-vm-prod.citwdd.net
+    

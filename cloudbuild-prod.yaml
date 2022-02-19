@@ -1,0 +1,10 @@
+steps:
+# This step deploys the dev application in Kubernetes
+  - name: 'gcr.io/cloud-builders/gke-deploy'
+    args:
+    - run
+    - --filename=prod.yaml
+    - --image=gcr.io/constellation-275522/vmproject:latest
+    - --location=us-east1-b
+    - --output=/tmp/outputdev
+    - --cluster=cluster-1  
