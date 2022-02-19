@@ -6,7 +6,7 @@ steps:
       - 'build'
       - '-t'
       - 'gcr.io/constellation-275522/vmproject:latest'
-      - './vmProjectBackend'
+      - '../vmProjectBackend'
 
 # This step pushes the image to Container Registry
 # The PROJECT_ID and SHORT_SHA variables are automatically
