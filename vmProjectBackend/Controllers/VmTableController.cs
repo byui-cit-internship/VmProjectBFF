@@ -186,20 +186,28 @@ namespace vmProjectBackend.Controllers
         public async Task<ActionResult<VmDetail>> PostCreateVm(VmDetail vmDetail){
             string useremail = HttpContext.User.Identity.Name;
             //check if it is a student
-            var user_type = _context.Users
+            var user_student = _context.Users
                             .Where(p => p.email == useremail && p.userType == "Student")
                             .FirstOrDefault();
             //Save what we have in vmDetail model into our database
-                            if (user_type != null){
+                            if (user_student != null)
+                            {
+                               
+                var httpClient = _httpClientFactory.CreateClient();
+            // Create an vm by calling Vcenter
+                httpClient.DefaultRequestHeaders.Add("Authorization", "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x");
+
+                var response3 = await httpClient.PostAsync("https://vctr-dev.citwdd.net/rest/vcenter/vm", null);
                                 _context.VmDetails.Add(vmDetail);
                 await _context.SaveChangesAsync();
 
-                return Ok(vmDetail);                
+                return Ok(vmDetail); 
+                
                             }  
-                            return Unauthorized();   
 
-
+                            return Unauthorized();  
         }
+        
         // POST: api/VmTable
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost()]
