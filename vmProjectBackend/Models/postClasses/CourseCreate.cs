@@ -16,6 +16,5 @@ namespace vmProjectBackend.Models
         public Guid userId { get; set; }
         public Guid teacherId { get; set; }
         public string vmTableID { get; set; }
-        public string status { get; set; }
     }
 }

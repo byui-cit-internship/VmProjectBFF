@@ -30,23 +30,22 @@ namespace vmProjectBackend.Controllers
             _auth = new Authorization(_context);
         }
 
-        /*******************************
-        teacher should see a list of their classes in all section for a specific semester
+        /****************************************
+        Returns secions taught by a professor in a given semester
         ****************************************/
-        // GET: api/Course/fall
         [HttpGet("professor/semester/{course_semester}")]
-        // The Url param should match the varibales that you will pass into function below
-        public async Task<ActionResult> GetCourses_semester(string course_semester)
+        public async Task<ActionResult> GetCoursesBySemester(string semester)
         {
-            // grabbing the user that signed in
-            string useremail = HttpContext.User.Identity.Name;
+            // Gets email from session
+            string userEmail = HttpContext.User.Identity.Name;
 
-            // check if it is a professor
-            User professor = _auth.getAdmin(useremail);
+            // Returns a professor user or null if email is not associated with a professor
+            User professor = _auth.getAdmin(userEmail);
 
-            // Console.WriteLine("this is the user email" + useremail);
             if (professor != null)
             {
+                // Returns a list of course name, section id, semester, section number, and professor
+                // based on the professor and semester variables
                 var listOfCourse = (from c in _context.Courses
                                     join sec in _context.Sections
                                     on c.CourseId equals sec.CourseId
@@ -57,7 +56,7 @@ namespace vmProjectBackend.Controllers
                                     join u in _context.Users
                                     on usr.UserId equals u.UserId
                                     where u.Email == professor.Email
-                                    && sem.SemesterTerm == course_semester
+                                    && sem.SemesterTerm == semester
                                     select new
                                     {
                                         course_name = c.CourseName,
@@ -76,16 +75,18 @@ namespace vmProjectBackend.Controllers
             }
         }
 
-        /************************************************
-        Endpoint that will check the validity of the courseId and canvas token
-        ***********************/
+        /****************************************
+        Checks canvas section id and canvas api key
+        ****************************************/
         [HttpPost("professor/checkCanvasToken")]
         public async Task<ActionResult> CallCanvas([FromBody] CanvasCredentials canvasCredentials)
         {
+            // Gets email from session
             string userEmail = HttpContext.User.Identity.Name;
-            // check if it is a professor
+
+            // Returns a professor user or null if email is not associated with a professor
             User professor = _auth.getAdmin(userEmail);
-            // not complete as yet
+
             if (professor != null)
             {
                 var httpClient = _httpClientFactory.CreateClient();

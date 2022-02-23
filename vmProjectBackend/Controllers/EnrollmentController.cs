@@ -9,8 +9,6 @@ using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
 using vmProjectBackend.Services;
 
-// using System.Collections.IEm
-
 namespace vmProjectBackend.Controllers
 {
     [Authorize]
@@ -33,42 +31,48 @@ namespace vmProjectBackend.Controllers
             _auth = new Authorization(_context);
         }
 
-        /******************************************
-        Teacher is able to Register themselves to a class.
-        This will also create the class along with the enrollment 
-        of themselves to that class. Along with a Vm Template assignment
-        ***************************************/
+        /****************************************
+        Allows professor to create a course in the database using a canvas course id, a course name,
+        a description, a canavs api token, a section number, a semester, and vm template id
+        ****************************************/
         [HttpPost("professor/register/course")]
         public async Task<ActionResult<CourseCreate>> CreateCourseEnrollment([FromBody] CourseCreate courseDetails)
         {
+            // Gets email from session
             string userEmail = HttpContext.User.Identity.Name;
 
+            // Returns a professor user or null if email is not associated with a professor
             User professor = _auth.getAdmin(userEmail);
 
             if (professor != null && courseDetails != null)
             {
-                // check if the course is already create
+                // Check if a course already exists
                 int courseExist = (from s in _context.Sections
                                    where s.SectionCanvasId == courseDetails.course_id
                                    select s.SectionCanvasId).Count();
 
+                // If not, create course
                 if (courseExist == 0)
-                { // create the course
+                {
+                    // Create new course
                     Course course = new Course();
                     course.CourseCode = courseDetails.courseName;
                     course.CourseName = courseDetails.courseName;
                     _context.Courses.Add(course);
                     _context.SaveChanges();
 
+                    // Update professor's canvas api token
                     professor.CanvasToken = courseDetails.canvas_token;
                     _context.Users.Update(professor);
                     _context.SaveChanges();
 
+                    // Return a semester from the database using provided semester term
                     Semester term = (from s in _context.Semesters
                                      where s.SemesterTerm == courseDetails.semester
                                      && s.SemesterYear == 2022
                                      select s).FirstOrDefault();
 
+                    // If no semester exists, make a semester.
                     if (term == null)
                     {
                         term = new Semester();
@@ -80,10 +84,12 @@ namespace vmProjectBackend.Controllers
                         _context.SaveChanges();
                     }
 
+                    // Return a vm template from the database using the provided vsphere template id
                     VmTemplate template = (from t in _context.VmTemplates
                                            where t.VmTemplateVcenterId == courseDetails.vmTableID
                                            select t).FirstOrDefault();
 
+                    // If template doesn't exist, create it
                     if (template == null)
                     {
                         template = new VmTemplate();
@@ -94,6 +100,8 @@ namespace vmProjectBackend.Controllers
                         _context.SaveChanges();
                     }
 
+                    // Create section in database using provided canvas course id and section number,
+                    // along with previous course and term
                     Section newSection = new Section();
                     newSection.Course = course;
                     newSection.SectionCanvasId = courseDetails.course_id;
@@ -102,10 +110,13 @@ namespace vmProjectBackend.Controllers
                     _context.Sections.Add(newSection);
                     _context.SaveChanges();
 
+                    // Get role to signify that the person craeting this section is a professor
                     Role profRole = (from r in _context.Roles
                                      where r.RoleName == "Professor"
                                      select r).First();
 
+                    // Create a link between the created section and the professor, effectively enrolling them
+                    // in the class they created.
                     UserSectionRole enrollment = new UserSectionRole
                     {
                         UserId = professor.UserId,

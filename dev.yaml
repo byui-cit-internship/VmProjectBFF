@@ -17,7 +17,7 @@ spec:
         env:
         - name: APSNETCORE_ENVIRONMENT
           value: Development
-        image: gcr.io/constellation-275522/vmproject
+        image: gcr.io/constellation-275522/vmprojectapiv2
         ports:
         - containerPort: 80        
         resources:
@@ -29,7 +29,7 @@ spec:
             memory: "250Mi"
         livenessProbe:
           httpGet:
-            path: /api/liveprobe
+            path: /
             port: 80
           initialDelaySeconds: 3
           periodSeconds: 3               

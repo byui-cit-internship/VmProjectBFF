@@ -18,7 +18,7 @@ namespace vmProjectBackend.Controllers
             _context = context;
         }
 
-        // GET: api/Liveprobe
+        // For kubernetes to indicate pod health.
         [HttpGet]
         public async Task<ActionResult<User>> GetProbe()
         {

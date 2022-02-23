@@ -23,18 +23,24 @@ namespace vmProjectBackend.Controllers
             _auth = new Authorization(_context);
         }
 
-        // add/register a professor to a database
+        /****************************************
+        Create or update a user in the database to have admin privileges
+        ****************************************/
         [HttpPost("admin/createuser")]
-        public async Task<ActionResult<User>> PostUser(PostAdmin postUser)
+        public async Task<ActionResult<User>> PostAdminUser(PostAdmin postUser)
         {
+            // Gets email from session
             string userEmail = HttpContext.User.Identity.Name;
 
+            // Returns a admin user or null if email is not associated with an administrator
             User admin = _auth.getAdmin(userEmail);
 
             if (admin != null)
             {
+                // Get user object on the email provided by post
                 User user = _auth.getUser(postUser.email);
 
+                // If user doesn't exist, creae them with admin privileges
                 if (user == null)
                 {
                     user = new User();
@@ -47,6 +53,7 @@ namespace vmProjectBackend.Controllers
 
                     return Ok("created user as admin");
                 }
+                // Else edit found user to be an admin
                 else
                 {
                     user.IsAdmin = true;
