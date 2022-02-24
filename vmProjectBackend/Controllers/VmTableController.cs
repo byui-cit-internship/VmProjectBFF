@@ -194,7 +194,7 @@ namespace vmProjectBackend.Controllers
                             {
                                
                 var httpClient = _httpClientFactory.CreateClient();
-            // Create an vm by calling Vcenter
+            // Create a vm by calling Vcenter
                 httpClient.DefaultRequestHeaders.Add("Authorization", "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x");
 
                 var response3 = await httpClient.PostAsync("https://vctr-dev.citwdd.net/rest/vcenter/vm", null);
