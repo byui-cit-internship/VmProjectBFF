@@ -5,7 +5,8 @@ namespace vmProjectBackend.Models
 {
     public class VmSpecification {
         
-        public Guid Vm_id { get;set;}
+        [Key]
+        public Guid VmSpecification_id { get;set;}
         
         public string Vm_name { get;set;}
 
