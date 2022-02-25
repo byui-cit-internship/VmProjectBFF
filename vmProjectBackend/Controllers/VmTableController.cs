@@ -183,7 +183,7 @@ namespace vmProjectBackend.Controllers
         }
         // POST: Api/Specification
         //professor creates a specification
-        [HttpPost("Specification/professor")]
+        [HttpPost("specification/professor")]
         public async Task<ActionResult<VmSpecification>> PostVmRecord(VmSpecification vmSpecification){
             string useremail = HttpContext.User.Identity.Name;
             //check if it is a professor
@@ -202,6 +202,22 @@ namespace vmProjectBackend.Controllers
                             }  
 
                             return Unauthorized();  
+        }
+
+        [HttpGet("getSpecifications")]
+        public async Task<ActionResult<IEnumerable<VmSpecification>>> VmSpecification()
+        {
+            string useremail = HttpContext.User.Identity.Name;
+            // check if it is a professor
+            var user_prof = _context.Users
+                            .Where(p => p.email == useremail && p.userType == "Professor")
+                            .FirstOrDefault();
+
+            if (user_prof != null)
+            {
+                return await _context.VmSpecifications.ToListAsync();
+            }
+            return Unauthorized("You are not Authorized and is not a professor");
         }
         [HttpGet("specification")]
         public async Task<ActionResult<IEnumerable<VmSpecification>>>GetVmSpecifications()
