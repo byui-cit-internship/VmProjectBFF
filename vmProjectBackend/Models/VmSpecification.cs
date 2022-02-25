@@ -8,12 +8,14 @@ namespace vmProjectBackend.Models
         [Key]
         public Guid VmSpecification_id { get;set;}
         
-        public string Vm_name { get;set;}
+        public string name { get;set;}
 
-        public string Vm_cores { get;set;}
+        public string guest_OS { get;set;}
 
-        public string Vm_memory { get;set;}
+        public string datastore { get;set;}
 
-        public string Vm_storage { get;set;}
+        public string folder { get;set;}
+
+        public string resource_pool { get;set;}
     }
 }

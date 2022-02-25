@@ -181,32 +181,71 @@ namespace vmProjectBackend.Controllers
             return Unauthorized();
 
         }
-        // POST: Api/VmDetail
-        [HttpPost]
-        public async Task<ActionResult<VmDetail>> PostCreateVm(VmDetail vmDetail){
+        // POST: Api/Specification
+        //professor creates a specification
+        [HttpPost("Specification/professor")]
+        public async Task<ActionResult<VmSpecification>> PostVmRecord(VmSpecification vmSpecification){
             string useremail = HttpContext.User.Identity.Name;
-            //check if it is a student
-            var user_student = _context.Users
-                            .Where(p => p.email == useremail && p.userType == "Student")
+            //check if it is a professor
+            var user_professor = _context.Users
+                            .Where(p => p.email == useremail && p.userType == "Professor")
                             .FirstOrDefault();
-            //Save what we have in vmDetail model into our database
-                            if (user_student != null)
+            //Save what we have in vmSpecification model into our database
+                            if (user_professor != null)
                             {
-                               
-                var httpClient = _httpClientFactory.CreateClient();
-            // Create a vm by calling Vcenter
-                httpClient.DefaultRequestHeaders.Add("Authorization", "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x");
-
-                var response3 = await httpClient.PostAsync("https://vctr-dev.citwdd.net/rest/vcenter/vm", null);
-                                _context.VmDetails.Add(vmDetail);
+            // Saves the information into our db                    
+                _context.VmSpecifications.Add(vmSpecification);
                 await _context.SaveChangesAsync();
 
-                return Ok(vmDetail); 
+                return Ok(vmSpecification); 
                 
                             }  
 
                             return Unauthorized();  
         }
+        [HttpGet("specification")]
+        public async Task<ActionResult<IEnumerable<VmSpecification>>>GetVmSpecifications()
+        {
+            string useremail = HttpContext.User.Identity.Name;
+            // check if it is student
+            var user_student = _context.Users
+                            .Where(p => p.email == useremail && p.userType == "Student")
+                            .FirstOrDefault();
+            // students are able to store their vm's details 
+            if (user_student != null)
+            {
+                return await _context.VmSpecifications.ToListAsync();
+            }
+            return Unauthorized("You are not Authorized and is not a professor");
+        }
+        //Make a request to create a vm in Vcenter
+        [HttpPost("virtualmachine")]
+        public async Task<ActionResult<VmSpecification>> PostVm(VmSpecification vmSpecification)
+        {
+            string useremail = HttpContext.User.Identity.Name;
+            // check if it is student
+            var user_student = _context.Users
+                            .Where(p => p.email == useremail && p.userType == "Student")
+                            .FirstOrDefault();
+
+            if (user_student != null) {
+                var httpClient = _httpClientFactory.CreateClient();
+            // Create a vm by calling Vcenter
+                httpClient.DefaultRequestHeaders.Add("Authorization", "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x");
+            // Send vm detalis to Vcenter
+                var response3 = await httpClient.PostAsync("https://vctr-dev.citwdd.net/rest/vcenter/vm", null);
+                string response3String = await response3.Content.ReadAsStringAsync();
+                return Ok(vmSpecification); 
+                
+            }
+            else {
+                return Unauthorized();
+            }
+
+        }
+
+
+         
         
         // POST: api/VmTable
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754

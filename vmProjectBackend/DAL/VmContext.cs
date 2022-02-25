@@ -35,7 +35,7 @@ namespace vmProjectBackend.DAL
             modelBuilder.Entity<Token>().ToTable("Token");
             modelBuilder.Entity<VmTable>().ToTable("VmTable");
             modelBuilder.Entity<VmSpecification>().ToTable("VmSpecification");
-            // modelBuilder.Entity<VmTableCourse>().ToTable("VmTableCourse");
+           // modelBuilder.Entity<VmTableCourse>().ToTable("VmTableCourse");
         }
 
     }

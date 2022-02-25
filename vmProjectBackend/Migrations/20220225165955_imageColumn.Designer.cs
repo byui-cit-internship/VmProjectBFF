@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using vmProjectBackend.DAL;
 
 namespace vmProjectBackend.Migrations
 {
     [DbContext(typeof(VmContext))]
-    partial class VmContextModelSnapshot : ModelSnapshot
+    [Migration("20220225165955_imageColumn")]
+    partial class imageColumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -157,19 +159,19 @@ namespace vmProjectBackend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("datastore")
+                    b.Property<string>("Vm_cores")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("folder")
+                    b.Property<string>("Vm_image")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("guest_OS")
+                    b.Property<string>("Vm_memory")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("name")
+                    b.Property<string>("Vm_name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("resource_pool")
+                    b.Property<string>("Vm_storage")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("VmSpecification_id");
