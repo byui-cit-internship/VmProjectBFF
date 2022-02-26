@@ -217,7 +217,7 @@ namespace vmProjectBackend.Controllers
             {
                 return await _context.VmSpecifications.ToListAsync();
             }
-            return Unauthorized("You are not Authorized and is not a professor");
+            return Unauthorized("You are not Authorized and you are not a professor");
         }
         [HttpGet("specification")]
         public async Task<ActionResult<IEnumerable<VmSpecification>>>GetVmSpecifications()
@@ -232,7 +232,7 @@ namespace vmProjectBackend.Controllers
             {
                 return await _context.VmSpecifications.ToListAsync();
             }
-            return Unauthorized("You are not Authorized and is not a professor");
+            return Unauthorized("You are not Authorized and you are not a professor");
         }
         //Make a request to create a vm in Vcenter
         [HttpPost("virtualmachine")]
@@ -258,11 +258,7 @@ namespace vmProjectBackend.Controllers
                 return Unauthorized();
             }
 
-        }
-
-
-         
-        
+        }  
         // POST: api/VmTable
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost()]
@@ -307,7 +303,6 @@ namespace vmProjectBackend.Controllers
                 return NoContent();
             }
             return Unauthorized();
-
         }
         // PUT: api/VmTable/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
