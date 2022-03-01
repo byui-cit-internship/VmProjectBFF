@@ -181,31 +181,31 @@ namespace vmProjectBackend.Controllers
             return Unauthorized();
 
         }
-        // POST: Api/Specification
-        //professor creates a specification
-        [HttpPost("specification/professor")]
-        public async Task<ActionResult<VmSpecification>> PostVmRecord(VmSpecification vmSpecification){
+        // POST: Api/Utilization
+        //professor creates a template
+        [HttpPost("utilization/professor")]
+        public async Task<ActionResult<VmUtilization>> PostVmRecord(VmUtilization vmUtilization){
             string useremail = HttpContext.User.Identity.Name;
             //check if it is a professor
             var user_professor = _context.Users
                             .Where(p => p.email == useremail && p.userType == "Professor")
                             .FirstOrDefault();
-            //Save what we have in vmSpecification model into our database
+            //Save what we have in vmUtilization model into our database
                             if (user_professor != null)
                             {
             // Saves the information into our db                    
-                _context.VmSpecifications.Add(vmSpecification);
+                _context.VmUtilizations.Add(vmUtilization);
                 await _context.SaveChangesAsync();
 
-                return Ok(vmSpecification); 
+                return Ok(vmUtilization); 
                 
                             }  
 
                             return Unauthorized();  
         }
 
-        [HttpGet("getSpecifications")]
-        public async Task<ActionResult<IEnumerable<VmSpecification>>> VmSpecification()
+        [HttpGet("utilization")]
+        public async Task<ActionResult<IEnumerable<VmUtilization>>> VmUtilization()
         {
             string useremail = HttpContext.User.Identity.Name;
             // check if it is a professor
@@ -215,12 +215,12 @@ namespace vmProjectBackend.Controllers
 
             if (user_prof != null)
             {
-                return await _context.VmSpecifications.ToListAsync();
+                return await _context.VmUtilizations.ToListAsync();
             }
             return Unauthorized("You are not Authorized and you are not a professor");
         }
-        [HttpGet("specification")]
-        public async Task<ActionResult<IEnumerable<VmSpecification>>>GetVmSpecifications()
+        [HttpGet("utilization")]
+        public async Task<ActionResult<IEnumerable<VmUtilization>>>GetUtilizations()
         {
             string useremail = HttpContext.User.Identity.Name;
             // check if it is student
@@ -230,13 +230,13 @@ namespace vmProjectBackend.Controllers
             // students are able to store their vm's details 
             if (user_student != null)
             {
-                return await _context.VmSpecifications.ToListAsync();
+                return await _context.VmUtilizations.ToListAsync();
             }
             return Unauthorized("You are not Authorized and you are not a professor");
         }
         //Make a request to create a vm in Vcenter
         [HttpPost("virtualmachine")]
-        public async Task<ActionResult<VmSpecification>> PostVm(VmSpecification vmSpecification)
+        public async Task<ActionResult<VmUtilization>> PostVm(VmUtilization vmUtilization)
         {
             string useremail = HttpContext.User.Identity.Name;
             // check if it is student
@@ -251,7 +251,7 @@ namespace vmProjectBackend.Controllers
             // Send vm detalis to Vcenter
                 var response3 = await httpClient.PostAsync("https://vctr-dev.citwdd.net/rest/vcenter/vm", null);
                 string response3String = await response3.Content.ReadAsStringAsync();
-                return Ok(vmSpecification); 
+                return Ok(vmUtilization); 
                 
             }
             else {

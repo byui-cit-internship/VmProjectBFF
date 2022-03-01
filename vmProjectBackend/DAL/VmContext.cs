@@ -1,9 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using vmProjectBackend.Models;
 // using System.Data.Entity;
 using System.Data.Entity.ModelConfiguration.Conventions;
-
-
+using vmProjectBackend.Models;
 
 namespace vmProjectBackend.DAL
 {
@@ -23,7 +21,9 @@ namespace vmProjectBackend.DAL
 
         public DbSet<VmDetail> VmDetails { get; set;}
 
-        public DbSet<VmSpecification> VmSpecifications { get; set;}
+        public DbSet<VmUtilization> VmUtilizations { get; set; }
+
+        // public DbSet<VmSpecification> VmSpecifications { get; set;}
         // public DbSet<VmTableCourse> VmTableCourse { get; set; }
         public object Configuration { get; }
 
@@ -34,7 +34,8 @@ namespace vmProjectBackend.DAL
             modelBuilder.Entity<User>().ToTable("Users");
             modelBuilder.Entity<Token>().ToTable("Token");
             modelBuilder.Entity<VmTable>().ToTable("VmTable");
-            modelBuilder.Entity<VmSpecification>().ToTable("VmSpecification");
+            modelBuilder.Entity<VmUtilization>().ToTable("VmUtilization");
+            // modelBuilder.Entity<VmSpecification>().ToTable("VmSpecification");
            // modelBuilder.Entity<VmTableCourse>().ToTable("VmTableCourse");
         }
 
