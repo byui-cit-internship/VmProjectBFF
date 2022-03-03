@@ -14,9 +14,8 @@ namespace vmProjectBackend.Models
 
         public string VirtualMachine { get; set; }
 
-        public DateTime CreationDate { get; set; }
-
-        
+        [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}", ApplyFormatInEditMode = true)]
+        public DateTime CreationDate { get; set; }       
     }
 }
 

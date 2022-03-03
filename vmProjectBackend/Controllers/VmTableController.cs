@@ -219,7 +219,7 @@ namespace vmProjectBackend.Controllers
             }
             return Unauthorized("You are not Authorized and you are not a professor");
         }
-        [HttpGet("utilization")]
+        [HttpGet("utilization/student")]
         public async Task<ActionResult<IEnumerable<VmUtilization>>>GetUtilizations()
         {
             string useremail = HttpContext.User.Identity.Name;
@@ -258,7 +258,7 @@ namespace vmProjectBackend.Controllers
                 return Unauthorized();
             }
 
-        }  
+        }        
         // POST: api/VmTable
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost()]
