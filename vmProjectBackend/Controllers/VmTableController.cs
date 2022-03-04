@@ -47,7 +47,7 @@ namespace vmProjectBackend.Controllers
             {
                 return await _context.VmTables.ToListAsync();
             }
-            return Unauthorized("You are not Authorized and is not a professor");
+            return Unauthorized("You are not Authorized and this is not a professor");
         }
 
         //GET: api/vmtable/templates

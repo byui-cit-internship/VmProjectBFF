@@ -8,7 +8,11 @@ namespace vmProjectBackend.Models
         [Key]
         public Guid VmTableID { get; set; }
         [Required]
-        public string vm_image { get; set; }
+        public string VmName { get; set; }
+
+        public string VmFolder { get; set; }
+
+        public string VmResourcePool { get; set; }
 
         // public int CourseID { get; set; }
         // public int section_num { get; set; }

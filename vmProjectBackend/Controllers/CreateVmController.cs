@@ -18,17 +18,17 @@ namespace vmProjectBackend.Controllers{
 
     [Route("api/[controller]")]
     [ApiController]
-    public class CreateVm : ControllerBase {
+    public class CreateVmController : ControllerBase {
         private readonly VmContext _context;
         private readonly IHttpClientFactory _httpClientFactory;
 
-         public CreateVm(VmContext context)
+         public CreateVmController(VmContext context)
         {
             _context = context;
         }
     //Connect our API to a second API that creates our vms 
         [HttpPost("createvm")]
-        public async Task<ActionResult<VmTable>> GetVmTable(Guid id) {
+        public async Task<ActionResult<VmTable>> PostVmTable(VmTable vmTable) {
             
         string useremail = HttpContext.User.Identity.Name;
             // check if it is a student
@@ -44,7 +44,7 @@ namespace vmProjectBackend.Controllers{
 
                     httpClient.DefaultRequestHeaders.Add("Authorization", base64);
 
-                    var tokenResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/api/session", null);
+                    var tokenResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session", null);
                     Console.WriteLine(tokenResponse);
                     string tokenstring = " ";
                     if (tokenResponse.IsSuccessStatusCode)
@@ -54,14 +54,24 @@ namespace vmProjectBackend.Controllers{
                         tokenstring = tokenstring.Replace("\"", "");
 
                         Console.WriteLine($"it was sucessfull {tokenstring}");
+                        // Create vm with the information we have in vsphere
 
-                var vmTable = await _context.VmTables.FindAsync(id);
 
-                if (vmTable == null)
+                         _context.VmTables.Add(vmTable);
+                try
                 {
-                    return NotFound();
+                    await _context.SaveChangesAsync();
                 }
+                catch (DbUpdateException)
+                {
+                   
+                        throw;
+                
+                }
+
+            
                 return Ok(vmTable);
+
             }
             return Unauthorized();
         }
