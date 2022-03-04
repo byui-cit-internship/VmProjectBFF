@@ -58,7 +58,12 @@ namespace vmProjectBackend.Controllers
                     Course course = new Course();
                     course.CourseID = courseDetails.course_id;
                     course.CourseName = courseDetails.courseName;
-                    course.description = courseDetails.description;
+                    course.Section = courseDetails.section;
+                    course.ContentLibrary = courseDetails.contentLibrary;
+                    course.TemplateVm = courseDetails.templateVm;
+                    course.Semester = courseDetails.semester;   
+                    course.Description = courseDetails.description;
+
                     _context.Courses.Add(course);
                     await _context.SaveChangesAsync();
 
@@ -73,7 +78,7 @@ namespace vmProjectBackend.Controllers
                     enrollment.UserId = user_prof.UserID;
                     enrollment.teacherId = courseDetails.teacherId;
                     enrollment.VmTableID = courseDetails.vmTableID;
-                    enrollment.Status = courseDetails.status;
+               
                     enrollment.section_num = courseDetails.section_num;
                     enrollment.canvas_token = courseDetails.canvas_token;
                     enrollment.semester = courseDetails.semester;
