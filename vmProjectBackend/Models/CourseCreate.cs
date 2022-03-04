@@ -13,9 +13,12 @@ namespace vmProjectBackend.Models
         public string canvas_token { get; set; }
         public string section_num { get; set; }
         public string semester { get; set; }
+         public int section { get; set; }
+         public string contentLibrary {get; set;}
+
+        public string templateVm {get; set;}
         public Guid userId { get; set; }
         public Guid teacherId { get; set; }
         public Guid vmTableID { get; set; }
-        public string status { get; set; }
     }
 }

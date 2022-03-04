@@ -15,7 +15,17 @@ namespace vmProjectBackend.Models
         [Required]
         [StringLength(50)]
         public string CourseName { get; set; }
-        public string description { get; set; }
+
+        public int Section { get; set; }
+
+        public string ContentLibrary {get; set;}
+
+        public string TemplateVm {get; set;}
+
+        public string Semester {get; set; }
+
+        public string Description { get; set; }
+
        
         // this below is the can be emmited since enrollment will connect them
 
