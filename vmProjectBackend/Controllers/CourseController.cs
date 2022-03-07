@@ -57,14 +57,12 @@ namespace vmProjectBackend.Controllers
                                 .Include(c => c.Course)
                                 .Where(u => u.UserId == user_prof.UserID
                                          && u.teacherId == user_prof.UserID
-                                         && u.section_num == sectionnum
                                          && u.semester == course_semester)
                                          .Select(c => new
                                          {
                                              course_name = c.Course.CourseName,
                                              course_id = c.CourseID,
                                              course_semester = c.semester,
-                                             course_section = c.section_num,
                                              course_professor = $"{c.User.firstName} {c.User.lastName}"
                                          })
                                 .ToListAsync();
@@ -107,7 +105,6 @@ namespace vmProjectBackend.Controllers
                                     course_name = c.Course.CourseName,
                                     course_id = c.CourseID,
                                     course_semester = c.semester,
-                                    course_section = c.section_num,
                                     course_professor = $"{c.User.firstName} {c.User.lastName}"
                                 })
                                 .ToListAsync();
@@ -141,7 +138,6 @@ namespace vmProjectBackend.Controllers
                 var singleCourse = await _context.Enrollments
                                 .Include(c => c.Course)
                                 .Where(c => c.CourseID == course_Id
-                                        && c.section_num == sectionnum
                                         && c.semester == semester
                                         && c.UserId == user_prof.UserID)
                                 .Select(c => new
@@ -149,7 +145,6 @@ namespace vmProjectBackend.Controllers
                                     course_name = c.Course.CourseName,
                                     course_id = c.CourseID,
                                     courses_semester = c.semester,
-                                    course_section = c.section_num,
                                     course_vm = c.VmTableID
                                 })
                                 .ToListAsync();
@@ -184,7 +179,6 @@ namespace vmProjectBackend.Controllers
                                 .Include(c => c.User)
                                 .Include(c => c.Course)
                                 .Where(u => u.teacherId == user_prof.UserID
-                                        && u.section_num == sectionnum
                                         && u.semester == course_semester
                                         && u.Course.CourseID == course_Id
                                         && u.User.userType == "Student"
@@ -194,9 +188,7 @@ namespace vmProjectBackend.Controllers
                                     course_name = s.Course.CourseName,
                                     course_id = s.CourseID,
                                     course_semester = s.semester,
-                                    course_sectionnum = s.section_num,
                                     student_name = $"{s.User.firstName} {s.User.lastName}",
-                                    student_vm_status = s.Status,
                                     course_vm = s.VmTableID
                                 })
                                 .ToListAsync();
@@ -230,7 +222,6 @@ namespace vmProjectBackend.Controllers
                     .FirstOrDefaultAsync(c => c.UserId == studentId
                                        && c.teacherId == user_prof.UserID
                                        && c.CourseID == courseId
-                                       && c.section_num == sectionNum
                                        && c.semester == coursesemester);
 
                 if (student_enrollment == null)

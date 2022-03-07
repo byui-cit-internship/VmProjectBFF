@@ -16,11 +16,6 @@ namespace vmProjectBackend.Models
         [Required]
         public Guid VmTableID { get; set; }
 
-        //Extra entities for the enrollment.
-        public string Status { get; set; }
-        [Required]
-        public string section_num { get; set; }
-        // not sure if this should be in here
         public string canvas_token { get; set; }
         [Required]
         public string semester { get; set; }

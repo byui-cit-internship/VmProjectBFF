@@ -79,7 +79,6 @@ namespace vmProjectBackend.Controllers
                     enrollment.teacherId = courseDetails.teacherId;
                     enrollment.VmTableID = courseDetails.vmTableID;
                
-                    enrollment.section_num = courseDetails.section_num;
                     enrollment.canvas_token = courseDetails.canvas_token;
                     enrollment.semester = courseDetails.semester;
 
@@ -159,7 +158,7 @@ namespace vmProjectBackend.Controllers
                                             Guid current_student_enrollid = current_student_enrollment.UserId;
                                             if (current_student_enrollment == null)
                                             {
-                                                await EnrollStudent(course_id, current_student_enrollid, current_enrollment.teacherId, current_enrollment.VmTableID, current_enrollment.section_num, current_enrollment.semester);
+                                                await EnrollStudent(course_id, current_student_enrollid, current_enrollment.teacherId, current_enrollment.VmTableID, current_enrollment.semester);
                                                 Console.WriteLine("Student enrolled into the course");
                                             }
                                         }
@@ -174,7 +173,7 @@ namespace vmProjectBackend.Controllers
                                             _context.Users.Add(student_user);
                                             await _context.SaveChangesAsync();
                                             Console.WriteLine("Student_user was created");
-                                            await EnrollStudent(course_id, student_user.UserID, current_enrollment.teacherId, current_enrollment.VmTableID, current_enrollment.section_num, current_enrollment.semester);
+                                            await EnrollStudent(course_id, student_user.UserID, current_enrollment.teacherId, current_enrollment.VmTableID, current_enrollment.semester);
 
                                             // return Ok("student was created and enrolled");
                                         }
@@ -194,7 +193,7 @@ namespace vmProjectBackend.Controllers
             return Unauthorized();
         }
 
-        public async Task EnrollStudent(long course_id, Guid userid, Guid teacherid, Guid vmtableId, string sectionnum, string semester)
+        public async Task EnrollStudent(long course_id, Guid userid, Guid teacherid, Guid vmtableId, string semester)
         {
             Enrollment enrollment = new Enrollment();
             long enroll_course_id = _context.Courses.FirstOrDefault(c => c.CourseID == course_id).CourseID;
@@ -202,8 +201,6 @@ namespace vmProjectBackend.Controllers
             enrollment.UserId = userid;
             enrollment.teacherId = teacherid;
             enrollment.VmTableID = vmtableId;
-            enrollment.Status = "InActive";
-            enrollment.section_num = sectionnum;
             enrollment.semester = semester;
             _context.Enrollments.Add(enrollment);
             await _context.SaveChangesAsync();

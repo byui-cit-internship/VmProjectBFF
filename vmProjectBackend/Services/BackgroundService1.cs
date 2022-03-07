@@ -45,7 +45,7 @@ namespace vmProjectBackend.Services
                 var _context = scope.ServiceProvider.GetRequiredService<VmContext>();
                 List<Enrollment> listOfenroll = _context.Enrollments.Where(e => e.teacherId == e.UserId).ToList();
 
-                async Task EnrollStudent(long _course_id, Guid userid, Guid teacherid, Guid vmtableId, string sectionnum, string semester)
+                async Task EnrollStudent(long _course_id, Guid userid, Guid teacherid, Guid vmtableId, string semester)
                 {
                     Enrollment enrollment = new Enrollment();
                     long enroll_course_id = _context.Courses.FirstOrDefault(c => c.CourseID == _course_id).CourseID;
@@ -53,8 +53,6 @@ namespace vmProjectBackend.Services
                     enrollment.UserId = userid;
                     enrollment.teacherId = teacherid;
                     enrollment.VmTableID = vmtableId;
-                    enrollment.Status = "Active";
-                    enrollment.section_num = sectionnum;
                     enrollment.semester = semester;
                     _context.Enrollments.Add(enrollment);
                     await _context.SaveChangesAsync();
@@ -73,7 +71,6 @@ namespace vmProjectBackend.Services
                             // grab the id, canvas_token, section_num for every course
                             var _course_id = enroll.CourseID;
                             // long _course_id = 117072;
-                            var _course_sectionnum = enroll.section_num;
                             var _course_canvas_token = enroll.canvas_token;
 
                             // This varible is changeable, it will chnage depending of the environment that the 
@@ -147,7 +144,7 @@ namespace vmProjectBackend.Services
                                                     if (current_student_enrollment == null)
                                                     {
                                                         //Enroll that Student to that course  
-                                                        await EnrollStudent(_course_id, current_student_in_db.UserID, enroll.teacherId, enroll.VmTableID, _course_sectionnum, enroll.semester);
+                                                        await EnrollStudent(_course_id, current_student_in_db.UserID, enroll.teacherId, enroll.VmTableID, enroll.semester);
                                                         Console.WriteLine("Student enrolled into the course");
                                                     }
                                                     else
@@ -172,7 +169,7 @@ namespace vmProjectBackend.Services
                                                     Console.WriteLine("Student_user was created");
 
                                                     // Enroll the newly created student into that course
-                                                    await EnrollStudent(_course_id, student_user.UserID, enroll.teacherId, enroll.VmTableID, _course_sectionnum, enroll.semester);
+                                                    await EnrollStudent(_course_id, student_user.UserID, enroll.teacherId, enroll.VmTableID, enroll.semester);
                                                     Console.WriteLine("Student now created and enrolled into the course");
                                                 }
                                             }
