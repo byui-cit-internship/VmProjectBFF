@@ -1,18 +1,11 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
-using Google.Apis.Auth;
-using Google.Apis.Auth.OAuth2;
 
 namespace vmProjectBackend.Controllers{
 
@@ -61,10 +54,10 @@ namespace vmProjectBackend.Controllers{
                          _context.VmDetails.Add(vmDetail);
                         return Ok("here session");
                     }
-                    return Unauthorized("Not sucessful");
+                    return Ok("Done");
             }
-            return Ok("Done");  
-    }
+            return Unauthorized("You are not Authorized and this is not a student");
+                }
     
     }
 }
