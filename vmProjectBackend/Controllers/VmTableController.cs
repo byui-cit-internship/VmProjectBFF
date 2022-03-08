@@ -52,7 +52,7 @@ namespace vmProjectBackend.Controllers
 
         //GET: api/vmtable/templates
         [HttpGet("templates/all")]
-        public async Task<ActionResult<IEnumerable<string>>> GetTemplates()
+        public async Task<ActionResult<IEnumerable<string>>> GetTemplates(string libraryId) 
         {
             string useremail = HttpContext.User.Identity.Name;
             //check if it is a professor
@@ -94,7 +94,7 @@ namespace vmProjectBackend.Controllers
                     // This URL enpoint gives a list of all the Templates we have in our vcenter 
                     List<Template> templates = new List<Template>();
 
-                    var response = await httpClient.GetAsync($"https://vctr-dev.citwdd.net/api/content/library/item?library_id=32793240-7e2c-461f-98dd-2ff944bd2b4d");
+                    var response = await httpClient.GetAsync($"https://vctr-dev.citwdd.net/api/content/library/item?library_id={libraryId}");
                     Console.WriteLine($" response to the second call {response}");
 
                     string responseString = await response.Content.ReadAsStringAsync();
@@ -108,9 +108,14 @@ namespace vmProjectBackend.Controllers
                         var response2 = await httpClient.GetAsync($"https://vctr-dev.citwdd.net/api/content/library/item/" + templateId);
                         Console.WriteLine($"Second response {response2}");
 
+                       
                         string response2String = await response2.Content.ReadAsStringAsync();
                         Template template = JsonConvert.DeserializeObject<Template>(response2String);       
                         templates.Add(template);
+
+                  
+
+                        
 
                     }
 
