@@ -21,14 +21,13 @@ namespace vmProjectBackend.Controllers{
     public class CreateVmController : ControllerBase {
         private readonly VmContext _context;
         private readonly IHttpClientFactory _httpClientFactory;
-
          public CreateVmController(VmContext context)
         {
             _context = context;
         }
     //Connect our API to a second API that creates our vms 
-        [HttpPost("createvm")]
-        public async Task<ActionResult<VmTable>> PostVmTable(VmTable vmTable) {
+        [HttpPost()]
+        public async Task<ActionResult<VmDetail>> PostVmTable(VmDetail vmDetail) {
             
         string useremail = HttpContext.User.Identity.Name;
             // check if it is a student
@@ -36,51 +35,36 @@ namespace vmProjectBackend.Controllers{
                             .Where(p => p.email == useremail && p.userType == "Student")
                             .FirstOrDefault();
             if (user_student != null)
-            {
-            //Create a session token
-             var httpClient = _httpClientFactory.CreateClient();
-                    string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
+            { 
+            // return Ok("hit");
+            // Create a session token
+                    var httpClient = _httpClientFactory.CreateClient();
+                   string base64 = "YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
+                   var EncodedAuthentication = Convert.ToBase64String(System.Text.ASCIIEncoding.ASCII.GetBytes(base64));
                     Console.WriteLine(base64);
+                    // httpClient.DefaultRequestHeaders.Add("Authorization", base64);
 
-                    httpClient.DefaultRequestHeaders.Add("Authorization", base64);
+                    // ("Authorization", String.Format("Basic {0}", base64));
+                     httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {EncodedAuthentication}");
 
                     var tokenResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session", null);
                     Console.WriteLine(tokenResponse);
-                    string tokenstring = " ";
+                   string tokenstring = " ";
                     if (tokenResponse.IsSuccessStatusCode)
                     {
                         tokenstring = await tokenResponse.Content.ReadAsStringAsync();
                         //Taking quotes out of the tokenstring variable s = s.Replace("\"", "");
                         tokenstring = tokenstring.Replace("\"", "");
-
                         Console.WriteLine($"it was sucessfull {tokenstring}");
-                        // Create vm with the information we have in vsphere
-
-
-                         _context.VmTables.Add(vmTable);
-                try
-                {
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateException)
-                {
-                   
-                        throw;
-                
-                }
-
-            
-                return Ok(vmTable);
-
+                        //Create vm with the information we have in vsphere
+                         _context.VmDetails.Add(vmDetail);
+                        return Ok("here session");
+                    }
+                    return Unauthorized("Not sucessful");
             }
-            return Unauthorized();
-        }
-
-        //Working here
-        return Ok();
-    
+            return Unauthorized();  
     }
-
+    
     }
 }
 

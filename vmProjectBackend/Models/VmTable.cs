@@ -21,7 +21,5 @@ namespace vmProjectBackend.Models
         // make reference to the course table
         // public ICollection<VmTableCourse> VmTableCourses { get; set; }
 
-
-
     }
 }
