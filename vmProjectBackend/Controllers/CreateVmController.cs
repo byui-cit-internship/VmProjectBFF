@@ -21,9 +21,10 @@ namespace vmProjectBackend.Controllers{
     public class CreateVmController : ControllerBase {
         private readonly VmContext _context;
         private readonly IHttpClientFactory _httpClientFactory;
-         public CreateVmController(VmContext context)
+         public CreateVmController(VmContext context, IHttpClientFactory httpClientFactory)
         {
             _context = context;
+            _httpClientFactory = httpClientFactory;
         }
     //Connect our API to a second API that creates our vms 
         [HttpPost()]
@@ -62,7 +63,7 @@ namespace vmProjectBackend.Controllers{
                     }
                     return Unauthorized("Not sucessful");
             }
-            return Unauthorized();  
+            return Ok("Done");  
     }
     
     }
