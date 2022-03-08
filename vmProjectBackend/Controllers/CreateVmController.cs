@@ -1,11 +1,13 @@
 using System;
 using System.Linq;
 using System.Net.Http;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
+using  vmProjectBackend.DTO;
 
 namespace vmProjectBackend.Controllers{
 
@@ -46,19 +48,32 @@ namespace vmProjectBackend.Controllers{
                    string tokenstring = " ";
                     if (tokenResponse.IsSuccessStatusCode)
                     {
-                        tokenstring = await tokenResponse.Content.ReadAsStringAsync();
-                        //Taking quotes out of the tokenstring variable s = s.Replace("\"", "");
-                        tokenstring = tokenstring.Replace("\"", "");
-                        Console.WriteLine($"it was sucessfull {tokenstring}");
+                        // tokenstring = await tokenResponse.Content.ReadAsStringAsync();
+                        // //Taking quotes out of the tokenstring variable s = s.Replace("\"", "");
+                        // tokenstring = tokenstring.Replace("\"", "");
+                        // Console.WriteLine($"it was sucessfull {tokenstring}");
                         //Create vm with the information we have in vsphere
                          _context.VmDetails.Add(vmDetail);
                         return Ok("here session");
                     }
-                    return Ok("Done");
-            }
+            } 
+       
             return Unauthorized("You are not Authorized and this is not a student");
-                }
-    
+    }
+
+   [HttpGet("libraries")]
+        public async Task<ActionResult<IEnumerable<Library>>>GetLibraries()
+        { 
+            vmProjectBackend.DTO.Library library1 = new  vmProjectBackend.DTO.Library(); library1.id ="32793240-7e2c-461f-98dd-2ff944bd2b4d"; 
+             library1.name ="Lab-Library";
+             vmProjectBackend.DTO.Library library2 = new  vmProjectBackend.DTO.Library(); library2.id ="4e690e48-f084-42ef-87c8-f5fa9f72463c"; 
+             library2.name = "CTI470-Library";
+            
+            var libraries = new [] { library1, library2};
+            return Ok(libraries);
+        }
+
+
     }
 }
 
