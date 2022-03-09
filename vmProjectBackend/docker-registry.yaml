@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.registry.service: docker-registry
+  name: docker-registry
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.registry.service: docker-registry
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        io.registry.service: docker-registry
+    spec:
+      containers:
+        - image: registry:2
+          name: docker-registry
+          ports:
+            - containerPort: 5000
+          resources: {}
+          volumeMounts:
+            - mountPath: /var/lib/registry
+              name: docker-registry-claim0
+      restartPolicy: Always
+      volumes:
+        - name: docker-registry-claim0
+          persistentVolumeClaim:
+            claimName: docker-registry-claim0
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.registry.service: docker-registry
+  name: docker-registry
+spec:
+  ports:
+    - name: "5000"
+      port: 5000
+      targetPort: 5000
+  selector:
+    io.registry.service: docker-registry
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  creationTimestamp: null
+  labels:
+    io.registry.service: docker-registry-claim0
+  name: docker-registry-claim0
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+status: {}
