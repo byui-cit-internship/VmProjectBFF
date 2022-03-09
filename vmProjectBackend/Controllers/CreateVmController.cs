@@ -7,79 +7,133 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
-using  vmProjectBackend.DTO;
+using vmProjectBackend.DTO;
+using Newtonsoft.Json;
 
-namespace vmProjectBackend.Controllers{
+namespace vmProjectBackend.Controllers
+{
 
     [Route("api/[controller]")]
     [ApiController]
-    public class CreateVmController : ControllerBase {
+    public class CreateVmController : ControllerBase
+    {
         private readonly VmContext _context;
         private readonly IHttpClientFactory _httpClientFactory;
-         public CreateVmController(VmContext context, IHttpClientFactory httpClientFactory)
+        public CreateVmController(VmContext context, IHttpClientFactory httpClientFactory)
         {
             _context = context;
             _httpClientFactory = httpClientFactory;
         }
-    //Connect our API to a second API that creates our vms 
+        //Connect our API to a second API that creates our vms 
         [HttpPost()]
-        public async Task<ActionResult<VmDetail>> PostVmTable(VmDetail vmDetail) {
-            
-        string useremail = HttpContext.User.Identity.Name;
+        public async Task<ActionResult<VmDetail>> PostVmTable(VmDetail vmDetail)
+        {
+
+            string useremail = HttpContext.User.Identity.Name;
             // check if it is a student
             var user_student = _context.Users
                             .Where(p => p.email == useremail && p.userType == "Student")
                             .FirstOrDefault();
             if (user_student != null)
-            { 
-            // return Ok("hit");
-            // Create a session token
-                    var httpClient = _httpClientFactory.CreateClient();
-                   string base64 = "YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
-                   var EncodedAuthentication = Convert.ToBase64String(System.Text.ASCIIEncoding.ASCII.GetBytes(base64));
-                    Console.WriteLine(base64);
-                    // httpClient.DefaultRequestHeaders.Add("Authorization", base64);
+            {
+                // return Ok("hit");
+                // Create a session token
+                var httpClient = _httpClientFactory.CreateClient();
+                string base64 = "YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
+                var EncodedAuthentication = Convert.ToBase64String(System.Text.ASCIIEncoding.ASCII.GetBytes(base64));
+                Console.WriteLine(base64);
+                // httpClient.DefaultRequestHeaders.Add("Authorization", base64);
 
-                    // ("Authorization", String.Format("Basic {0}", base64));
-                     httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {EncodedAuthentication}");
+                // ("Authorization", String.Format("Basic {0}", base64));
+                httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {EncodedAuthentication}");
 
-                    var tokenResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session", null);
-                    Console.WriteLine(tokenResponse);
-                   string tokenstring = " ";
-                    if (tokenResponse.IsSuccessStatusCode)
-                    {
-                        // tokenstring = await tokenResponse.Content.ReadAsStringAsync();
-                        // //Taking quotes out of the tokenstring variable s = s.Replace("\"", "");
-                        // tokenstring = tokenstring.Replace("\"", "");
-                        // Console.WriteLine($"it was sucessfull {tokenstring}");
-                        //Create vm with the information we have in vsphere
-                         _context.VmDetails.Add(vmDetail);
-                        return Ok("here session");
-                    }
-            } 
-       
+                var tokenResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session", null);
+                Console.WriteLine(tokenResponse);
+                string tokenstring = " ";
+                if (tokenResponse.IsSuccessStatusCode)
+                {
+                    tokenstring = await tokenResponse.Content.ReadAsStringAsync();
+                    //Taking quotes out of the tokenstring variable s = s.Replace("\"", "");
+                    tokenstring = tokenstring.Replace("\"", "");
+                    Console.WriteLine($"it was sucessfull {tokenstring}");
+                    // Create vm with the information we have in vsphere
+                    _context.VmDetails.Add(vmDetail);
+                    return Ok("here session");
+                }
+            }
+
             return Unauthorized("You are not Authorized and this is not a student");
-    }
-
-   [HttpGet("libraries")]
-        public async Task<ActionResult<IEnumerable<Library>>>GetLibraries()
-        { 
-            vmProjectBackend.DTO.Library library1 = new  vmProjectBackend.DTO.Library(); library1.id ="32793240-7e2c-461f-98dd-2ff944bd2b4d"; 
-             library1.name ="Lab-Library";
-             vmProjectBackend.DTO.Library library2 = new  vmProjectBackend.DTO.Library(); library2.id ="4e690e48-f084-42ef-87c8-f5fa9f72463c"; 
-             library2.name = "CTI470-Library";
-            
-            var libraries = new [] { library1, library2};
-            return Ok(libraries);
         }
 
-        
+        [HttpGet("libraries")]
+        public async Task<ActionResult<IEnumerable<Library>>> GetLibraries()
+        {
+            var httpClient = _httpClientFactory.CreateClient();
+            string base64 = "YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
+            var EncodedAuthentication = Convert.ToBase64String(System.Text.ASCIIEncoding.ASCII.GetBytes(base64));
+            Console.WriteLine(base64);
+            // httpClient.DefaultRequestHeaders.Add("Authorization", base64);
+
+            // ("Authorization", String.Format("Basic {0}", base64));
+            httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {EncodedAuthentication}");
+
+            var tokenResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session", null);
+            Console.WriteLine(tokenResponse);
+            string tokenstring = " ";
+            if (tokenResponse.IsSuccessStatusCode)
+
+            {
+                tokenstring = await tokenResponse.Content.ReadAsStringAsync();
+                //Taking quotes out of the tokenstring variable s = s.Replace("\"", "");
+                tokenstring = tokenstring.Replace("\"", "");
 
 
+
+                httpClient.DefaultRequestHeaders.Remove("Authorization");
+                //we are removing the basic auth because it require a new authorization
+                httpClient.DefaultRequestHeaders.Add("vmware-api-session-id", tokenstring);
+
+                List<Library> libraries = new List<Library>();
+
+                var responseLibraryIds = await httpClient.GetAsync("https://vctr-dev.citwdd.net/api/content/local-library");
+
+                string responseStringLibraries = await responseLibraryIds.Content.ReadAsStringAsync();
+
+                List<String> libraryIds = libraryIds = JsonConvert.DeserializeObject<List<String>>(responseStringLibraries);
+
+                foreach (string libraryId in libraryIds)
+                {
+                    var libraryresponse = await httpClient.GetAsync($"https://vctr-dev.citwdd.net/api/content/library/item/" + libraryId);
+                    Console.WriteLine($"Second response {libraryresponse}");
+
+
+                    string response2String = await libraryresponse.Content.ReadAsStringAsync();
+                    Library library = JsonConvert.DeserializeObject<Library>(response2String);
+                    libraries.Add(library);
+                }
+                if (libraries != null)
+                {
+                    return Ok(libraries);
+                }
+                else
+                {
+                    return NotFound("Failed calling");
+                }                
+            }
+            return Unauthorized();
+            // vmProjectBackend.DTO.Library library1 = new  vmProjectBackend.DTO.Library(); library1.id ="32793240-7e2c-461f-98dd-2ff944bd2b4d"; 
+            //  library1.name ="Lab-Library";
+            //  vmProjectBackend.DTO.Library library2 = new  vmProjectBackend.DTO.Library(); library2.id ="4e690e48-f084-42ef-87c8-f5fa9f72463c"; 
+            //  library2.name = "CTI470-Library";
+
+            // var libraries = new [] { library1, library2};
+            // return Ok(libraries);
+        }        
     }
+    
 }
 
-           
 
-    
+
+
 
