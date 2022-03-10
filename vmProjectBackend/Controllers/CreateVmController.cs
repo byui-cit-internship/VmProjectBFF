@@ -65,75 +65,21 @@ namespace vmProjectBackend.Controllers
             return Unauthorized("You are not Authorized and this is not a student");
         }
 
-        [HttpGet("libraries")]
-        public async Task<ActionResult<IEnumerable<Library>>> GetLibraries()
-        {
-            var httpClient = _httpClientFactory.CreateClient();
-            string base64 = "YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
-            var EncodedAuthentication = Convert.ToBase64String(System.Text.ASCIIEncoding.ASCII.GetBytes(base64));
-            Console.WriteLine(base64);
-            // httpClient.DefaultRequestHeaders.Add("Authorization", base64);
+         [HttpGet("libraries")]
+        public async Task<ActionResult<IEnumerable<Library>>>GetLibraries()
+        { 
+            vmProjectBackend.DTO.Library library1 = new  vmProjectBackend.DTO.Library(); library1.id ="32793240-7e2c-461f-98dd-2ff944bd2b4d"; 
+             library1.name ="Lab-Library";
+             vmProjectBackend.DTO.Library library2 = new  vmProjectBackend.DTO.Library(); library2.id ="4e690e48-f084-42ef-87c8-f5fa9f72463c"; 
+             library2.name = "CTI470-Library";
 
-            // ("Authorization", String.Format("Basic {0}", base64));
-            httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {EncodedAuthentication}");
-
-            var tokenResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session", null);
-            Console.WriteLine(tokenResponse);
-            string tokenstring = " ";
-            if (tokenResponse.IsSuccessStatusCode)
-
-            {
-                tokenstring = await tokenResponse.Content.ReadAsStringAsync();
-                //Taking quotes out of the tokenstring variable s = s.Replace("\"", "");
-                tokenstring = tokenstring.Replace("\"", "");
+            var libraries = new [] { library1, library2};
+            return Ok(libraries);
+        }
 
 
-
-                httpClient.DefaultRequestHeaders.Remove("Authorization");
-                //we are removing the basic auth because it require a new authorization
-                httpClient.DefaultRequestHeaders.Add("vmware-api-session-id", tokenstring);
-
-                List<Library> libraries = new List<Library>();
-
-                var responseLibraryIds = await httpClient.GetAsync("https://vctr-dev.citwdd.net/api/content/local-library");
-
-                string responseStringLibraries = await responseLibraryIds.Content.ReadAsStringAsync();
-
-                List<String> libraryIds = libraryIds = JsonConvert.DeserializeObject<List<String>>(responseStringLibraries);
-
-                foreach (string libraryId in libraryIds)
-                {
-                    var libraryresponse = await httpClient.GetAsync($"https://vctr-dev.citwdd.net/api/content/library/item/" + libraryId);
-                    Console.WriteLine($"Second response {libraryresponse}");
-
-
-                    string response2String = await libraryresponse.Content.ReadAsStringAsync();
-                    Library library = JsonConvert.DeserializeObject<Library>(response2String);
-                    libraries.Add(library);
-                }
-                if (libraries != null)
-                {
-                    return Ok(libraries);
-                }
-                else
-                {
-                    return NotFound("Failed calling");
-                }                
-            }
-            return Unauthorized();
-            // vmProjectBackend.DTO.Library library1 = new  vmProjectBackend.DTO.Library(); library1.id ="32793240-7e2c-461f-98dd-2ff944bd2b4d"; 
-            //  library1.name ="Lab-Library";
-            //  vmProjectBackend.DTO.Library library2 = new  vmProjectBackend.DTO.Library(); library2.id ="4e690e48-f084-42ef-87c8-f5fa9f72463c"; 
-            //  library2.name = "CTI470-Library";
-
-            // var libraries = new [] { library1, library2};
-            // return Ok(libraries);
-        }        
     }
-    
 }
-
-
 
 
 
