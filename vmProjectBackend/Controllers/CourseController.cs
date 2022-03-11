@@ -62,7 +62,6 @@ namespace vmProjectBackend.Controllers
                                          {
                                              course_name = c.Course.CourseName,
                                              course_id = c.CourseID,
-                                             template = c.Course.TemplateVm,
                                              course_semester = c.semester,
                                              course_professor = $"{c.User.firstName} {c.User.lastName}"
                                          })
@@ -105,7 +104,6 @@ namespace vmProjectBackend.Controllers
                                 {
                                     course_name = c.Course.CourseName,
                                     course_id = c.CourseID,
-                                    template = c.Course.TemplateVm,                                    
                                     course_semester = c.semester,
                                     course_professor = $"{c.User.firstName} {c.User.lastName}"
                                 })
@@ -146,7 +144,6 @@ namespace vmProjectBackend.Controllers
                                 {
                                     course_name = c.Course.CourseName,
                                     course_id = c.CourseID,
-                                    template = c.Course.TemplateVm,                                    
                                     courses_semester = c.semester,
                                     course_vm = c.VmTableID
                                 })
@@ -190,7 +187,6 @@ namespace vmProjectBackend.Controllers
                                 {
                                     course_name = s.Course.CourseName,
                                     course_id = s.CourseID,
-                                    template = c.Course.TemplateVm,                                    
                                     course_semester = s.semester,
                                     student_name = $"{s.User.firstName} {s.User.lastName}",
                                     course_vm = s.VmTableID
