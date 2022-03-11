@@ -37,14 +37,9 @@ namespace vmProjectBackend.Controllers
             {
                 // Create a session token
                 var httpClient = _httpClientFactory.CreateClient();
-                string base64 = "YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
-                var EncodedAuthentication = Convert.ToBase64String(System.Text.ASCIIEncoding.ASCII.GetBytes(base64));
-                Console.WriteLine(base64);
-                // httpClient.DefaultRequestHeaders.Add("Authorization", base64);
-
-                // ("Authorization", String.Format("Basic {0}", base64));
-                httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {EncodedAuthentication}");
-
+                string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
+            //Adding headers
+            httpClient.DefaultRequestHeaders.Add("Authorization", base64);
                 var tokenResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session", null);
                 Console.WriteLine(tokenResponse);
                 string tokenstring = " ";
@@ -55,8 +50,9 @@ namespace vmProjectBackend.Controllers
                     tokenstring = tokenstring.Replace("\"", "");
                     // Create vm with the information we have in vsphere
                     _context.VmDetails.Add(vmDetail);
-                    return Ok("here session");
+                    return Ok("Vm created");
                 }
+                return Ok("here session");
             }
             return Unauthorized("You are not Authorized and this is not a student");
         }
@@ -114,7 +110,8 @@ namespace vmProjectBackend.Controllers
                 // }
             }
             return Unauthorized("here");
-        }   
+        }
+           
         // [HttpDelete]     
 
         // public async Task<ActionResult<IEnumerable<Library>>> DeleteSession()
