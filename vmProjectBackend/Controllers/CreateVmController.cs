@@ -1,14 +1,14 @@
+using Microsoft.AspNetCore.Mvc;
+using vmProjectBackend.DAL;
+using vmProjectBackend.Models;
+using vmProjectBackend.DTO;
+using Newtonsoft.Json;
 using System;
 using System.Linq;
 using System.Net.Http;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using vmProjectBackend.DAL;
-using vmProjectBackend.Models;
-using vmProjectBackend.DTO;
-using Newtonsoft.Json;
 
 namespace vmProjectBackend.Controllers
 {
@@ -28,7 +28,6 @@ namespace vmProjectBackend.Controllers
         [HttpPost()]
         public async Task<ActionResult<VmDetail>> PostVmTable(VmDetail vmDetail)
         {
-
             string useremail = HttpContext.User.Identity.Name;
             // check if it is a student
             var user_student = _context.Users
@@ -36,7 +35,6 @@ namespace vmProjectBackend.Controllers
                             .FirstOrDefault();
             if (user_student != null)
             {
-                // return Ok("hit");
                 // Create a session token
                 var httpClient = _httpClientFactory.CreateClient();
                 string base64 = "YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
@@ -55,31 +53,81 @@ namespace vmProjectBackend.Controllers
                     tokenstring = await tokenResponse.Content.ReadAsStringAsync();
                     //Taking quotes out of the tokenstring variable s = s.Replace("\"", "");
                     tokenstring = tokenstring.Replace("\"", "");
-                    Console.WriteLine($"it was sucessfull {tokenstring}");
                     // Create vm with the information we have in vsphere
                     _context.VmDetails.Add(vmDetail);
                     return Ok("here session");
                 }
             }
-
             return Unauthorized("You are not Authorized and this is not a student");
         }
 
-         [HttpGet("libraries")]
-        public async Task<ActionResult<IEnumerable<Library>>>GetLibraries()
-        { 
-            vmProjectBackend.DTO.Library library1 = new  vmProjectBackend.DTO.Library(); library1.id ="32793240-7e2c-461f-98dd-2ff944bd2b4d"; 
-             library1.name ="Lab-Library";
-             vmProjectBackend.DTO.Library library2 = new  vmProjectBackend.DTO.Library(); library2.id ="4e690e48-f084-42ef-87c8-f5fa9f72463c"; 
-             library2.name = "CTI470-Library";
+        [HttpGet("libraries")]
+        public async Task<ActionResult<IEnumerable<Library>>> GetLibraries()
+        {
+            //Open uri communication
+            var httpClient = _httpClientFactory.CreateClient();
+            // Basic authentication in base64
+            string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
+            //Adding headers
+            httpClient.DefaultRequestHeaders.Add("Authorization", base64);
+            var tokenResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session", null);
+            Console.WriteLine(tokenResponse);
+            if (tokenResponse.IsSuccessStatusCode)
+            {
+                string tokenstring = " ";
+                //Turn this object into a readable string
+                tokenstring = await tokenResponse.Content.ReadAsStringAsync();
 
-            var libraries = new [] { library1, library2};
-            return Ok(libraries);
-        }
+                //Scape characters functions to filter the new header results
+                tokenstring = tokenstring.Replace("\"", "" );
+                tokenstring = tokenstring.Replace("{", "" );
+                tokenstring = tokenstring.Replace("value:", "" );
+                tokenstring = tokenstring.Replace("}", "" );
+                httpClient.DefaultRequestHeaders.Add("Cookie", $"vmware-api-session-id={tokenstring}");
+                //Make a list of Library objects
+                List<Library> libraries = new List<Library>();
+                //Call library uri in vsphere
+                var responseLibraryIds = await httpClient.GetAsync("https://vctr-dev.citwdd.net/api/content/local-library");
+                //Turn these objects responses into a readable string
+                string responseStringLibraries = await responseLibraryIds.Content.ReadAsStringAsync();
+                //Make a list of library id's   
+                List<String> libraryIds = JsonConvert.DeserializeObject<List<String>>(responseStringLibraries);
+                //Create a list using our Dto          
+                foreach (string Id in libraryIds)
+                {
+                    // return Ok(libraryIds);
+                    var libraryresponse = await httpClient.GetAsync($"https://vctr-dev.citwdd.net/api/content/local-library/" + Id);
+                    Console.WriteLine($"Second response {libraryresponse}");
+                    string response2String = await libraryresponse.Content.ReadAsStringAsync();
+                    Library library = JsonConvert.DeserializeObject<Library>(response2String);
+                    libraries.Add(library);                   
+                }
+                return Ok(libraries);
+                // if (libraries != null)
+                // {
+                    
+                //     httpClient.DefaultRequestHeaders.Add("Authorization", base64);
+                //     httpClient.DefaultRequestHeaders.Add("Cookie", $"vmware-api-session-id={tokenstring}");
 
+                //     var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session");
+                //     return Ok("Session was deleted here");
+                // }
+            }
+            return Unauthorized("here");
+        }   
+        // [HttpDelete]     
 
+        // public async Task<ActionResult<IEnumerable<Library>>> DeleteSession()
+        // {
+        // var httpClient = _httpClientFactory.CreateClient();
+
+        // string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
+        // // Adding headers to this call
+        // httpClient.DefaultRequestHeaders.Add("Authorization", base64);
+        // httpClient.DefaultRequestHeaders.Add("Cookie", $"vmware-api-session-id={tokenstring}");
+
+        // var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session");
+        // return Ok("Session was deleted here");
+        // }
     }
 }
-
-
-
