@@ -48,6 +48,7 @@ namespace vmProjectBackend.Controllers
                                         student_name = $"{e.User.firstName} {e.User.lastName}",
                                         course_name = e.Course.CourseName,
                                         course_id = e.CourseID,
+                                        template_id=e.Course.TemplateVm,
                                         course_semester = e.semester,
                                         enrollment_id = e.EnrollmentID
                                     })

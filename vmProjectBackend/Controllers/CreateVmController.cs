@@ -29,7 +29,7 @@ namespace vmProjectBackend.Controllers
         public async Task<ActionResult<VmDetail>> PostVmTable(VmDetail vmDetail)
         {
             string useremail = HttpContext.User.Identity.Name;
-            // check if it is a student
+            // check if the user is a student
             var user_student = _context.Users
                             .Where(p => p.email == useremail && p.userType == "Student")
                             .FirstOrDefault();
@@ -67,7 +67,6 @@ namespace vmProjectBackend.Controllers
             //Adding headers
             httpClient.DefaultRequestHeaders.Add("Authorization", base64);
             var tokenResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session", null);
-            Console.WriteLine(tokenResponse);
             if (tokenResponse.IsSuccessStatusCode)
             {
                 string tokenstring = " ";
@@ -89,11 +88,10 @@ namespace vmProjectBackend.Controllers
                 //Make a list of library id's   
                 List<String> libraryIds = JsonConvert.DeserializeObject<List<String>>(responseStringLibraries);
                 //Create a list using our Dto          
-                foreach (string Id in libraryIds)
+                foreach (string libraryId in libraryIds)
                 {
                     // return Ok(libraryIds);
-                    var libraryresponse = await httpClient.GetAsync($"https://vctr-dev.citwdd.net/api/content/local-library/" + Id);
-                    Console.WriteLine($"Second response {libraryresponse}");
+                    var libraryresponse = await httpClient.GetAsync($"https://vctr-dev.citwdd.net/api/content/local-library/" + libraryId);
                     string response2String = await libraryresponse.Content.ReadAsStringAsync();
                     Library library = JsonConvert.DeserializeObject<Library>(response2String);
                     libraries.Add(library);                   
@@ -110,9 +108,52 @@ namespace vmProjectBackend.Controllers
                 // }
             }
             return Unauthorized("here");
-        }
-           
-        // [HttpDelete]     
+        } 
+         [HttpGet("{id}")]
+        public async Task<ActionResult<IEnumerable<string>>> GetTemplates(string libraryId) 
+        {
+            //Create link to this call
+            string useremail = HttpContext.User.Identity.Name;
+            //check if it is a professor
+            var user_prof = _context.Users
+                              .Where(p => p.email == useremail && p.userType == "Professor")
+                              .FirstOrDefault();
+            //this happens if the user is a professor
+             return Ok(user_prof);
+             if (user_prof != null)
+             {
+                 // Creating the client request and setting headers to the request
+            var httpClient = _httpClientFactory.CreateClient(); 
+            string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
+            //Adding headers
+            httpClient.DefaultRequestHeaders.Add("Authorization", base64);
+            var tokenResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session", null);          
+            string tokenstring = " ";
+                //Turn this object into a readable string
+                tokenstring = await tokenResponse.Content.ReadAsStringAsync();
+                //Scape characters functions to filter the new header results
+                tokenstring = tokenstring.Replace("\"", "" );
+                tokenstring = tokenstring.Replace("{", "" );
+                tokenstring = tokenstring.Replace("value:", "" );
+                tokenstring = tokenstring.Replace("}", "" );
+                httpClient.DefaultRequestHeaders.Add("Cookie", $"vmware-api-session-id={tokenstring}");
+                List<Template> templates = new List<Template>();
+                    var response = await httpClient.GetAsync($"https://vctr-dev.citwdd.net/api/content/library/item?library_id={libraryId}");
+                    string responseString = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine("template response" + responseString);
+                    List<String> templateIds = templateIds = JsonConvert.DeserializeObject<List<String>>(responseString);
+                    foreach (string templateId in templateIds)
+                    {
+                        var response2 = await httpClient.GetAsync($"https://vctr-dev.citwdd.net/api/content/library/item/" + templateId);
+                        Console.WriteLine($"Second response {response2}");                       
+                        string response2String = await response2.Content.ReadAsStringAsync();
+                        Template template = JsonConvert.DeserializeObject<Template>(response2String);       
+                        templates.Add(template);
+                    }
+                    return Ok(templates);
+        }  
+        return Unauthorized();    
+            //[HttpDelete]     
 
         // public async Task<ActionResult<IEnumerable<Library>>> DeleteSession()
         // {
@@ -126,5 +167,6 @@ namespace vmProjectBackend.Controllers
         // var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session");
         // return Ok("Session was deleted here");
         // }
+        }
     }
 }
