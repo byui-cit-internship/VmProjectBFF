@@ -109,8 +109,8 @@ namespace vmProjectBackend.Controllers
             }
             return Unauthorized("here");
         } 
-         [HttpGet("{id}")]
-        public async Task<ActionResult<IEnumerable<string>>> GetTemplates(string libraryId) 
+         [HttpGet("templates/{id}")]
+        public async Task<ActionResult<IEnumerable<string>>> GetTemplates(string Id) 
         {
             //Create link to this call
             string useremail = HttpContext.User.Identity.Name;
@@ -119,7 +119,7 @@ namespace vmProjectBackend.Controllers
                               .Where(p => p.email == useremail && p.userType == "Professor")
                               .FirstOrDefault();
             //this happens if the user is a professor
-             return Ok(user_prof);
+            //  return Ok(user_prof);
              if (user_prof != null)
              {
                  // Creating the client request and setting headers to the request
@@ -137,10 +137,11 @@ namespace vmProjectBackend.Controllers
                 tokenstring = tokenstring.Replace("value:", "" );
                 tokenstring = tokenstring.Replace("}", "" );
                 httpClient.DefaultRequestHeaders.Add("Cookie", $"vmware-api-session-id={tokenstring}");
-                List<Template> templates = new List<Template>();
-                    var response = await httpClient.GetAsync($"https://vctr-dev.citwdd.net/api/content/library/item?library_id={libraryId}");
+                    List<Template> templates = new List<Template>();
+                // 
+                    var response = await httpClient.GetAsync($"https://vctr-dev.citwdd.net/api/content/library/item?library_id={Id}");
                     string responseString = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine("template response" + responseString);
+                    // return Ok(responseString);
                     List<String> templateIds = templateIds = JsonConvert.DeserializeObject<List<String>>(responseString);
                     foreach (string templateId in templateIds)
                     {
