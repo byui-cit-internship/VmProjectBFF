@@ -24,38 +24,6 @@ namespace vmProjectBackend.Controllers
             _context = context;
             _httpClientFactory = httpClientFactory;
         }
-        //Connect our API to a second API that creates our vms 
-        [HttpPost()]
-        public async Task<ActionResult<VmDetail>> PostVmTable(VmDetail vmDetail)
-        {
-            string useremail = HttpContext.User.Identity.Name;
-            // check if the user is a student
-            var user_student = _context.Users
-                            .Where(p => p.email == useremail && p.userType == "Student")
-                            .FirstOrDefault();
-            if (user_student != null)
-            {
-                // Create a session token
-                var httpClient = _httpClientFactory.CreateClient();
-                string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
-            //Adding headers
-            httpClient.DefaultRequestHeaders.Add("Authorization", base64);
-                var tokenResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session", null);
-                Console.WriteLine(tokenResponse);
-                string tokenstring = " ";
-                if (tokenResponse.IsSuccessStatusCode)
-                {
-                    tokenstring = await tokenResponse.Content.ReadAsStringAsync();
-                    //Taking quotes out of the tokenstring variable s = s.Replace("\"", "");
-                    tokenstring = tokenstring.Replace("\"", "");
-                    // Create vm with the information we have in vsphere
-                    _context.VmDetails.Add(vmDetail);
-                    return Ok("Vm created");
-                }
-                return Ok("here session");
-            }
-            return Unauthorized("You are not Authorized and this is not a student");
-        }
 
         [HttpGet("libraries")]
         public async Task<ActionResult<IEnumerable<Library>>> GetLibraries()
