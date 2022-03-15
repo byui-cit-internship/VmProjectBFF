@@ -12,6 +12,7 @@ namespace vmProjectBackend.DAL
             this.ChangeTracker.LazyLoadingEnabled = false;
         }
 
+        public DbSet<AccessToken> AccessTokens { get; set; }
         public DbSet<Course> Courses { get; set; }
         public DbSet<Group> Groups { get; set; }
         public DbSet<GroupMembership> GroupMemberships { get; set; }
@@ -19,6 +20,7 @@ namespace vmProjectBackend.DAL
         public DbSet<Role> Roles { get; set; }
         public DbSet<Section> Sections { get; set; }
         public DbSet<Semester> Semesters { get; set; }
+        public DbSet<SessionToken> SessionTokens { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<TagCategory> TagCategories { get; set; }
         public DbSet<TagUser> TagUser { get; set; }

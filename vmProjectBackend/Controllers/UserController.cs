@@ -6,6 +6,7 @@ using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
 using Microsoft.AspNetCore.Authorization;
 using vmProjectBackend.Services;
+using Microsoft.Extensions.Logging;
 
 namespace vmProjectBackend.Controllers
 {
@@ -16,6 +17,8 @@ namespace vmProjectBackend.Controllers
     {
         private readonly DatabaseContext _context;
         private readonly Authorization _auth;
+
+        ILogger Logger { get; } = AppLogger.CreateLogger<EnrollmentController>();
 
         public UserController(DatabaseContext context)
         {
@@ -40,7 +43,7 @@ namespace vmProjectBackend.Controllers
                 // Get user object on the email provided by post
                 User user = _auth.getUser(postUser.email);
 
-                // If user doesn't exist, creae them with admin privileges
+                // If user doesn't exist, create them with admin privileges
                 if (user == null)
                 {
                     user = new User();

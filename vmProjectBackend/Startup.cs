@@ -7,6 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Serialization;
+using System;
+using System.Linq;
 using vmProjectBackend.DAL;
 using vmProjectBackend.Handlers;
 
@@ -18,10 +20,12 @@ namespace vmProjectBackend
         {
             Configuration = configuration;
             Environment = env;
+            MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
         }
 
         public IConfiguration Configuration { get; }
         public IWebHostEnvironment Environment { get; }
+        public string MyAllowSpecificOrigins { get; }
 
         ILogger Logger { get; } = AppLogger.CreateLogger<Startup>();
 
@@ -36,10 +40,23 @@ namespace vmProjectBackend
            .AddNewtonsoftJson(
                opts => opts.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
            );
-            //    This is needed to register my Background service
-            //UNCOMMENT LATER services.AddHostedService<BackgroundService1>();
+            // This is needed to register my Background service
+            // UNCOMMENT LATER services.AddHostedService<BackgroundService1>();
             // Allow to use client Factory
             services.AddHttpClient();
+
+            services.AddHttpContextAccessor();
+
+            services.AddDistributedMemoryCache();
+
+            services.AddSession(options =>
+            {
+                options.Cookie.Name = ".VMProject.Session";
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+                options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict;
+                options.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest;
+            });
 
             services.AddControllers().AddNewtonsoftJson(s =>
             {
@@ -47,10 +64,13 @@ namespace vmProjectBackend
             });
 
             // This allows for Cross-origin request Read more: https://docs.microsoft.com/en-us/aspnet/core/security/cors?view=aspnetcore-6.0 
-            services.AddCors(c =>
+            services.AddCors(options =>
             {
-                c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyHeader());
-
+                options.AddPolicy(name: MyAllowSpecificOrigins,
+                                  builder =>
+                                  {
+                                      builder.WithOrigins("http://localhost:5501").AllowAnyHeader().SetIsOriginAllowed(origin => true).AllowCredentials();
+                                  });
             });
             // ******************CHNAGE IN FUTURE**********************************
 
@@ -68,10 +88,10 @@ namespace vmProjectBackend
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, Microsoft.AspNetCore.Mvc.Infrastructure.IActionDescriptorCollectionProvider actionProvider)
         {
             // *******************CHNAGE SOON******************************
-            app.UseCors(options => options.AllowAnyOrigin().AllowAnyHeader());
+            
 
             // ***************CHNAGE SOON**************************
             if (env.IsDevelopment())
@@ -83,15 +103,26 @@ namespace vmProjectBackend
 
             app.UseRouting();
 
+            app.UseCors(MyAllowSpecificOrigins);
+
+            app.UseSession();
             // This tell app that it will use authentication
             app.UseAuthentication();
             app.UseAuthorization();
+
+            
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
-            Logger.LogInformation("Application configured successfully");
+            Console.WriteLine("Available routes:");
+            var routes = actionProvider.ActionDescriptors.Items.Where(x => x.AttributeRouteInfo != null);
+            foreach (var route in routes)
+            {
+                Console.WriteLine($"{route.AttributeRouteInfo.Template}");
+            }
+            Console.WriteLine("Application configured successfully");
         }
 
         private static void UpdateDatabase(IApplicationBuilder app)
