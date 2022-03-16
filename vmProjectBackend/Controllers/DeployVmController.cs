@@ -3,6 +3,7 @@ using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
 using Newtonsoft.Json;
 using System;
+using System.Text;
 using System.Linq;
 using System.Net.Http;
 using Microsoft.EntityFrameworkCore;
@@ -83,15 +84,23 @@ namespace vmProjectBackend.Controllers
 
                     var deployResult = JsonConvert.SerializeObject(deploy);
 
-                    var content = new StringContent(deployResult);
+                    // var content = new StringContent(deployResult);
+
+                    var content = new StringContent(deployResult, Encoding.UTF8, "application/json");
 
                     // var content2 = new StringContent(content, Encoding.UTF8, "application/json");
 
                     // return Ok(content2);
 
-                var tokenResponse2 = await httpClient.PostAsync("https://vctr-dev.citwdd.net/api/vcenter/vm-template/library-items/b4f40b57-21e5-48c2-9fdf-03337fe8d9c1?action=deploy", content);
+                var postResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/api/vcenter/vm-template/library-items/b4f40b57-21e5-48c2-9fdf-03337fe8d9c1?action=deploy", content);
+
+                 postResponse.EnsureSuccessStatusCode();
+
+                //  var content2 = await postResponse.Content.ReadAsStringAsync();
+
+                //  var createdCompany = JsonSerializer.Deserialize<DeployDto>(content, _options);
                          
-                    return Ok("created");
+                    return Ok("vm created");
                 }
                 return Ok("here session");
             }
