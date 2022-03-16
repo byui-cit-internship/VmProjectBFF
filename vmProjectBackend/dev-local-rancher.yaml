@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vmproject-api-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vmproject-api-dev
+  template:
+    metadata:
+      labels:
+        app: vmproject-api-dev
+    spec:
+      containers:
+      - name: vmproject-api-dev
+        env:
+        - name: APSNETCORE_ENVIRONMENT
+          value: Development
+        image: rcr.citwdd.net/backend-repository/vima
+        ports:
+        - containerPort: 80        
+        resources:
+          limits:
+            cpu: ".5"
+            memory: "500Mi"
+          requests:
+            cpu: ".25"
+            memory: "250Mi"
+        livenessProbe:
+          httpGet:
+            path: /api/liveprobe
+            port: 80
+          initialDelaySeconds: 3
+          periodSeconds: 3               
