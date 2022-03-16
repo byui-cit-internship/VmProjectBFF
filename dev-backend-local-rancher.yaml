@@ -17,7 +17,7 @@ spec:
         env:
         - name: APSNETCORE_ENVIRONMENT
           value: Development
-        image: rcr.citwdd.net/backend-repository/vima
+        image: rcr.citwdd.net/backend-repository/backend-vima
         ports:
         - containerPort: 80        
         resources:
