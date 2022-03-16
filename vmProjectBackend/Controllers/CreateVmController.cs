@@ -77,6 +77,44 @@ namespace vmProjectBackend.Controllers
             }
             return Unauthorized("here");
         } 
+
+         [HttpGet("folders")]
+         public async Task<ActionResult<IEnumerable<Folder>>> GetFolders()
+         {
+            //Open uri communication
+            var httpClient = _httpClientFactory.CreateClient();
+            // Basic authentication in base64
+            string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
+            //Adding headers
+            httpClient.DefaultRequestHeaders.Add("Authorization", base64);
+            var tokenResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session", null);
+            if (tokenResponse.IsSuccessStatusCode)
+            {
+                string tokenstring = " ";
+                //Turn this object into a readable string
+                tokenstring = await tokenResponse.Content.ReadAsStringAsync();
+
+                //Scape characters functions to filter the new header results
+                tokenstring = tokenstring.Replace("\"", "" );
+                tokenstring = tokenstring.Replace("{", "" );
+                tokenstring = tokenstring.Replace("value:", "" );
+                tokenstring = tokenstring.Replace("}", "" );
+                httpClient.DefaultRequestHeaders.Add("Cookie", $"vmware-api-session-id={tokenstring}");
+                //Make a list of Library object
+                //Call library uri in vsphere
+                var responseFolders = await httpClient.GetAsync("https://vctr-dev.citwdd.net/rest/vcenter/folder?filter.type=VIRTUAL_MACHINE");
+                //Turn these objects responses into a readable string
+                //
+                string responseStringFolders = await responseFolders.Content.ReadAsStringAsync();
+                //Make a list of library id's   
+                List<Folder> folders = JsonConvert.DeserializeObject<List<Folder>>(responseStringFolders);
+                //Create a list using our Dto          
+                
+                return Ok(folders);
+            }
+            return Unauthorized("here");
+         }
+
          [HttpGet("templates/{id}")]
         public async Task<ActionResult<IEnumerable<string>>> GetTemplates(string Id) 
         {
