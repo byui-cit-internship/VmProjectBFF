@@ -17,9 +17,9 @@ spec:
         env:
         - name: APSNETCORE_ENVIRONMENT
           value: Development
-          image: rcr.citwdd.net/backend-repository/vima
-       # imagePullSecrets:
-       # - name: dc-x4nt6
+        image: rcr.citwdd.net/backend-repository/vima
+        imagePullSecrets:
+        - name: dc-x4nt6
         ports:
         - containerPort: 80        
         resources:
