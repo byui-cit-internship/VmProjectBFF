@@ -105,11 +105,10 @@ namespace vmProjectBackend.Controllers
                 var responseFolders = await httpClient.GetAsync("https://vctr-dev.citwdd.net/rest/vcenter/folder?filter.type=VIRTUAL_MACHINE");
                 //Turn these objects responses into a readable string
                 //
-                string responseStringFolders = await responseFolders.Content.ReadAsStringAsync();
+                string folderResponse = await responseFolders.Content.ReadAsStringAsync();
                 //Make a list of library id's   
-                List<Folder> folders = JsonConvert.DeserializeObject<List<Folder>>(responseStringFolders);
-                //Create a list using our Dto          
-                
+                List<Folder> folders = JsonConvert.DeserializeObject<List<Folder>>(folderResponse);
+                //Create a list using our Dto                         
                 return Ok(folders);
             }
             return Unauthorized("here");

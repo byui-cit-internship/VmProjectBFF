@@ -7,10 +7,10 @@ using System.Text;
 using System.Linq;
 using System.Net.Http;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using vmProjectBackend.DTO;
+using Microsoft.Extensions.Configuration;
 
 
 namespace vmProjectBackend.Controllers
@@ -21,11 +21,14 @@ namespace vmProjectBackend.Controllers
     public class DeployVmController : ControllerBase
     {
         private readonly VmContext _context;
+        public IConfiguration Configuration { get; }
         private readonly IHttpClientFactory _httpClientFactory;
-        public DeployVmController(VmContext context, IHttpClientFactory httpClientFactory)
+        public DeployVmController(VmContext context, IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
             _context = context;
             _httpClientFactory = httpClientFactory;
+
+            Configuration = configuration;
         }
 
                 //Connect our API to a second API that creates our vms 
@@ -70,6 +73,7 @@ namespace vmProjectBackend.Controllers
                 httpClient.DefaultRequestHeaders.Add("Cookie", $"vmware-api-session-id={tokenstring}");
                 if (tokenResponse.IsSuccessStatusCode)
                 {
+                     string resourcePool = Configuration.GetConnectionString("Resource_Pool");
                     // Create vm with the information we have in vsphere
                     var deploy = new Deploy
                         {
@@ -77,10 +81,11 @@ namespace vmProjectBackend.Controllers
                          placement = new Placement 
                             {
                                 folder = "group-v3044",
-                                resource_pool = "resgroup-3045"
+                                resource_pool = resourcePool
 
                             }
-                         };  
+                         };
+
 
                     var deployResult = JsonConvert.SerializeObject(deploy);
 
