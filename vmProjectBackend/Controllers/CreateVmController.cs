@@ -106,10 +106,13 @@ namespace vmProjectBackend.Controllers
                 //Turn these objects responses into a readable string
                 //
                 string folderResponse = await responseFolders.Content.ReadAsStringAsync();
+                return Ok(folderResponse);
                 //Make a list of library id's   
-                List<Folder> folders = JsonConvert.DeserializeObject<List<Folder>>(folderResponse);
-                //Create a list using our Dto                         
-                return Ok(folders);
+                // List<Folder> folders = JsonConvert.DeserializeObject<List<Folder>>(folderResponse);
+
+                // string folders2 = await folders.Content.ReadAsStringAsync();
+                // //Create a list using our Dto                         
+                // return Ok(folders2);
             }
             return Unauthorized("here");
          }
