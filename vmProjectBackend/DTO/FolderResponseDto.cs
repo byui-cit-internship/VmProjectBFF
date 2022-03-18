@@ -1,10 +1,11 @@
 using System;
+using System.Collections.Generic;
 
 namespace vmProjectBackend.DTO
 {
     public class FolderResponse {
 
-        List<Folder> value { get; set;};
+         public List<Folder> value { get; set;}
 
     }
 }
