@@ -63,6 +63,7 @@ namespace vmProjectBackend.Controllers
                     course.TemplateVm = courseDetails.templateVm;
                     course.Semester = courseDetails.semester;   
                     course.Description = courseDetails.description;
+                    course.Folder = courseDetails.folder;
 
                     _context.Courses.Add(course);
                     await _context.SaveChangesAsync();

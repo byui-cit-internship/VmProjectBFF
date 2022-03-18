@@ -16,6 +16,8 @@ namespace vmProjectBackend.Models
          public int section { get; set; }
          public string contentLibrary {get; set;}
 
+         public string folder {get; set;}
+
         public string templateVm {get; set;}
         public Guid userId { get; set; }
         public Guid teacherId { get; set; }
