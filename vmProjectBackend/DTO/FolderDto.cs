@@ -4,9 +4,9 @@ namespace vmProjectBackend.DTO
 {
     public class Folder {
 
-        public string value { get;set;}
+ public string name { get;set;}
 
-        public Folder folder { get;set;}
+        public string folder { get;set;}
 
     }
 }

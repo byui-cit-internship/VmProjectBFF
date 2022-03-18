@@ -1,12 +1,11 @@
 using System;
+using System.Collections.Generic;
 
 namespace vmProjectBackend.DTO
 {
     public class FolderResponse {
 
-        public string name { get;set;}
-
-        public string folder { get;set;}
+         public List<Folder> value { get; set;}
 
     }
 }
