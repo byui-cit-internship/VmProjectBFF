@@ -35,7 +35,7 @@ spec:
           initialDelaySeconds: 3
           periodSeconds: 3               
       imagePullSecrets:
-      - name: dc-x4nt6
+      - name: vmfrontend-rcr-secret
 ---
 apiVersion: v1
 kind: Service
