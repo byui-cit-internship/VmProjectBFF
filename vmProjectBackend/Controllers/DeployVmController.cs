@@ -100,11 +100,13 @@ namespace vmProjectBackend.Controllers
 
                  postResponse.EnsureSuccessStatusCode();
 
+                 var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session");
+
                 //  var content2 = await postResponse.Content.ReadAsStringAsync();
 
                 //  var createdCompany = JsonSerializer.Deserialize<DeployDto>(content, _options);
                          
-                    return Ok("vm created");
+                    return Ok("vm created and session deleted");
                 }
                 return Ok("here session");
             }
@@ -139,7 +141,8 @@ namespace vmProjectBackend.Controllers
                 string poolResponseString = await response.Content.ReadAsStringAsync(); 
                 // Pool poolResponse = JsonConvert.DeserializeObject<Pool>(poolResponseString);
                 List<String> poolResponse = poolResponse = JsonConvert.DeserializeObject<List<String>>(poolResponseString);
-                return Ok(poolResponse);                
+                return Ok(poolResponse);    
+                            
                 // string folders2 = await folders.Content.ReadAsStringAsync();
                 // //Create a list using our Dto                         
                 // return Ok(folders2);
@@ -157,7 +160,15 @@ namespace vmProjectBackend.Controllers
                 string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
             //Adding headers
             httpClient.DefaultRequestHeaders.Add("Authorization", base64);
-                var tokenResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session", null);
+            var tokenResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session", null);
+             string tokenstring = " ";
+             tokenstring = await tokenResponse.Content.ReadAsStringAsync();
+                //Scape characters functions to filter the new header results
+                tokenstring = tokenstring.Replace("\"", "" );
+                tokenstring = tokenstring.Replace("{", "" );
+                tokenstring = tokenstring.Replace("value:", "" );
+                tokenstring = tokenstring.Replace("}", "" );
+                httpClient.DefaultRequestHeaders.Add("Cookie", $"vmware-api-session-id={tokenstring}");
 
              var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session");
              
