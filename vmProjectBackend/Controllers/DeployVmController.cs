@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using vmProjectBackend.DTO;
 using Microsoft.Extensions.Configuration;
+using System.Collections.Generic;
 
 
 namespace vmProjectBackend.Controllers
@@ -73,7 +74,7 @@ namespace vmProjectBackend.Controllers
                 httpClient.DefaultRequestHeaders.Add("Cookie", $"vmware-api-session-id={tokenstring}");
                 if (tokenResponse.IsSuccessStatusCode)
                 {
-                     string resourcePool = Configuration.GetConnectionString("Resource_Pool");
+                     string resourcePool = Configuration["Resource_Pool"];
                     // Create vm with the information we have in vsphere
                     var deploy = new Deploy
                         {
@@ -85,8 +86,6 @@ namespace vmProjectBackend.Controllers
 
                             }
                          };
-
-
                     var deployResult = JsonConvert.SerializeObject(deploy);
 
                     // var content = new StringContent(deployResult);
@@ -112,6 +111,63 @@ namespace vmProjectBackend.Controllers
             return Unauthorized("You are not Authorized and this is not a student");
         }
 
-    }
+         [HttpGet("resource-pool")]
+         public async Task<ActionResult<IEnumerable<Pool>>> GetPools()
+         {
+            //Open uri communication
+            var httpClient = _httpClientFactory.CreateClient();
+            // Basic authentication in base64
+            string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
+            //Adding headers
+            httpClient.DefaultRequestHeaders.Add("Authorization", base64);
+            var tokenResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session", null);
+            if (tokenResponse.IsSuccessStatusCode)
+            {
+                string tokenstring = " ";
+                //Turn this object into a readable string
+                tokenstring = await tokenResponse.Content.ReadAsStringAsync();
 
-}
+                //Scape characters functions to filter the new header results
+                tokenstring = tokenstring.Replace("\"", "" );
+                tokenstring = tokenstring.Replace("{", "" );
+                tokenstring = tokenstring.Replace("value:", "" );
+                tokenstring = tokenstring.Replace("}", "" );
+                httpClient.DefaultRequestHeaders.Add("Cookie", $"vmware-api-session-id={tokenstring}");
+                //Call resource-pool uri in vsphere
+                var response = await httpClient.GetAsync("https://vctr-dev.citwdd.net/api/vcenter/resource-pool");
+                //Turn these objects responses into a readable string
+                string poolResponseString = await response.Content.ReadAsStringAsync(); 
+                // Pool poolResponse = JsonConvert.DeserializeObject<Pool>(poolResponseString);
+                List<String> poolResponse = poolResponse = JsonConvert.DeserializeObject<List<String>>(poolResponseString);
+                return Ok(poolResponse);                
+                // string folders2 = await folders.Content.ReadAsStringAsync();
+                // //Create a list using our Dto                         
+                // return Ok(folders2);
+            }
+            return Unauthorized("here");
+
+        }
+
+        [HttpDelete()]
+
+                public async Task<IActionResult> DeleteSession()
+        {
+             // Create a session token
+                var httpClient = _httpClientFactory.CreateClient();
+                string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
+            //Adding headers
+            httpClient.DefaultRequestHeaders.Add("Authorization", base64);
+                var tokenResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session", null);
+
+             var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session");
+             
+            return Ok("Session Deleted");
+
+        }
+
+         }
+
+
+     }
+
+

@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -9,12 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
-using System.Web;
-using System.Text;
-using System.Text.Json;
-using System.Collections;
 using Newtonsoft.Json;
-using System.Reflection;
 using System.Net.Http;
 using Microsoft.Net.Http.Headers;
 
