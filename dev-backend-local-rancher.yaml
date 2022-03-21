@@ -78,7 +78,7 @@ spec:
     - dev-vm-api-local.citwdd.net
     secretName: dev-vm-api-local.citwdd.net-tls
   rules:
-  - host: dev-vm-api-local.citwdd.net
+  - host: dev-vm-api-test.citwdd.net
     http:
       paths:
         backend:
