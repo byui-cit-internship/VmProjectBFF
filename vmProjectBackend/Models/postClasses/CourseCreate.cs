@@ -1,6 +1,3 @@
-
-// this model is not link to the Database, it is just used to recieve data from post methods,
-//  emrollmentController post method: [HttpPost("professor/register/course")]
 using System;
 
 namespace vmProjectBackend.Models
@@ -13,6 +10,12 @@ namespace vmProjectBackend.Models
         public string canvas_token { get; set; }
         public int section_num { get; set; }
         public string semester { get; set; }
+        public int section { get; set; }
+        public string contentLibrary { get; set; }
+
+        public string folder { get; set; }
+
+        public string templateVm { get; set; }
         public Guid userId { get; set; }
         public Guid teacherId { get; set; }
         public string vmTableID { get; set; }

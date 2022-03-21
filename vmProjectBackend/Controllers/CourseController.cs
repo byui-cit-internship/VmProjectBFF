@@ -44,7 +44,7 @@ namespace vmProjectBackend.Controllers
 
             if (professor != null)
             {
-                // Returns a list of course name, section id, semester, section number, and professor
+                // Returns a list of course name, section id, semester, and professor
                 // based on the professor and semester variables
                 var listOfCourse = (from c in _context.Courses
                                     join sec in _context.Sections
@@ -62,7 +62,6 @@ namespace vmProjectBackend.Controllers
                                         course_name = c.CourseName,
                                         course_id = sec.SectionId,
                                         course_semester = sem.SemesterTerm,
-                                        course_section = sec.SectionNumber,
                                         course_professor = $"{u.FirstName} {u.LastName}"
                                     }).ToList();
 

@@ -19,5 +19,18 @@ namespace vmProjectBackend.Models
         [Required]
         [Column("course_name", TypeName = "varchar(75)", Order = 3)]
         public string CourseName { get; set; }
+
+        public int Section { get; set; }
+
+        public string ContentLibrary { get; set; }
+
+        public string TemplateVm { get; set; }
+
+        public string Semester { get; set; }
+
+        public string Description { get; set; }
+
+        public string Folder { get; set; }
+
     }
 }

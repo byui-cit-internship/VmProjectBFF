@@ -58,6 +58,11 @@ namespace vmProjectBackend.Controllers
                     Course course = new Course();
                     course.CourseCode = courseDetails.courseName;
                     course.CourseName = courseDetails.courseName;
+                    course.ContentLibrary = courseDetails.contentLibrary;
+                    course.TemplateVm = courseDetails.templateVm;
+                    course.Semester = courseDetails.semester;
+                    course.Description = courseDetails.description;
+                    course.Folder = courseDetails.folder;
                     _context.Courses.Add(course);
                     _context.SaveChanges();
 
