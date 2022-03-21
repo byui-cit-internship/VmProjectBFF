@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: vmproject-api-dev
+  name: vmproject-api-dev-deploy
   namespace: ronaldofc-dev
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: vmproject-api-dev
+      app: vmproject-api-dev-deploy
   template:
     metadata:
       labels:
-        app: vmproject-api-dev
+        app: vmproject-api-dev-deploy
     spec:
       containers:
-      - name: vmproject-api-dev
+      - name: vmproject-api-dev-deploy
         env:
         - name: APSNETCORE_ENVIRONMENT
           value: Development
@@ -40,11 +40,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: vmproject-api-dev
+  name: vmproject-api-dev-loadbalancer
   namespace: ronaldofc-dev
 spec:
   selector:
-    app: vmproject-api-dev
+    app: vmproject-api-dev-deploy
   type: LoadBalancer
   ports:
   - port: 80
@@ -57,16 +57,16 @@ metadata:
   namespace: ronaldofc-dev
 spec:
   selector:
-    app: vmproject-api-dev
+    app: vmproject-api-dev-deploy
   type: NodePort
   ports:
     - port: 80
       targetPort: 80      
 ---
-apiVersion: networking.k8s.io/v1
+apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
-  name: vmproject-api-dev-ingress
+  name: dev-vm-api-test-ingress
   namespace: ronaldofc-dev
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
@@ -75,12 +75,12 @@ metadata:
 spec:
   tls:
   - hosts:
-    - dev-vm-api-local.citwdd.net
-    secretName: dev-vm-api-local.citwdd.net-tls
+    - dev-vm-api-test.citwdd.net
+    secretName: dev-vm-api-test-tls
   rules:
   - host: dev-vm-api-test.citwdd.net
     http:
       paths:
-        backend:
-          serviceName: vmproject-api-dev-nodeport
+      - backend:
+          serviceName: dev-vm-api-test-loadbalancer
           servicePort: 80
