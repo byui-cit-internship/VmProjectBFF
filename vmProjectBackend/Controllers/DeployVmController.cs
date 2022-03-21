@@ -34,7 +34,7 @@ namespace vmProjectBackend.Controllers
 
                 //Connect our API to a second API that creates our vms 
         [HttpPost()]
-        public async Task<ActionResult<VmDetail>> PostVmTable(string enrollment_id)
+        public async Task<ActionResult<VmDetail>> PostVmTable(Guid enrollment_id)
         {
             string useremail = HttpContext.User.Identity.Name;
             // check if the user is a student
@@ -47,16 +47,20 @@ namespace vmProjectBackend.Controllers
                  var listOfCourse = await _context.Enrollments
                                     .Include(c => c.Course)
                                     .Where(s => s.UserId == user_student.UserID)
+                                    .Where(t => t.EnrollmentID == enrollment_id)
                                     .Select(e => new
+    
                                     {
                                         student_name = $"{e.User.firstName} {e.User.lastName}",
                                         course_name = e.Course.CourseName,
                                         course_id = e.CourseID,
                                         template_id=e.Course.TemplateVm,
                                         course_semester = e.semester,
-                                        enrollment_id = e.EnrollmentID
+                                        enrollment_id = e.EnrollmentID,
+                                        folder = e.Course.Folder
                                     })
                                     .ToArrayAsync();
+                                    // return Ok(listOfCourse);
                 // Create a session token
                 var httpClient = _httpClientFactory.CreateClient();
                 string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
@@ -76,12 +80,14 @@ namespace vmProjectBackend.Controllers
                 {
                      string resourcePool = Configuration["Resource_Pool"];
                     // Create vm with the information we have in vsphere
+                    
                     var deploy = new Deploy
                         {
                          name = useremail = HttpContext.User.Identity.Name,
                          placement = new Placement 
                             {
-                                folder = "group-v3044",
+                                folder = listOfCourse[0].folder,  
+                                
                                 resource_pool = resourcePool
 
                             }
@@ -92,19 +98,14 @@ namespace vmProjectBackend.Controllers
 
                     var content = new StringContent(deployResult, Encoding.UTF8, "application/json");
 
-                    // var content2 = new StringContent(content, Encoding.UTF8, "application/json");
+                    var postResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/api/vcenter/vm-template/library-items/b4f40b57-21e5-48c2-9fdf-03337fe8d9c1?action=deploy", content);
 
-                    // return Ok(content2);
+                    postResponse.EnsureSuccessStatusCode();
 
-                var postResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/api/vcenter/vm-template/library-items/b4f40b57-21e5-48c2-9fdf-03337fe8d9c1?action=deploy", content);
+                     // Deleting Session to avoid data redundancy in Vsphere
 
-                 postResponse.EnsureSuccessStatusCode();
+                    var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session");
 
-                 var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session");
-
-                //  var content2 = await postResponse.Content.ReadAsStringAsync();
-
-                //  var createdCompany = JsonSerializer.Deserialize<DeployDto>(content, _options);
                          
                     return Ok("vm created and session deleted");
                 }
