@@ -252,7 +252,8 @@ namespace vmProjectBackend.Controllers
             // Send vm detalis to Vcenter
                 var response3 = await httpClient.PostAsync("https://vctr-dev.citwdd.net/rest/vcenter/vm", null);
                 string response3String = await response3.Content.ReadAsStringAsync();
-                return Ok(vmUtilization); 
+                // response3.EnsureSuccessStatusCode();
+                return Ok("utilization created"); 
                 
             }
             else {
