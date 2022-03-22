@@ -43,7 +43,7 @@ namespace vmProjectBackend.Controllers
                             .FirstOrDefault();
             if (user_student != null)
             {
-                //Query the student name in order to use it as the vm's name
+                //Query the folder name in order to use it when we do the post
                  var listOfCourse = await _context.Enrollments
                                     .Include(c => c.Course)
                                     .Where(s => s.UserId == user_student.UserID)
@@ -105,9 +105,7 @@ namespace vmProjectBackend.Controllers
                      // Deleting Session to avoid data redundancy in Vsphere
 
                     var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session");
-
-                         
-                    return Ok("vm created and session deleted");
+                    // return Ok("vm created and session deleted");
                 }
                 return Ok("here session");
             }
@@ -129,7 +127,6 @@ namespace vmProjectBackend.Controllers
                 string tokenstring = " ";
                 //Turn this object into a readable string
                 tokenstring = await tokenResponse.Content.ReadAsStringAsync();
-
                 //Scape characters functions to filter the new header results
                 tokenstring = tokenstring.Replace("\"", "" );
                 tokenstring = tokenstring.Replace("{", "" );
@@ -142,20 +139,15 @@ namespace vmProjectBackend.Controllers
                 string poolResponseString = await response.Content.ReadAsStringAsync(); 
                 // Pool poolResponse = JsonConvert.DeserializeObject<Pool>(poolResponseString);
                 List<String> poolResponse = poolResponse = JsonConvert.DeserializeObject<List<String>>(poolResponseString);
-                return Ok(poolResponse);    
-                            
-                // string folders2 = await folders.Content.ReadAsStringAsync();
-                // //Create a list using our Dto                         
-                // return Ok(folders2);
+                return Ok(poolResponse); 
+                //This endpoint is just for testing purposes, we should delete it later
             }
             return Unauthorized("here");
-
         }
 
         [HttpDelete()]
-
                 public async Task<IActionResult> DeleteSession()
-        {
+       {
              // Create a session token
                 var httpClient = _httpClientFactory.CreateClient();
                 string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
@@ -171,15 +163,15 @@ namespace vmProjectBackend.Controllers
                 tokenstring = tokenstring.Replace("}", "" );
                 httpClient.DefaultRequestHeaders.Add("Cookie", $"vmware-api-session-id={tokenstring}");
 
-             var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session");
-             
+             var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session");             
             return Ok("Session Deleted");
+            //This endpoint is just for testing purposes, we should delete it later
 
         }
+ 
+    }
 
-         }
 
-
-     }
+}
 
 

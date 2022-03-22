@@ -10,11 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
 using vmProjectBackend.DTO;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Http;
-using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http;
-using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
 namespace vmProjectBackend.Controllers
 {
