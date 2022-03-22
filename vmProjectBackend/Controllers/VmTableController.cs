@@ -229,7 +229,7 @@ namespace vmProjectBackend.Controllers
                             .Where(p => p.email == useremail && p.userType == "Student")
                             .FirstOrDefault();
             // students are able to store their vm's details 
-            if (user_student != null)
+            if (_context.Users.Any())
             {
                 return await _context.VmUtilizations.ToListAsync();
             }
