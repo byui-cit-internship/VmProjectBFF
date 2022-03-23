@@ -156,7 +156,7 @@ namespace vmProjectBackend.Services
                                                 {
                                                     //  We now know that the student is not in the Database so we create a new user
 
-                                                    Console.WriteLine("Student does not exit in Db");
+                                                    Console.WriteLine("Student doesn't exist in Db");
 
                                                     User student_user = new User();
 

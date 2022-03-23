@@ -61,6 +61,7 @@ namespace vmProjectBackend.Controllers
                                     })
                                     .ToArrayAsync();
                                     // return Ok(listOfCourse);
+                var template_id = listOfCourse[0].template_id; 
                 // Create a session token
                 var httpClient = _httpClientFactory.CreateClient();
                 string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
@@ -83,7 +84,7 @@ namespace vmProjectBackend.Controllers
                     
                     var deploy = new Deploy
                         {
-                         name = useremail = HttpContext.User.Identity.Name,
+                         name = HttpContext.User.Identity.Name,
                          placement = new Placement 
                             {
                                 folder = listOfCourse[0].folder,  
@@ -94,11 +95,15 @@ namespace vmProjectBackend.Controllers
                          };
                     var deployResult = JsonConvert.SerializeObject(deploy);
 
-                    // var content = new StringContent(deployResult);
+                    // var Strcontent = new StringContent(deployResult);
 
-                    var content = new StringContent(deployResult, Encoding.UTF8, "application/json");
+                    // return Ok(deploy);
+                  
+                    var deployContent = new StringContent(deployResult, Encoding.UTF8, "application/json");
+                    // return Ok(deployResult);
 
-                    var postResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/api/vcenter/vm-template/library-items/6e4582cf-27ad-42f6-b17b-5edf18b7aa7f?action=deploy", content);
+                    var postResponse = await httpClient.PostAsync($"https://vctr-dev.citwdd.net/api/vcenter/vm-template/library-items/{template_id}?action=deploy", deployContent);
+                    return Ok (postResponse.RequestMessage);  
 
                     // postResponse.EnsureSuccessStatusCode();
 
@@ -107,15 +112,16 @@ namespace vmProjectBackend.Controllers
                     var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session");
                     // return Ok("vm created and session deleted");
 
-                    VmTable vmTable = new VmTable();
+                //     VmTable vmTable = new VmTable();
 
-                    vmTable.VmFolder = listOfCourse[0].folder;
-                    vmTable.VmName = listOfCourse[0].student_name;
+                //     vmTable.VmFolder = listOfCourse[0].folder;
+                //     vmTable.VmName = listOfCourse[0].student_name;
                     
-                    _context.VmTables.Add(vmTable);
-                   await _context.SaveChangesAsync();
+                //     _context.VmTables.Add(vmTable);
+                //    await _context.SaveChangesAsync();
+                return Ok("something was sent");
                 }
-                return Ok("here session");
+                return Ok("token response wasn't successful");
             }
             return Unauthorized("You are not Authorized and this is not a student");
         }
