@@ -98,14 +98,22 @@ namespace vmProjectBackend.Controllers
 
                     var content = new StringContent(deployResult, Encoding.UTF8, "application/json");
 
-                    var postResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/api/vcenter/vm-template/library-items/b4f40b57-21e5-48c2-9fdf-03337fe8d9c1?action=deploy", content);
+                    var postResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/api/vcenter/vm-template/library-items/6e4582cf-27ad-42f6-b17b-5edf18b7aa7f?action=deploy", content);
 
-                    postResponse.EnsureSuccessStatusCode();
+                    // postResponse.EnsureSuccessStatusCode();
 
                      // Deleting Session to avoid data redundancy in Vsphere
 
                     var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session");
                     // return Ok("vm created and session deleted");
+
+                    VmTable vmTable = new VmTable();
+
+                    vmTable.VmFolder = listOfCourse[0].folder;
+                    vmTable.VmName = listOfCourse[0].student_name;
+                    
+                    _context.VmTables.Add(vmTable);
+                   await _context.SaveChangesAsync();
                 }
                 return Ok("here session");
             }
