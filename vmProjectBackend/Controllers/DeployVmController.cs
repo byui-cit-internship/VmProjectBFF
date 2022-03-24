@@ -30,6 +30,7 @@ namespace vmProjectBackend.Controllers
             _httpClientFactory = httpClientFactory;
 
             Configuration = configuration;
+            
         }
 
                 //Connect our API to a second API that creates our vms 
@@ -112,13 +113,14 @@ namespace vmProjectBackend.Controllers
                     var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session");
                     // return Ok("vm created and session deleted");
 
-                //     VmTable vmTable = new VmTable();
+                    VmTable vmTable = new VmTable();
 
-                //     vmTable.VmFolder = listOfCourse[0].folder;
-                //     vmTable.VmName = listOfCourse[0].student_name;
+                    vmTable.VmFolder = listOfCourse[0].folder;
+                    vmTable.VmName = listOfCourse[0].student_name;
+                    vmTable.VmResourcePool = resourcePool;
                     
-                //     _context.VmTables.Add(vmTable);
-                //    await _context.SaveChangesAsync();
+                    _context.VmTables.Add(vmTable);
+                   await _context.SaveChangesAsync();
                 return Ok("something was sent");
                 }
                 return Ok("token response wasn't successful");
@@ -151,10 +153,9 @@ namespace vmProjectBackend.Controllers
                 var response = await httpClient.GetAsync("https://vctr-dev.citwdd.net/api/vcenter/resource-pool");
                 //Turn these objects responses into a readable string
                 string poolResponseString = await response.Content.ReadAsStringAsync(); 
-                var objResponse1 = JsonConvert.DeserializeObject<List<Pool>>(poolResponseString);
-                // Pool poolResponse = JsonConvert.DeserializeObject<Pool>(poolResponseString);
-                // List<String> poolResponse = poolResponse = JsonConvert.DeserializeObject<List<String>>(poolResponseString);
-                return Ok(objResponse1); 
+                // turn the readable string into a json collection
+                var objResponse = JsonConvert.DeserializeObject<List<Pool>>(poolResponseString);
+                return Ok(objResponse); 
             }
             return Unauthorized("here");
         }

@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 
 namespace vmProjectBackend.Controllers
 {
@@ -18,11 +19,14 @@ namespace vmProjectBackend.Controllers
     public class CreateVmController : ControllerBase
     {
         private readonly VmContext _context;
+        public IConfiguration Configuration { get; }
         private readonly IHttpClientFactory _httpClientFactory;
-        public CreateVmController(VmContext context, IHttpClientFactory httpClientFactory)
+        public CreateVmController(VmContext context, IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
             _context = context;
             _httpClientFactory = httpClientFactory;
+
+            Configuration = configuration;
         }
 
         [HttpGet("libraries")]
@@ -104,12 +108,27 @@ namespace vmProjectBackend.Controllers
                 //Call library uri in vsphere
                 var responseFolders = await httpClient.GetAsync("https://vctr-dev.citwdd.net/rest/vcenter/folder?filter.type=VIRTUAL_MACHINE");
                 //Turn these objects responses into a readable string
-                //
+            
                 string folderResponseString = await responseFolders.Content.ReadAsStringAsync();
-                             
-                  
+                                              
                 FolderResponse folderResponse = JsonConvert.DeserializeObject<FolderResponse>(folderResponseString);
-                return Ok(folderResponse.value);
+
+                // List<String> folderName = JsonConvert.DeserializeObject<List<String>>(folderResponse);
+
+                List<Folder> folders = new List<Folder>();
+
+                 //declare variable from configuration (appsettings.json)
+                string ignoreFolder = Configuration["IgnoreFolder"];
+                
+
+                foreach ( Folder folder in folderResponse.value) {
+                    if (  folder.name != ignoreFolder)
+                    // string response2String = await response2.Content.ReadAsStringAsync();
+                    // Folder folder = JsonConvert.DeserializeObject<Folder>(response2String);
+                    folders.Add(folder);
+                }
+
+                return Ok(folders);
                 // string folders2 = await folders.Content.ReadAsStringAsync();
                 // //Create a list using our Dto                         
                 // return Ok(folders2);
