@@ -162,14 +162,21 @@ namespace vmProjectBackend.Services
 
                                                     student_user.firstName = current_student_firstName;
                                                     student_user.lastName = current_student_lastName;
-                                                    student_user.email = current_student_email;
+                                                    student_user.email = current_student_email; // goes null when student is pending
                                                     student_user.userType = "Student";
-                                                    _context.Users.Add(student_user);
-                                                    await _context.SaveChangesAsync();
+                                                    
                                                     Console.WriteLine("Student_user was created");
 
+                                                    if (current_student_email != null) {
+
+                                                        _context.Users.Add(student_user);
+                                                         await _context.SaveChangesAsync();
+
+                                                         await EnrollStudent(_course_id, current_student_in_db.UserID, enroll.teacherId, enroll.VmTableID, enroll.semester);
+                                                         
+                                                    }
+
                                                     // Enroll the newly created student into that course
-                                                    await EnrollStudent(_course_id, student_user.UserID, enroll.teacherId, enroll.VmTableID, enroll.semester);
                                                     Console.WriteLine("Student now created and enrolled into the course");
                                                 }
                                             }

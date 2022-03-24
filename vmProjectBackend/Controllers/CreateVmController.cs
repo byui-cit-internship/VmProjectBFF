@@ -112,26 +112,17 @@ namespace vmProjectBackend.Controllers
                 string folderResponseString = await responseFolders.Content.ReadAsStringAsync();
                                               
                 FolderResponse folderResponse = JsonConvert.DeserializeObject<FolderResponse>(folderResponseString);
-
-                // List<String> folderName = JsonConvert.DeserializeObject<List<String>>(folderResponse);
-
+                // Create an empty list to save the results we need
                 List<Folder> folders = new List<Folder>();
-
                  //declare variable from configuration (appsettings.json)
                 string ignoreFolder = Configuration["IgnoreFolder"];
-                
-
                 foreach ( Folder folder in folderResponse.value) {
                     if (  folder.name != ignoreFolder)
-                    // string response2String = await response2.Content.ReadAsStringAsync();
-                    // Folder folder = JsonConvert.DeserializeObject<Folder>(response2String);
+                   // filtering all folders except DO-NOT-USE 
                     folders.Add(folder);
                 }
-
+                // list result
                 return Ok(folders);
-                // string folders2 = await folders.Content.ReadAsStringAsync();
-                // //Create a list using our Dto                         
-                // return Ok(folders2);
             }
             return Unauthorized("here");
          }
