@@ -103,7 +103,7 @@ namespace vmProjectBackend.Controllers
                     // return Ok(deployResult);
 
                     var postResponse = await httpClient.PostAsync($"https://vctr-dev.citwdd.net/api/vcenter/vm-template/library-items/{template_id}?action=deploy", deployContent);
-                    return Ok (postResponse.RequestMessage);  
+                    // return Ok (postResponse.RequestMessage);  
 
                     // postResponse.EnsureSuccessStatusCode();
 
@@ -151,10 +151,10 @@ namespace vmProjectBackend.Controllers
                 var response = await httpClient.GetAsync("https://vctr-dev.citwdd.net/api/vcenter/resource-pool");
                 //Turn these objects responses into a readable string
                 string poolResponseString = await response.Content.ReadAsStringAsync(); 
+                var objResponse1 = JsonConvert.DeserializeObject<List<Pool>>(poolResponseString);
                 // Pool poolResponse = JsonConvert.DeserializeObject<Pool>(poolResponseString);
-                List<String> poolResponse = poolResponse = JsonConvert.DeserializeObject<List<String>>(poolResponseString);
-                return Ok(poolResponse); 
-                //This endpoint is just for testing purposes, we should delete it later
+                // List<String> poolResponse = poolResponse = JsonConvert.DeserializeObject<List<String>>(poolResponseString);
+                return Ok(objResponse1); 
             }
             return Unauthorized("here");
         }
