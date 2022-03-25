@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vmproject-api-dev-deploy
+  namespace: vm-project-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vmproject-api-dev-deploy
+  template:
+    metadata:
+      labels:
+        app: vmproject-api-dev-deploy
+    spec:
+      containers:
+      - name: 	vmproject-api-dev-deploy
+        env:
+        - name: APSNETCORE_ENVIRONMENT
+          value: Development
+        image: rcr.citwdd.net/backend-repository/backend-vima
+        ports:
+        - containerPort: 80        
+        resources:
+          limits:
+            cpu: ".5"
+            memory: "500Mi"
+          requests:
+            cpu: ".25"
+            memory: "250Mi"
+        livenessProbe:
+          httpGet:
+            path: /api/liveprobe
+            port: 80
+          initialDelaySeconds: 3
+          periodSeconds: 3               
+      imagePullSecrets:
+      - name: backend-rcr-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: 	vmproject-api-dev-loadbalancer
+  namespace: vm-project-dev
+spec:
+  selector:
+    app: 	vmproject-api-dev-deploy
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 80    
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: 	vmproject-api-dev-nodeport
+  namespace: vm-project-dev
+spec:
+  selector:
+    app: vmproject-api-dev-deploy
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 80      
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: vmproject-api-dev-ingress
+  namespace: vm-project-dev
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-cluster-issuer"
+spec:
+  tls:
+  - hosts:
+    - rancher-dev-vm-api.citwdd.net
+    secretName: dev-vm-api-local-tls
+  rules:
+  - host: rancher-dev-vm-api.citwdd.net
+    http:
+      paths:
+      - backend:
+          serviceName: vmproject-api-dev-loadbalancer
+          servicePort: 80
