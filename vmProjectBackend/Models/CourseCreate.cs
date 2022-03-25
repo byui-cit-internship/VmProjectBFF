@@ -20,7 +20,7 @@ namespace vmProjectBackend.Models
 
         public string templateVm { get; set; }
 
-        public string Resource_pool { get; set; }
+        public string resource_pool { get; set; }
         public Guid userId { get; set; }
         public Guid teacherId { get; set; }
         public Guid vmTableID { get; set; }
