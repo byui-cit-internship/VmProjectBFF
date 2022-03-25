@@ -26,7 +26,9 @@ namespace vmProjectBackend.Models
 
         public string Description { get; set; }
 
-        public string Folder {get; set;}
+        public string Folder { get; set; }
+
+        public string Resource_pool { get; set; }
 
        
         // this below is the can be emmited since enrollment will connect them
