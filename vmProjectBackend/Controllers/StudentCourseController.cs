@@ -35,7 +35,7 @@ namespace vmProjectBackend.Controllers
             User student = _auth.getUser(useremail);
             if (student != null)
             {
-                IEnumerable<Course> courseList = await (from u in _context.Users
+                var courseList = await (from u in _context.Users
                                                         join usr in _context.UserSectionRoles
                                                         on u.UserId equals usr.UserId
                                                         join s in _context.Sections
@@ -43,7 +43,14 @@ namespace vmProjectBackend.Controllers
                                                         join c in _context.Courses
                                                         on s.CourseId equals c.CourseId
                                                         where u.UserId == student.UserId
-                                                        select c).ToArrayAsync();
+                                                        select new
+                                                        {
+                                                            course_id = s.SectionCanvasId,
+                                                            course_name = c.CourseCode,
+                                                            enrollment_id = usr.UserSectionRoleId,
+                                                            student_name = $"{u.FirstName} {u.LastName}",
+                                                            template_id = c.TemplateVm
+                                                        }).ToArrayAsync();
                 
 
                 return Ok(courseList);

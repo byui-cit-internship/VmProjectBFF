@@ -6,7 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using vmProjectBackend.DAL;
-
+using vmProjectBackend.Services;
 
 namespace vmProjectBackend
 {
@@ -24,7 +24,8 @@ namespace vmProjectBackend
             // ILogger Logger { get; } = AppLogger.CreateLogger<*ClassName*>();
             ILoggerFactory LoggerFactory = services.GetRequiredService<ILoggerFactory>();
             AppLogger.LoggerFactory = LoggerFactory;
-
+            BackgroundService1 bs1 = services.GetRequiredService<BackgroundService1>();
+            bs1.ReadAndUpdateDB();
             CreateDbOrMigrate(services);
 
             host.Run();
@@ -32,6 +33,10 @@ namespace vmProjectBackend
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .ConfigureServices((hostContext, services) =>
+                {
+                    services.AddScoped<BackgroundService1>();
+                })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();

@@ -11,6 +11,7 @@ using System;
 using System.Linq;
 using vmProjectBackend.DAL;
 using vmProjectBackend.Handlers;
+using vmProjectBackend.Services;
 
 namespace vmProjectBackend
 {
