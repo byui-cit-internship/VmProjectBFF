@@ -1,18 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
+using Google.Apis.Auth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
+using System;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
-using Google.Apis.Auth;
-using Google.Apis.Auth.OAuth2;
 
 namespace vmProjectBackend.Controllers
 {
@@ -20,81 +18,112 @@ namespace vmProjectBackend.Controllers
     [ApiController]
     public class TokenController : ControllerBase
     {
-        private readonly VmContext _context;
-        public TokenController(VmContext context)
+        private readonly DatabaseContext _context;
+        public IHttpClientFactory _httpClientFactory { get; }
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        ILogger Logger { get; } = AppLogger.CreateLogger<TokenController>();
+        public const string SessionKeyName = "_Name";
+        public const string SessionKeyId = "_Id";
+
+        public TokenController(DatabaseContext context, IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
+            _httpClientFactory = httpClientFactory;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         /**************************************
         Validate the token given by the front end
         and then determines whether they are a teacher or professor
         ****************************************/
-        [HttpGet("{token}")]
-        public async Task<ActionResult<Token>> PostToken(string token)
+        [HttpPost()]
+        [AllowAnonymous]
+        public async Task<ActionResult> GetToken([FromBody] DTO.AccessToken accessTokenObj)
         {
             try
             {
-                var validPayload = await GoogleJsonWebSignature.ValidateAsync(token);
+                HttpClient httpClient = _httpClientFactory.CreateClient();
+                httpClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, $"Bearer {accessTokenObj.AccessTokenValue}");
+                HttpResponseMessage response = await httpClient.GetAsync($"https://www.googleapis.com/userinfo/v2/me");
 
-                string validEmail = validPayload.Email;
-                // Console.WriteLine(validEmail);
-
-                var user_detail = _context.Users.Where(u => u.email == validEmail).FirstOrDefault();
-
-                if (user_detail == null)
+                if (response.IsSuccessStatusCode)
                 {
-                    try
-                    {
-                        string fullName = validPayload.Name;
-                        string[] names = fullName.Split(' ');
-                        string firstname = names[0];
-                        string lastname = names[1];
+                    string responseString = await response.Content.ReadAsStringAsync();
 
-                        User user = new User();
-                        user.email = validPayload.Email;
-                        user.firstName = firstname;
-                        user.lastName = lastname;
-                        user.userType = "Student";
+                    dynamic students = JsonConvert.DeserializeObject<dynamic>(responseString);
+
+                    string email = students.email;
+
+                    User user = (from u in _context.Users
+                                 where u.Email == email
+                                 select u).FirstOrDefault();
+
+                    if (user == null)
+                    {
+
+                        user = new User();
+                        user.Email = email;
+                        user.FirstName = students.given_name;
+                        user.LastName = students.family_name;
+                        user.IsAdmin = false;
 
                         _context.Users.Add(user); ;
-                        await _context.SaveChangesAsync();
-                        return Ok(user.userType);
-                    }
-                    catch (Exception ex)
-                    {
-                        return NotFound("hitting the error for trying to create a user");
+                        _context.SaveChanges();
 
                     }
+
+                    AccessToken accessToken = (from at in _context.AccessTokens
+                                              where at.AccessTokenValue == accessTokenObj.AccessTokenValue
+                                              select at).FirstOrDefault();
+                    if (accessToken == null)
+                    {
+                        accessToken = new();
+                        accessToken.AccessTokenValue = accessTokenObj.AccessTokenValue;
+                        accessToken.ExpireDate = DateTime.Now.AddHours(1);
+                        accessToken.User = user;
+
+                        _context.AccessTokens.Add(accessToken);
+                        _context.SaveChanges();
+                    }
+                    else if (DateTime.Compare(accessToken.ExpireDate, DateTime.Now) < 0)
+                    {
+                        return Forbid();
+                    }
+
+                    
+                    SessionToken sessionToken = (from st in _context.SessionTokens
+                                                 where st.AccessToken == accessToken
+                                                 orderby st.ExpireDate descending
+                                                 select st).FirstOrDefault();
+                    if (sessionToken == null)
+                    {
+                        sessionToken = new();
+                        sessionToken.SessionTokenValue = Guid.NewGuid();
+                        sessionToken.AccessToken = accessToken;
+                        sessionToken.ExpireDate = DateTime.Now.AddDays(3);
+
+                        _context.SessionTokens.Add(sessionToken);
+                        _context.SaveChanges();
+                    } else if (DateTime.Compare(sessionToken.ExpireDate, DateTime.Now) < 0)
+                    {
+                        return Forbid();
+                    }
+
+                    _httpContextAccessor.HttpContext.Session.SetString("id", sessionToken.SessionTokenValue.ToString());
+                    // outside return statment
+                    return Ok(user);
+                }
+                else
+                {
+                    return BadRequest();
                 }
 
-                // outside return statment
-                return Ok(user_detail);
             }
             catch (Exception ex)
             {
-                return NotFound("the token is not valid");
+                return StatusCode(500);
 
             }
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteToken(string id)
-        {
-            var token = await _context.Tokens.FindAsync(id);
-            if (token == null)
-            {
-                return NotFound();
-            }
-
-            _context.Tokens.Remove(token);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-        private bool TokenExists(string id)
-        {
-            return _context.Tokens.Any(e => e.ID == id);
         }
     }
 }

@@ -1,20 +1,25 @@
-using System.ComponentModel.DataAnnotations.Schema;
-using System;
 using System.ComponentModel.DataAnnotations;
-using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+
 
 namespace vmProjectBackend.Models
 {
+    [Table("course", Schema = "vmProject")]
     public class Course
     {
-        // should we set courseCode to the primary key
-        // this declarator makes us define the courseId instead of the database generating it
+        // Primary Key
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public long CourseID { get; set; }
+        [Column("course_id", Order = 1)]
+        public int CourseId { get; set; }
+        
         [Required]
-        [StringLength(50)]
+        [Column("course_code", TypeName = "varchar(15)", Order = 2)]
+        public string CourseCode { get; set; }
+
+        [Required]
+        [Column("course_name", TypeName = "varchar(75)", Order = 3)]
         public string CourseName { get; set; }
+<<<<<<< HEAD
 
         public int Section { get; set; }
 
@@ -32,16 +37,22 @@ namespace vmProjectBackend.Models
 
        
         // this below is the can be emmited since enrollment will connect them
+=======
+>>>>>>> auth-ebe
 
-        // public long UserId { get; set; }
-        // this is for course connection ot enrollment
-        // public virtual ICollection<Enrollment> Enrollments { get; set; }
+        public int Section { get; set; }
 
-        // this is course to vmtables
-        // public virtual ICollection<VmTableCourse> VmTableCourses { get; set; }
-        // public virtual User User { get; set; }
+        public string ContentLibrary { get; set; }
 
+        public string TemplateVm { get; set; }
 
+        public string Semester { get; set; }
+
+        public string Description { get; set; }
+
+        public string Folder { get; set; }
+
+        public string Resource_pool { get; set; }
 
     }
 }

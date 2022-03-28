@@ -17,7 +17,7 @@ spec:
         env:
         - name: APSNETCORE_ENVIRONMENT
           value: Development
-        image: gcr.io/constellation-275522/vmproject
+        image: gcr.io/constellation-275522/vmprojectapiv2
         ports:
         - containerPort: 80        
         resources:
@@ -29,7 +29,7 @@ spec:
             memory: "250Mi"
         livenessProbe:
           httpGet:
-            path: /api/liveprobe
+            path: /
             port: 80
           initialDelaySeconds: 3
           periodSeconds: 3               
@@ -58,41 +58,27 @@ spec:
     - port: 80
       targetPort: 80
 ---
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: vmproject-api-dev-ingress
   annotations:
-    kubernetes.io/ingress.global-static-ip-name: vmproject-api-dev
-    networking.gke.io/managed-certificates: vmproject-api-dev-certificate-2
-    cloud.google.com/backend-config: vmproject-api-dev-ingress-backend-config
-#    kubernetes.io/ingress.allow-http: "false"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-cluster-issuer"
 spec:
-  backend:
-    serviceName: vmproject-api-dev-nodeport
-    servicePort: 80
----
-apiVersion: cloud.google.com/v1
-kind: BackendConfig
-metadata:
-  name: vmproject-api-dev-ingress-backend-config
-spec:
-# This overrides the default Ingress/Load Balancer Health Check
-  healthCheck:
-    checkIntervalSec: 10
-    timeoutSec: 10
-    healthyThreshold: 2
-    unhealthyThreshold: 2
-# The type is the protocol used to connect to the Pod
-    type: HTTP
-    requestPath: /api/liveprobe
-# The below port is the port to use to connect to the Pod
-    port: 80
----
-apiVersion: networking.gke.io/v1
-kind: ManagedCertificate
-metadata:
-  name: vmproject-api-dev-certificate-2
-spec:
-  domains:
-    - dev-vm-api.citwdd.net
+  tls:
+  - hosts:
+    - rancher-dev-vm-api.citwdd.net
+    secretName: dev-vm-api-tls
+  rules:
+  - host: rancher-dev-vm-api.citwdd.net
+    http:
+      paths:
+      - backend:
+          service:
+            name: vmproject-api-dev-nodeport
+            port: 
+              number: 80
+        pathType: ImplementationSpecific
+            
