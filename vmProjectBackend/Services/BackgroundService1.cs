@@ -1,15 +1,21 @@
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.Net.Http.Headers;
-using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
+using System.Net.Http;
+using Microsoft.Net.Http.Headers;
+using System.Text.Json;
+using System.Collections.Generic;
+using Newtonsoft.Json;
+using Microsoft.AspNetCore.Authorization;
+using System.Collections;
+using Microsoft.Extensions.Configuration;
+using System.Linq;
+using System.Data.Entity;
 
 namespace vmProjectBackend.Services
 {
@@ -18,137 +24,184 @@ namespace vmProjectBackend.Services
         public IServiceProvider Services;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<BackgroundService1> _logger;
-        private readonly DatabaseContext _context;
+        private readonly IConfiguration _Configuration;
 
-        // private readonly DatabaseContext _context;
+        // private readonly VmContext _context;
         // public List<CourseCreate> coursedata = new List<CourseCreate>();
-        ILogger Logger { get; } = AppLogger.CreateLogger<BackgroundService1>();
 
 
-        public BackgroundService1(IHttpClientFactory httpClientFactory, DatabaseContext context)
+        public BackgroundService1(ILogger<BackgroundService1> logger, IServiceProvider service, IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
+            _logger = logger;
+            Services = service;
             _httpClientFactory = httpClientFactory;
-            _context = context;
+            _Configuration = configuration;
         }
 
         public async Task ReadAndUpdateDB()
         {
-            List<User> canvasUsers = (from u in _context.Users
-                                      where u.CanvasToken != null
-                                      select u).ToList();
-
-            Role studentRole = (from r in _context.Roles
-                                where r.CanvasRoleId == 3
-                                select r).FirstOrDefault();
-
-            if (studentRole == null)
+            using (var scope = Services.CreateScope())
             {
-                studentRole = new Role();
-                studentRole.CanvasRoleId = 3;
-                studentRole.RoleName = "StudentEnrollment";
-                _context.Roles.Add(studentRole);
-                _context.SaveChanges();
-            }
-                    await _context.SaveChangesAsync();
-            if (canvasUsers.Count > 0)
-            {
-                foreach (User professor in canvasUsers)
+                var _context = scope.ServiceProvider.GetRequiredService<VmContext>();
+                List<Enrollment> listOfenroll = _context.Enrollments.Where(e => e.teacherId == e.UserId).ToList();
+
+                async Task EnrollStudent(long _course_id, Guid userid, Guid teacherid, Guid vmtableId, string semester)
                 {
-                    List<Section> sections = (from u in _context.Users
-                                              join usr in _context.UserSectionRoles
-                                              on u.UserId equals usr.UserId
-                                              join s in _context.Sections
-                                              on usr.SectionId equals s.SectionId
-                                              where u.UserId == professor.UserId
-                                              select s).ToList();
+                    Enrollment enrollment = new Enrollment();
+                    long enroll_course_id = _context.Courses.FirstOrDefault(c => c.CourseID == _course_id).CourseID;
+                    enrollment.CourseID = enroll_course_id;
+                    enrollment.UserId = userid;
+                    enrollment.teacherId = teacherid;
+                    enrollment.VmTableID = vmtableId;
+                    enrollment.semester = semester;
+                    _context.Enrollments.Add(enrollment);
+                    await _context.SaveChangesAsync();
+                }
 
-                    foreach (Section section in sections)
+                if (listOfenroll != null)
+                {
+                    // Figure out a better way to just filter only enrollment with Teachers
+                    // for now we are looping through all the enrollment and finding the ones that are for teachers.
+                    Console.WriteLine("first loop");
+                    foreach (var enroll in listOfenroll)
                     {
-                        // grab the id, canvas_token, section_num for every course
-                        int sectionId = section.SectionCanvasId;
-                        string profCanvasToken = professor.CanvasToken;
-                            var _course_sectionnum = enroll.section_num;
+                        // check if it is a Teacher enrollment
+                        if (enroll.UserId == enroll.teacherId)
+                        {
+                            // grab the id, canvas_token, section_num for every course
+                            var _course_id = enroll.CourseID;
+                            // long _course_id = 117072;
                             var _course_canvas_token = enroll.canvas_token;
 
-                        // This varible is changeable, it will chnage depending of the environment that the 
-                        // Ebenal: TEMP use studentRole var above in prod.
-                        int userRoleId = 3;
+                            // This varible is changeable, it will chnage depending of the environment that the 
+                            // project uses. We are using tutors to test this function and in Production we will use actual students
 
-                        // call the Api for that course with the canvas token
-                        // create an httpclient instance
-                        HttpClient httpClient = _httpClientFactory.CreateClient();
+                            var user_role = _Configuration["Canvas:StudentRole"];
+                            //Configuration["Logging:LogLevel:Default"]
+
+                            // call the Api for that course with the canvas token
                             // create an httpclient instance
-                        // Authorization Token for the Canvas url that we are hitting, we need this for every courese
-                        // and we will grab it 
-                        httpClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, $"Bearer {profCanvasToken}");
+                            var httpClient = _httpClientFactory.CreateClient();
 
-                        // contains our base Url where individula course_id is added
-                        // This URL enpoint gives a list of all the Student in that class : role_id= 3 list all the student for that Professor
-                        HttpResponseMessage response = await httpClient.GetAsync($"https://byui.test.instructure.com/api/v1/courses/{sectionId}/users?per_page=1000&role_id={userRoleId}");
+                            // Authorization Token for the Canvas url that we are hitting, we need this for every courese
+                            // and we will grab it 
+                            httpClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + _course_canvas_token);
+                            // contains our base Url where individula course_id is added
                             // This URL enpoint gives a list of all the Student in that class : role_id= 3 list all the student for that Professor
-                            var response = await httpClient.GetAsync($"https://byui.test.instructure.com/api/v1/courses/{_course_id}/enrollments?per_page=1000&role_id={user_role_id}");
+                            var response = await httpClient.GetAsync($"https://byui.test.instructure.com/api/v1/courses/{_course_id}/enrollments?per_page=1000&role={user_role}");
 
-                        if (response.IsSuccessStatusCode)
-                        {
-                            string responseString = await response.Content.ReadAsStringAsync();
-
-                            // turn the Object into json, will convert this to be a type to work with soon
-                            // We are grabing the all the Student enrolled for that class
-                            dynamic students = JsonConvert.DeserializeObject<dynamic>(responseString);
-                            // looping thorough the list of students
-                            foreach (var canvasStudent in students)
+                            if (response.IsSuccessStatusCode)
                             {
-                                // grab the student Id and the email and name to create the student if they don't exits
-                                // and enroll them in that class
-                                string studentEmail = canvasStudent["email"];
-                                string studentFullName = canvasStudent["name"];
+                                string responseString = await response.Content.ReadAsStringAsync();
+                                // turn the Object into json, will convert this to be a type to work with soon
+                                // We are grabing the all the Student enrolled for that class
+                                dynamic listOfcurrent_StudentObject = JsonConvert.DeserializeObject<dynamic>(responseString);
+                                // should get back a list of students objects
 
-                                string[] splitName = studentFullName.Split(' ');
+                                // looping thorough the list of student
+                                Console.WriteLine("second loop");
+
+                                foreach (var student in listOfcurrent_StudentObject)
+                                {
+                                    int target = listOfcurrent_StudentObject.Count;
+                                    if (student.Count != 0)
+                                    {
+                                        int student_id = student["user_id"];
+                                        // Take the student_id and call the other Api to get just user Information
+                                        var studentInfoResponse = await httpClient.GetAsync($"https://byui.test.instructure.com/api/v1/courses/{_course_id}/users?search_term={student_id}");
+                                        if (studentInfoResponse.IsSuccessStatusCode)
+                                        {
+                                            string studentResponseString = await studentInfoResponse.Content.ReadAsStringAsync();
+                                            // turn the Object into json, will convert this to be a type to work with soon
+                                            // We are grabing the Student info for that class
+                                            dynamic current_studentObject = JsonConvert.DeserializeObject<dynamic>(studentResponseString);
+                                            if (current_studentObject.Count != 0)
+                                            {
+                                                // grab the student Id and the email and name to create the student if they don't exits
+                                                // and enroll them in that class
                                                 var current_student_id = current_studentObject[0]["id"];
                                                 string current_student_email = current_studentObject[0]["email"];
 
-                                string studentFirstName = splitName.First();
-                                string studentLastName = splitName.Last();
+                                                string studentnames = current_studentObject[0]["name"];
+                                                string[] names = studentnames.Split(' ');
+                                                int lastIndex = names.GetUpperBound(0);
+                                                string current_student_firstName = names[0];
+                                                string current_student_lastName = names[lastIndex];
 
-                                // check if the student is already created, if not then create and enroll in that class
-                                User student = (from u in _context.Users
-                                                where u.Email == studentEmail
-                                if (student == null)
-                                {
-                                    student = new User();
-                                    student.Email = studentEmail;
-                                    student.FirstName = studentFirstName;
-                                    student.LastName = studentLastName;
-                                    student.IsAdmin = false;
-                                    _context.Users.Add(student);
-                                    _context.SaveChanges();
-                                }
+                                                // check if the student is already created, if not then create and enroll in that class
+                                                var current_student_in_db = _context.Users.Where(u => u.email == current_student_email).FirstOrDefault();
+
+                                                
+                                                if (current_student_in_db != null)
+                                                {
+                                                    Console.WriteLine("student already exits");
+                                                    Console.WriteLine("here is the student details" + current_student_in_db.email);
+                                                    //  search to see if the current student is enrolled in the class
+                                                    var current_student_enrollment = _context.Enrollments.Where(e => e.UserId == current_student_in_db.UserID
+                                                                                                          && e.CourseID == _course_id)
+                                                                                                          .FirstOrDefault();
+                                    
+                                                    if (current_student_enrollment == null)
+                                                    {
+                                                        //Enroll that Student to that course  
+                                                        await EnrollStudent(_course_id, current_student_in_db.UserID, enroll.teacherId, enroll.VmTableID, enroll.semester);
+                                                        Console.WriteLine("Student enrolled into the course");
+                                                    }
+                                                    else
+                                                    {
+                                                        Console.WriteLine("Student already enrolled");
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    //  We now know that the student is not in the Database so we create a new user
+
+                                                    Console.WriteLine("Student doesn't exist in Db");
+
+                                                    User student_user = new User();
+
+                                                    student_user.firstName = current_student_firstName;
+                                                    student_user.lastName = current_student_lastName;
+                                                    student_user.email = current_student_email; // goes null when student is pending
+                                                    student_user.userType = "Student";
+                                                    
+                                                    Console.WriteLine("Student_user was created");
+
+                                                    if (current_student_email != null) {
+
+                                                        _context.Users.Add(student_user);
+                                                         await _context.SaveChangesAsync();
+
+                                                         await EnrollStudent(_course_id, current_student_in_db.UserID, enroll.teacherId, enroll.VmTableID, enroll.semester);
+                                                         
+                                                    }
+
+                                                    // Enroll the newly created student into that course
+                                                    Console.WriteLine("Student now created and enrolled into the course");
+                                                }
                                             }
                                         }
 
-                                UserSectionRole enrollment = new UserSectionRole();
-                                enrollment.UserId = student.UserId;
-                                enrollment.RoleId = studentRole.RoleId;
-                                enrollment.SectionId = section.SectionId;
-                                _context.UserSectionRoles.Add(enrollment);
-                                _context.SaveChanges();
+                                    }
+                                }
+
                             }
+                            else
+                            {
+                                Console.WriteLine("You are not authorized or course does not exits");
+                                Console.WriteLine(response.StatusCode);
+                            }
+                            Console.WriteLine("here 5");
                         }
-                        else
-                        {
-                            Console.WriteLine("You are not authorized or course does not exits");
-                            Console.WriteLine(response.StatusCode);
-                        }
-                        Console.WriteLine("here 5");
                     }
                 }
+                else
+                {
+                    Console.WriteLine("There is no Enrollment");
+                }
             }
-            else
-            {
-                Console.WriteLine("There is no sections imported from canvas");
-            }
-        }
 
+        }
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)

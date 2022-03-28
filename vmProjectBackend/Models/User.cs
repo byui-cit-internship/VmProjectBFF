@@ -1,32 +1,38 @@
+using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Collections.Generic;
 
 namespace vmProjectBackend.Models
 {
-    [Table("user", Schema = "vmProject")]
     public class User
+
     {
         [Key]
-        [Column("user_id", Order = 1)]
-        public int UserId { get; set; }
+        public Guid UserID { get; set; }
 
         [Required]
-        [Column("first_name", TypeName = "varchar(20)", Order = 2)]
-        public string FirstName { get; set; }
-
+        [StringLength(50)]
+        public string firstName { get; set; }
         [Required]
-        [Column("last_name", TypeName = "varchar(20)", Order = 3)]
-        public string LastName { get; set; }
-
+        [StringLength(50)]
+        public string lastName { get; set; }
         [Required]
-        [Column("email", TypeName = "varchar(30)", Order = 4)]
-        public string Email { get; set; }
-
+        public string email { get; set; }
         [Required]
-        [Column("is_admin", TypeName = "bit", Order = 5)]
-        public bool IsAdmin { get; set; }
+        [StringLength(20)]
+        public string userType { get; set; }
+        public bool userAccess { get; set; } = false;
 
-        [Column("canvas_token", TypeName = "varchar(100)", Order = 6)]
-        public string CanvasToken { get; set; }
+        public bool isAdmin { get; set; } = false;
+        // [StringLength(20)]
+
+
+        //  if a given Student row in the database has two related Enrollment rows (rows that contain that student's primary key value in their StudentID 
+        // foreign key column), that Student entity's Enrollments navigation property will contain those two Enrollment entities.
+        // public virtual ICollection<Enrollment> Enrollments { get; set; }
+        //     public virtual ICollection<Course> Courses { get; set; }
     }
+
+
+
 }
