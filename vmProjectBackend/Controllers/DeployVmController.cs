@@ -64,8 +64,8 @@ namespace vmProjectBackend.Controllers
                                      enrollment_id = usr.UserSectionRoleId,
                                      folder = c.Folder
                                   }).ToArray();
+                var template_id = courseList[0].template_id;
 
-                
                 // Create a session token
                 var httpClient = _httpClientFactory.CreateClient();
                 string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
@@ -107,7 +107,7 @@ namespace vmProjectBackend.Controllers
 
                     // return Ok(content2);
 
-                    var postResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/api/vcenter/vm-template/library-items/6e4582cf-27ad-42f6-b17b-5edf18b7aa7f?action=deploy", deployContent);
+                    var postResponse = await httpClient.PostAsync($"https://vctr-dev.citwdd.net/api/vcenter/vm-template/library-items/{template_id}?action=deploy", deployContent);
                     
                     var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session");
                     //  var content2 = await postResponse.Content.ReadAsStringAsync();
