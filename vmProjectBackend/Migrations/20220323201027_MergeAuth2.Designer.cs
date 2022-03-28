@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using vmProjectBackend.DAL;
 
 namespace vmProjectBackend.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20220323201027_MergeAuth2")]
+    partial class MergeAuth2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -72,9 +74,6 @@ namespace vmProjectBackend.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Folder")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Resource_pool")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Section")

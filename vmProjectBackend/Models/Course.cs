@@ -32,5 +32,7 @@ namespace vmProjectBackend.Models
 
         public string Folder { get; set; }
 
+        public string Resource_pool { get; set; }
+
     }
 }

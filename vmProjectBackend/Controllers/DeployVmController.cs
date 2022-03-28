@@ -61,8 +61,9 @@ namespace vmProjectBackend.Controllers
                                      course_id = c.CourseId,
                                      template_id = c.TemplateVm,
                                      course_semester = c.Semester,
-                                     enrollment_id = usr.UserSectionRoleId
-                                  });
+                                     enrollment_id = usr.UserSectionRoleId,
+                                     folder = c.Folder
+                                  }).ToArray();
 
                 
                 // Create a session token
@@ -86,10 +87,12 @@ namespace vmProjectBackend.Controllers
                     // Create vm with the information we have in vsphere
                     var deploy = new Deploy
                     {
-                        
+
+                        name = HttpContext.User.Identity.Name,
                         placement = new Placement
                         {
-                            folder = "group-v3044",
+                            folder = courseList[0].folder,
+
                             resource_pool = resourcePool
 
                         }
@@ -98,21 +101,28 @@ namespace vmProjectBackend.Controllers
 
                     // var content = new StringContent(deployResult);
 
-                    var content = new StringContent(deployResult, Encoding.UTF8, "application/json");
+                    var deployContent = new StringContent(deployResult, Encoding.UTF8, "application/json");
 
                     // var content2 = new StringContent(content, Encoding.UTF8, "application/json");
 
                     // return Ok(content2);
 
-                    var postResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/api/vcenter/vm-template/library-items/b4f40b57-21e5-48c2-9fdf-03337fe8d9c1?action=deploy", content);
-
-                    postResponse.EnsureSuccessStatusCode();
-
+                    var postResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/api/vcenter/vm-template/library-items/6e4582cf-27ad-42f6-b17b-5edf18b7aa7f?action=deploy", deployContent);
+                    
+                    var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session");
                     //  var content2 = await postResponse.Content.ReadAsStringAsync();
 
                     //  var createdCompany = JsonSerializer.Deserialize<DeployDto>(content, _options);
+                    VmTable vmTable = new VmTable();
 
-                    return Ok("vm created");
+                    vmTable.VmFolder = courseList[0].folder;
+                    vmTable.VmName = courseList[0].student_name;
+                    vmTable.VmResourcePool = resourcePool;
+
+                    _context.VmTables.Add(vmTable);
+                    await _context.SaveChangesAsync();
+
+                    return Ok("something was sent");
                 }
                 return Ok("here session");
             }
@@ -147,10 +157,8 @@ namespace vmProjectBackend.Controllers
                 string poolResponseString = await response.Content.ReadAsStringAsync();
                 // Pool poolResponse = JsonConvert.DeserializeObject<Pool>(poolResponseString);
                 List<String> poolResponse = poolResponse = JsonConvert.DeserializeObject<List<String>>(poolResponseString);
-                return Ok(poolResponse);
-                // string folders2 = await folders.Content.ReadAsStringAsync();
-                // //Create a list using our Dto                         
-                // return Ok(folders2);
+                var objResponse = JsonConvert.DeserializeObject<List<Pool>>(poolResponseString);
+                return Ok(objResponse);
             }
             return Unauthorized("here");
 

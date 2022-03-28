@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using vmProjectBackend.Services;
+using Microsoft.Extensions.Configuration;
 
 namespace vmProjectBackend.Controllers
 {
@@ -21,11 +22,13 @@ namespace vmProjectBackend.Controllers
         private readonly DatabaseContext _context;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly Authorization _auth;
-        public CreateVmController(DatabaseContext context, IHttpClientFactory httpClientFactory)
+        public IConfiguration Configuration { get; }
+        public CreateVmController(DatabaseContext context, IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
             _context = context;
             _httpClientFactory = httpClientFactory;
             _auth = new Authorization(_context);
+            Configuration = configuration;
         }
 
         [HttpGet("libraries")]
@@ -112,10 +115,21 @@ namespace vmProjectBackend.Controllers
 
 
                 FolderResponse folderResponse = JsonConvert.DeserializeObject<FolderResponse>(folderResponseString);
-                return Ok(folderResponse.value);
-                // string folders2 = await folders.Content.ReadAsStringAsync();
-                // //Create a list using our Dto                         
-                // return Ok(folders2);
+                List<Folder> folders = new List<Folder>();
+
+                //declare variable from configuration (appsettings.json)
+                string ignoreFolder = Configuration["IgnoreFolder"];
+
+
+                foreach (Folder folder in folderResponse.value)
+                {
+                    if (folder.name != ignoreFolder)
+                        // string response2String = await response2.Content.ReadAsStringAsync();
+                        // Folder folder = JsonConvert.DeserializeObject<Folder>(response2String);
+                        folders.Add(folder);
+                }
+
+                return Ok(folders);
             }
             return Unauthorized("here");
         }
