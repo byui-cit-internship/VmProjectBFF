@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: vmproject-api-dev-deploy
-  namespace: vm-project-dev
+  name: vmproject-api-test-deploy
+  namespace: vm-project-test
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: vmproject-api-dev-deploy
+      app: vmproject-api-test-deploy
   template:
     metadata:
       labels:
-        app: vmproject-api-dev-deploy
+        app: vmproject-api-test-deploy
     spec:
       containers:
-      - name: 	vmproject-api-dev-deploy
+      - name: 	vmproject-api-test-deploy
         env:
         - name: APSNETCORE_ENVIRONMENT
-          value: Development
+          value: Test
         image: rcr.citwdd.net/backend-repository/backend-vima
         ports:
         - containerPort: 80        
@@ -40,11 +40,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: vmproject-api-dev-loadbalancer
-  namespace: vm-project-dev
+  name: vmproject-api-test-loadbalancer
+  namespace: vm-project-test
 spec:
   selector:
-    app: 	vmproject-api-dev-deploy
+    app: 	vmproject-api-test-deploy
   type: LoadBalancer
   ports:
   - port: 80
@@ -53,11 +53,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: vmproject-api-dev-nodeport
+  name: vmproject-api-test-nodeport
   namespace: vm-project-dev
 spec:
   selector:
-    app: vmproject-api-dev-deploy
+    app: vmproject-api-test-deploy
   type: NodePort
   ports:
     - port: 80
@@ -66,7 +66,7 @@ spec:
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
-  name: vmproject-api-dev-ingress
+  name: vmproject-api-test-ingress
   namespace: vm-project-dev
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
@@ -75,10 +75,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - rancher-dev-vm-api.citwdd.net
+    - rancher-test-vm-api.citwdd.net
     secretName: dev-vm-api-local-tls
   rules:
-  - host: rancher-dev-vm-api.citwdd.net
+  - host: rancher-test-vm-api.citwdd.net
     http:
       paths:
       - backend:
