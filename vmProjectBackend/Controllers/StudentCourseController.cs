@@ -46,7 +46,7 @@ namespace vmProjectBackend.Controllers
                                                         select new
                                                         {
                                                             course_id = s.SectionCanvasId,
-                                                            course_name = c.CourseCode,
+                                                            course_name = c.CourseName,
                                                             enrollment_id = usr.UserSectionRoleId,
                                                             student_name = $"{u.FirstName} {u.LastName}",
                                                             template_id = c.TemplateVm

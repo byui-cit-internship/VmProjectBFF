@@ -22,5 +22,6 @@ namespace vmProjectBackend.Models
         public string userId { get; set; }
         public string teacherId { get; set; }
         public string vmTableID { get; set; }
+        public string canvasCourseId {get; set;}
     }
 }

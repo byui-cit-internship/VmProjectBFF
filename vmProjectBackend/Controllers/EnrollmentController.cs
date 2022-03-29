@@ -56,13 +56,15 @@ namespace vmProjectBackend.Controllers
                 {
                     // Create new course
                     Course course = new Course();
-                    course.CourseCode = courseDetails.courseName;
+                    course.CanvasCourseId = courseDetails.canvasCourseId;
                     course.CourseName = courseDetails.courseName;
                     course.ContentLibrary = courseDetails.contentLibrary;
                     course.TemplateVm = courseDetails.templateVm;
                     course.Semester = courseDetails.semester;
                     course.Description = courseDetails.description;
                     course.Folder = courseDetails.folder;
+                    course.Resource_pool = courseDetails.resource_pool;
+                    course.Section = courseDetails.section;
                     _context.Courses.Add(course);
                     _context.SaveChanges();
 

@@ -13,10 +13,6 @@ namespace vmProjectBackend.Models
         public int CourseId { get; set; }
         
         [Required]
-        [Column("course_code", TypeName = "varchar(15)", Order = 2)]
-        public string CourseCode { get; set; }
-
-        [Required]
         [Column("course_name", TypeName = "varchar(75)", Order = 3)]
         public string CourseName { get; set; }
 
@@ -33,6 +29,8 @@ namespace vmProjectBackend.Models
         public string Folder { get; set; }
 
         public string Resource_pool { get; set; }
+
+        public string CanvasCourseId {get; set;}
 
     }
 }
