@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Text;
@@ -23,6 +24,8 @@ namespace vmProjectBackend.Controllers
     {
         private readonly DatabaseContext _context;
         public IConfiguration Configuration { get; }
+
+        ILogger Logger { get; } = AppLogger.CreateLogger<DeployVmController>();
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly Authorization _auth;
         public DeployVmController(DatabaseContext context, IHttpClientFactory httpClientFactory, IConfiguration configuration)
@@ -137,6 +140,8 @@ namespace vmProjectBackend.Controllers
             // Basic authentication in base64
             string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
             //Adding headers
+
+            
             httpClient.DefaultRequestHeaders.Add("Authorization", base64);
             var tokenResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session", null);
             if (tokenResponse.IsSuccessStatusCode)
@@ -156,7 +161,6 @@ namespace vmProjectBackend.Controllers
                 //Turn these objects responses into a readable string
                 string poolResponseString = await response.Content.ReadAsStringAsync();
                 // Pool poolResponse = JsonConvert.DeserializeObject<Pool>(poolResponseString);
-                List<String> poolResponse = poolResponse = JsonConvert.DeserializeObject<List<String>>(poolResponseString);
                 var objResponse = JsonConvert.DeserializeObject<List<Pool>>(poolResponseString);
                 return Ok(objResponse);
             }
