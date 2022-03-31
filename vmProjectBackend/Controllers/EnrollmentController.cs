@@ -111,7 +111,7 @@ namespace vmProjectBackend.Controllers
                     // along with previous course and term
                     Section newSection = new Section();
                     newSection.Course = course;
-                    newSection.SectionCanvasId = courseDetails.course_id;
+                    newSection.SectionCanvasId = Int32.Parse(courseDetails.canvasCourseId);
                     newSection.Semester = term;
                     newSection.SectionNumber = courseDetails.section_num;
                     _context.Sections.Add(newSection);
