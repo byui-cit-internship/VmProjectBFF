@@ -1,15 +1,21 @@
-using Microsoft.AspNetCore.Authentication;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Serialization;
-using System;
-using System.Linq;
+using vmProjectBackend.Models;
 using vmProjectBackend.DAL;
+using Microsoft.AspNetCore.Authentication;
 using vmProjectBackend.Handlers;
 using vmProjectBackend.Services;
 
@@ -21,14 +27,10 @@ namespace vmProjectBackend
         {
             Configuration = configuration;
             Environment = env;
-            MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
         }
 
         public IConfiguration Configuration { get; }
         public IWebHostEnvironment Environment { get; }
-        public string MyAllowSpecificOrigins { get; }
-
-        ILogger Logger { get; } = AppLogger.CreateLogger<Startup>();
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -37,27 +39,16 @@ namespace vmProjectBackend
             // when you reference a model inside another model, model like
             // enrollment which reference Course and User and both making a Reference back to enrollment
 
+
             services.AddControllers()
+            
            .AddNewtonsoftJson(
                opts => opts.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
            );
-            // This is needed to register my Background service
-            // UNCOMMENT LATER services.AddHostedService<BackgroundService1>();
+            //    This is needed to register my BAckground service
+            services.AddHostedService<BackgroundService1>();
             // Allow to use client Factory
             services.AddHttpClient();
-
-            services.AddHttpContextAccessor();
-
-            services.AddDistributedMemoryCache();
-
-            services.AddSession(options =>
-            {
-                options.Cookie.Name = ".VMProject.Session";
-                options.Cookie.HttpOnly = true;
-                options.Cookie.IsEssential = true;
-                options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict;
-                options.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest;
-            });
 
             services.AddControllers().AddNewtonsoftJson(s =>
             {
@@ -65,13 +56,10 @@ namespace vmProjectBackend
             });
 
             // This allows for Cross-origin request Read more: https://docs.microsoft.com/en-us/aspnet/core/security/cors?view=aspnetcore-6.0 
-            services.AddCors(options =>
+            services.AddCors(c =>
             {
-                options.AddPolicy(name: MyAllowSpecificOrigins,
-                                  builder =>
-                                  {
-                                      builder.WithOrigins("http://localhost:5501").AllowAnyHeader().SetIsOriginAllowed(origin => true).AllowCredentials().AllowAnyMethod();
-                                  });
+                c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyHeader());
+
             });
             // ******************CHNAGE IN FUTURE**********************************
 
@@ -82,17 +70,16 @@ namespace vmProjectBackend
             // ********************ONLY FOR NOW USE****************************
             string connectionString = Configuration.GetConnectionString("DatabaseString");
 
-            services.AddDbContext<DatabaseContext>(opt =>
+            services.AddDbContext<VmContext>(opt =>
                                              opt.UseSqlServer(connectionString));
 
-            Logger.LogInformation("Services Configured correctly");
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, Microsoft.AspNetCore.Mvc.Infrastructure.IActionDescriptorCollectionProvider actionProvider)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             // *******************CHNAGE SOON******************************
-            
+            app.UseCors(options => options.AllowAnyOrigin().AllowAnyHeader());
 
             // ***************CHNAGE SOON**************************
             if (env.IsDevelopment())
@@ -100,30 +87,18 @@ namespace vmProjectBackend
                 app.UseDeveloperExceptionPage();
             }
 
-            //app.UseHttpsRedirection();
+            // app.UseHttpsRedirection();
 
             app.UseRouting();
 
-            app.UseCors(MyAllowSpecificOrigins);
-
-            app.UseSession();
             // This tell app that it will use authentication
             app.UseAuthentication();
             app.UseAuthorization();
-
-            
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
-            Console.WriteLine("Available routes:");
-            var routes = actionProvider.ActionDescriptors.Items.Where(x => x.AttributeRouteInfo != null);
-            foreach (var route in routes)
-            {
-                Console.WriteLine($"{route.AttributeRouteInfo.Template}");
-            }
-            Console.WriteLine("Application configured successfully");
         }
 
         private static void UpdateDatabase(IApplicationBuilder app)
@@ -132,11 +107,14 @@ namespace vmProjectBackend
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope())
             {
-                using (var context = serviceScope.ServiceProvider.GetService<DatabaseContext>())
+                using (var context = serviceScope.ServiceProvider.GetService<VmContext>())
                 {
                     context.Database.Migrate();
                 }
             }
+
+            
+
         }
     }
 }
