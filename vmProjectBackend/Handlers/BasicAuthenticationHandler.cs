@@ -32,7 +32,7 @@ namespace vmProjectBackend.Handlers
             ILoggerFactory logger,
             UrlEncoder encoder,
             DatabaseContext context,
-            ISystemClock clock, 
+            ISystemClock clock,
             IHttpContextAccessor httpContextAccessor
             )
             : base(options, logger, encoder, clock)
@@ -43,40 +43,21 @@ namespace vmProjectBackend.Handlers
         }
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
-            try
+            string sessionId = _httpContextAccessor.HttpContext.Session.GetString("id");
+            if (sessionId == null)
             {
-                Logger.LogInformation(_httpContextAccessor.HttpContext.Session.GetString("id"));
+                return AuthenticateResult.Fail("No session token");
+            }
+            else
+            {
                 User user = (from st in _context.SessionTokens
                              join at in _context.AccessTokens
                              on st.AccessTokenId equals at.AccessTokenId
                              join u in _context.Users
                              on at.UserId equals u.UserId
+                             where st.SessionTokenValue == Guid.Parse(sessionId)
                              select u).FirstOrDefault();
-                /*
-                AuthenticationHeaderValue authenticationHeaderValue = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
-                HttpClient httpClient = _httpClientFactory.CreateClient();
-
-                // Authorization Token for the Canvas url that we are hitting, we need this for every courese
-                // and we will grab it 
-                httpClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, $"Bearer {authenticationHeaderValue}");
-
-                // contains our base Url where individula course_id is added
-                // This URL enpoint gives a list of all the Student in that class : role_id= 3 list all the student for that Professor
-                HttpResponseMessage response = await httpClient.GetAsync($"https://openidconnect.googleapis.com/v1/userinfo");
-                // Read the authorization header
-                Logger.LogInformation("this is header value: " + authenticationHeaderValue);
-
-                var validPayload = await GoogleJsonWebSignature.ValidateAsync(authenticationHeaderValue.Parameter);
-                string validemail = validPayload.Email;
-                // get users from the db and check if any match with what was send through the request
-                User user = _context.Users.Where(user => user.Email == validemail).FirstOrDefault();
-                // If we get no user
-                */
-                if (user == null)
-                {
-                    AuthenticateResult.Fail("Invalid authorization token");
-                }
-                else
+                if (user != null)
                 {
                     var claims = new[] { new Claim(ClaimTypes.Name, user.Email) };
                     var identity = new ClaimsIdentity(claims, Scheme.Name);
@@ -84,14 +65,11 @@ namespace vmProjectBackend.Handlers
                     var ticket = new AuthenticationTicket(principal, Scheme.Name);
                     return AuthenticateResult.Success(ticket);
                 }
-
+                else
+                {
+                    return AuthenticateResult.Fail("Invalid authorization token");
+                }
             }
-            catch (Exception)
-            {
-                return AuthenticateResult.Fail("Error");
-            }
-
-            return AuthenticateResult.Fail("Need to implement");
         }
     }
 }

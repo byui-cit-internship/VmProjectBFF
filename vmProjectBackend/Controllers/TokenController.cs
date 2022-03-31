@@ -73,8 +73,8 @@ namespace vmProjectBackend.Controllers
                     }
 
                     AccessToken accessToken = (from at in _context.AccessTokens
-                                              where at.AccessTokenValue == accessTokenObj.AccessTokenValue
-                                              select at).FirstOrDefault();
+                                               where at.AccessTokenValue == accessTokenObj.AccessTokenValue
+                                               select at).FirstOrDefault();
                     if (accessToken == null)
                     {
                         accessToken = new();
@@ -90,7 +90,7 @@ namespace vmProjectBackend.Controllers
                         return Forbid();
                     }
 
-                    
+
                     SessionToken sessionToken = (from st in _context.SessionTokens
                                                  where st.AccessToken == accessToken
                                                  orderby st.ExpireDate descending
@@ -104,7 +104,8 @@ namespace vmProjectBackend.Controllers
 
                         _context.SessionTokens.Add(sessionToken);
                         _context.SaveChanges();
-                    } else if (DateTime.Compare(sessionToken.ExpireDate, DateTime.Now) < 0)
+                    }
+                    else if (DateTime.Compare(sessionToken.ExpireDate, DateTime.Now) < 0)
                     {
                         return Forbid();
                     }
@@ -124,6 +125,14 @@ namespace vmProjectBackend.Controllers
                 return StatusCode(500);
 
             }
+        }
+
+        [HttpDelete()]
+        public async Task<ActionResult> DeleteSession()
+        {
+            _httpContextAccessor.HttpContext.Session.Clear();
+            _httpContextAccessor.HttpContext.Response.Cookies.Delete(".VMProject.Session");
+            return Ok();
         }
     }
 }

@@ -70,7 +70,7 @@ namespace vmProjectBackend
                 options.AddPolicy(name: MyAllowSpecificOrigins,
                                   builder =>
                                   {
-                                      builder.WithOrigins("http://localhost:5501").AllowAnyHeader().SetIsOriginAllowed(origin => true).AllowCredentials();
+                                      builder.WithOrigins("http://localhost:5501").AllowAnyHeader().SetIsOriginAllowed(origin => true).AllowCredentials().AllowAnyMethod();
                                   });
             });
             // ******************CHNAGE IN FUTURE**********************************
