@@ -48,7 +48,7 @@ namespace vmProjectBackend.Controllers
             {
                 // Check if a course already exists
                 int courseExist = (from s in _context.Sections
-                                   where s.SectionCanvasId == courseDetails.course_id
+                                   where s.SectionCanvasId == Int32.Parse(courseDetails.canvasCourseId)
                                    select s.SectionCanvasId).Count();
 
                 // If not, create course
