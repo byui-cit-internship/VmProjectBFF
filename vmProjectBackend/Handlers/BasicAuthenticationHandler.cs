@@ -43,8 +43,10 @@ namespace vmProjectBackend.Handlers
         }
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
-            string sessionId = _httpContextAccessor.HttpContext.Session.GetString("id");
-            if (sessionId == null)
+            //
+            string sessionCookie = _httpContextAccessor.HttpContext.Request.Cookies[".VMProject.Session"];
+            
+            if (sessionCookie == null)
             {
                 return AuthenticateResult.Fail("No session token");
             }
@@ -55,7 +57,7 @@ namespace vmProjectBackend.Handlers
                              on st.AccessTokenId equals at.AccessTokenId
                              join u in _context.Users
                              on at.UserId equals u.UserId
-                             where st.SessionTokenValue == Guid.Parse(sessionId)
+                             where st.SessionCookie == sessionCookie
                              select u).FirstOrDefault();
                 if (user != null)
                 {

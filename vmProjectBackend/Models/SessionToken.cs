@@ -17,6 +17,11 @@ namespace vmProjectBackend.Models
         public Guid SessionTokenValue { get; set; }
 
         [Required]
+        [Column("sesion_cookie")]
+        public String SessionCookie { get; set; }
+
+
+        [Required]
         [Column("expire_date", TypeName = "datetime2(7)", Order = 3)]
         public DateTime ExpireDate { get; set; }
 

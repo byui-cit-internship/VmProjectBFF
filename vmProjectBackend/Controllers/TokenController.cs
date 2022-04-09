@@ -98,7 +98,8 @@ namespace vmProjectBackend.Controllers
                     if (sessionToken == null)
                     {
                         sessionToken = new();
-                        sessionToken.SessionTokenValue = Guid.NewGuid();
+                        sessionToken.SessionTokenValue = sessionToken.SessionTokenValue = Guid.NewGuid();
+                        sessionToken.SessionCookie = _httpContextAccessor.HttpContext.Request.Cookies[".VMProject.Session"];
                         sessionToken.AccessToken = accessToken;
                         sessionToken.ExpireDate = DateTime.Now.AddDays(3);
 
@@ -110,7 +111,7 @@ namespace vmProjectBackend.Controllers
                         return Forbid();
                     }
 
-                    _httpContextAccessor.HttpContext.Session.SetString("id", sessionToken.SessionTokenValue.ToString());
+                    
                     // outside return statment
                     return Ok(user);
                 }
