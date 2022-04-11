@@ -11,12 +11,14 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using vmProjectBackend.Services;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Authorization;
 
 namespace vmProjectBackend.Controllers
 {
 
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CreateVmController : ControllerBase
     {
         private readonly DatabaseContext _context;

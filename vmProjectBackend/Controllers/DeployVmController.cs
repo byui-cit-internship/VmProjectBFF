@@ -14,12 +14,14 @@ using vmProjectBackend.DTO;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using vmProjectBackend.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace vmProjectBackend.Controllers
 {
 
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class DeployVmController : ControllerBase
     {
         private readonly DatabaseContext _context;

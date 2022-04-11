@@ -44,7 +44,7 @@ namespace vmProjectBackend.Handlers
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
             //
-            string sessionCookie = _httpContextAccessor.HttpContext.Request.Cookies[".VMProject.Session"];
+            string sessionCookie = _httpContextAccessor.HttpContext.Request.Cookies["vima_session_cookie"];
             
             if (sessionCookie == null)
             {

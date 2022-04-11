@@ -52,6 +52,7 @@ namespace vmProjectBackend.Services
         {
             IQueryable<User> admins = from u in _context.Users
                                       where u.IsAdmin
+                                      where u.Email == emailToTest
                                       select u;
             return admins.FirstOrDefault();
         }

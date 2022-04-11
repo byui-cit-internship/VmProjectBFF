@@ -1,4 +1,4 @@
-﻿namespace vmProjectBackend.DTO
+namespace vmProjectBackend.DTO
 {
     public class Template
     {

@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
 
+
 namespace vmProjectBackend.Controllers
 {
     [Route("api/[controller]")]
@@ -99,19 +100,18 @@ namespace vmProjectBackend.Controllers
                     {
                         sessionToken = new();
                         sessionToken.SessionTokenValue = sessionToken.SessionTokenValue = Guid.NewGuid();
-                        sessionToken.SessionCookie = _httpContextAccessor.HttpContext.Request.Cookies[".VMProject.Session"];
+                        sessionToken.SessionCookie = sessionToken.SessionTokenValue.ToString();
                         sessionToken.AccessToken = accessToken;
-                        sessionToken.ExpireDate = DateTime.Now.AddDays(3);
+                        sessionToken.ExpireDate = DateTime.Now.AddDays(3000);
 
                         _context.SessionTokens.Add(sessionToken);
                         _context.SaveChanges();
+                        _httpContextAccessor.HttpContext.Response.Cookies.Append("vima_session_cookie",sessionToken.SessionCookie, new CookieOptions(){SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict});
                     }
                     else if (DateTime.Compare(sessionToken.ExpireDate, DateTime.Now) < 0)
                     {
                         return Forbid();
                     }
-
-                    
                     // outside return statment
                     return Ok(user);
                 }
@@ -132,7 +132,7 @@ namespace vmProjectBackend.Controllers
         public async Task<ActionResult> DeleteSession()
         {
             _httpContextAccessor.HttpContext.Session.Clear();
-            _httpContextAccessor.HttpContext.Response.Cookies.Delete(".VMProject.Session");
+            _httpContextAccessor.HttpContext.Response.Cookies.Delete("vima_session_cookie");
             return Ok();
         }
     }

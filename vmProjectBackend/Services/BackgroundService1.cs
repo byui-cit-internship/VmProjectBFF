@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
+using Microsoft.Extensions.Configuration;
 
 namespace vmProjectBackend.Services
 {
@@ -20,15 +21,22 @@ namespace vmProjectBackend.Services
         private readonly ILogger<BackgroundService1> _logger;
         private readonly DatabaseContext _context;
 
+        private readonly IConfiguration _configuration;
+
+        private readonly int canvasStudentRoleId;
+
         // private readonly DatabaseContext _context;
         // public List<CourseCreate> coursedata = new List<CourseCreate>();
         ILogger Logger { get; } = AppLogger.CreateLogger<BackgroundService1>();
 
 
-        public BackgroundService1(IHttpClientFactory httpClientFactory, DatabaseContext context)
+        public BackgroundService1(IHttpClientFactory httpClientFactory, DatabaseContext context, IConfiguration configuration)
         {
             _httpClientFactory = httpClientFactory;
             _context = context;
+            _configuration = configuration;
+            canvasStudentRoleId = Int32.Parse(_configuration["Canvas:StudentRoleId"]);
+
         }
 
         public async Task ReadAndUpdateDB()
@@ -38,13 +46,13 @@ namespace vmProjectBackend.Services
                                       select u).ToList();
 
             Role studentRole = (from r in _context.Roles
-                                where r.CanvasRoleId == 3
+                                where r.CanvasRoleId == canvasStudentRoleId
                                 select r).FirstOrDefault();
 
             if (studentRole == null)
             {
                 studentRole = new Role();
-                studentRole.CanvasRoleId = 3;
+                studentRole.CanvasRoleId = canvasStudentRoleId;
                 studentRole.RoleName = "StudentEnrollment";
                 _context.Roles.Add(studentRole);
                 _context.SaveChanges();
@@ -71,9 +79,6 @@ namespace vmProjectBackend.Services
                         // This varible is changeable, it will chnage depending of the environment that the 
                         // project uses. We are using tutors to test this function and in Production we will use actual students
 
-                        // Ebenal: TEMP use studentRole var above in prod.
-                        int userRoleId = 3;
-
                         // call the Api for that course with the canvas token
                         // create an httpclient instance
                         HttpClient httpClient = _httpClientFactory.CreateClient();
@@ -84,7 +89,7 @@ namespace vmProjectBackend.Services
 
                         // contains our base Url where individula course_id is added
                         // This URL enpoint gives a list of all the Student in that class : role_id= 3 list all the student for that Professor
-                        HttpResponseMessage response = await httpClient.GetAsync($"https://byui.test.instructure.com/api/v1/courses/{sectionId}/users?per_page=1000&role_id={userRoleId}");
+                        HttpResponseMessage response = await httpClient.GetAsync($"https://byui.test.instructure.com/api/v1/courses/{sectionId}/users?per_page=1000&role_id={canvasStudentRoleId}");
 
                         if (response.IsSuccessStatusCode)
                         {

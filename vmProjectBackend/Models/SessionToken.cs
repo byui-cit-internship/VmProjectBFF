@@ -16,7 +16,6 @@ namespace vmProjectBackend.Models
         [Column("sesion_token_value", TypeName = "uniqueidentifier", Order = 2)]
         public Guid SessionTokenValue { get; set; }
 
-        [Required]
         [Column("sesion_cookie")]
         public String SessionCookie { get; set; }
 
