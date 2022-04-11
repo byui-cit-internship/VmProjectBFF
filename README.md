@@ -71,9 +71,6 @@ To run migration:
 1. dotnet ef migrations add InitialCreate
 2. dotnet ef database update
 
-To undo a migration
-1. dotnet ef migrations remove
-
 update database by adding a column to a table:
 1. dotnet ef migrations add usercolumn
 2. dotnet ef database update
