@@ -28,21 +28,21 @@ namespace vmProjectBackend.Controllers
         ILogger Logger { get; } = AppLogger.CreateLogger<EnrollmentController>();
 
 
-        public EnrollmentController(DatabaseContext context, IHttpClientFactory httpClientFactory, IServiceProvider serviceProvider, IServiceScope scope)
+        public EnrollmentController(DatabaseContext context, IHttpClientFactory httpClientFactory, IServiceProvider serviceProvider)
         {
             _context = context;
             _httpClientFactory = httpClientFactory;
             _auth = new Authorization(_context);
-            _scope = scope;
+            // _scope = scope;
         }
 
-        [HttpPost("backgroundservice")]
-        public async Task<ActionResult> RunBackgroundService(){
-            IServiceProvider services = _scope.ServiceProvider;
-            BackgroundService1 backgroundService = services.GetRequiredService<BackgroundService1>();
-            await backgroundService.ReadAndUpdateDB();
-            return Ok();
-        }
+        // [HttpPost("backgroundservice")]
+        // public async Task<ActionResult> RunBackgroundService(){
+        //     IServiceProvider services = _scope.ServiceProvider;
+        //     BackgroundService1 backgroundService = services.GetRequiredService<BackgroundService1>();
+        //     await backgroundService.ReadAndUpdateDB();
+        //     return Ok();
+        // }
 
 
         /****************************************

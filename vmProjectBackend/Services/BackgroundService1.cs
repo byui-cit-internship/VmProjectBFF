@@ -12,6 +12,7 @@ using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
 using Microsoft.Extensions.Configuration;
 
+
 namespace vmProjectBackend.Services
 {
     public class BackgroundService1 : BackgroundService
@@ -129,12 +130,34 @@ namespace vmProjectBackend.Services
                                     _context.SaveChanges();
                                 }
 
-                                UserSectionRole enrollment = new UserSectionRole();
-                                enrollment.UserId = student.UserId;
-                                enrollment.RoleId = studentRole.RoleId;
-                                enrollment.SectionId = section.SectionId;
-                                _context.UserSectionRoles.Add(enrollment);
-                                _context.SaveChanges();
+                                var studentSectionEnrollments = (from u in _context.Users
+                                                                 join usr in _context.UserSectionRoles
+                                                                 on u.UserId equals usr.UserId
+                                                                 join s in _context.Sections
+                                                                 on usr.SectionId equals s.SectionId
+                                                                 join c in _context.Courses
+                                                                 on s.CourseId equals c.CourseId
+                                                                 where u.UserId == student.UserId
+                                                                 where s.SectionId == section.SectionId
+                                                                 select new
+                                                                 {
+                                                                     course_id = s.SectionCanvasId,
+                                                                     course_name = c.CourseName,
+                                                                     enrollment_id = usr.UserSectionRoleId,
+                                                                     student_name = $"{u.FirstName} {u.LastName}",
+                                                                     template_id = c.TemplateVm
+                                                                 }).ToList();
+
+                                if (studentSectionEnrollments.Count == 0)//student enrollment hasn't been imported from canvas to database yet
+                                {
+
+                                    UserSectionRole enrollment = new UserSectionRole();
+                                    enrollment.UserId = student.UserId;
+                                    enrollment.RoleId = studentRole.RoleId;
+                                    enrollment.SectionId = section.SectionId;
+                                    _context.UserSectionRoles.Add(enrollment);
+                                    _context.SaveChanges();
+                                }
                             }
                         }
                         else
