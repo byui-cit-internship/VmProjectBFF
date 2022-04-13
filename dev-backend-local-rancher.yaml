@@ -30,7 +30,7 @@ spec:
             memory: "250Mi"
         livenessProbe:
           httpGet:
-            path: /api/liveprobe
+            path: /          
             port: 80
           initialDelaySeconds: 3
           periodSeconds: 3               
