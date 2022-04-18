@@ -52,11 +52,12 @@ namespace vmProjectBackend
 
             services.AddSession(options =>
             {
-                options.Cookie.Name = ".VMProject.Session";
+                options.Cookie.Name = ".VMProjectBFF.Session";
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
                 options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict;
                 options.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest;
+                options.IdleTimeout = TimeSpan.FromDays(5);
             });
 
             services.AddControllers().AddNewtonsoftJson(s =>

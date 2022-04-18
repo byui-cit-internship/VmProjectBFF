@@ -1,13 +1,10 @@
-﻿using System;
-
-namespace vmProjectBackend.DTO
+﻿namespace vmProjectBackend.DTO
 {
     public class Folder
     {
-
-        public string name { get; set; }
-
-        public string folder { get; set; }
+        public int FolderId { get; set; }
+        public string VcenterFolderId { get; set; }
+        public string FolderDescription { get; set; }
 
     }
 }

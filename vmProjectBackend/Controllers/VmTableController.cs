@@ -17,6 +17,8 @@ using System.Net.Http;
 using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
 using vmProjectBackend.Services;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 
 namespace vmProjectBackend.Controllers
 {
@@ -27,14 +29,28 @@ namespace vmProjectBackend.Controllers
 
     {
 
-        private readonly DatabaseContext _context;
-        private readonly IHttpClientFactory _httpClientFactory;
         private readonly Authorization _auth;
-        public VmTableController(DatabaseContext context, IHttpClientFactory httpClientFactory)
+        private readonly Backend _backend;
+        private readonly DatabaseContext _context;
+        private readonly IConfiguration _configuration;
+        private readonly ILogger<VmTableController> _logger;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public VmTableController(
+            DatabaseContext context,
+            IConfiguration configuration,
+            IHttpClientFactory httpClientFactory,
+            IHttpContextAccessor httpContextAccessor,
+            ILogger<VmTableController> logger)
         {
             _context = context;
+            _logger = logger;
+            _configuration = configuration;
+            _httpContextAccessor = httpContextAccessor;
+            _backend = new(_httpContextAccessor, _logger, _configuration);
+            _auth = new(_backend, _context, _logger);
             _httpClientFactory = httpClientFactory;
-            _auth = new Authorization(_context);
         }
 
         // GET: api/VmTable
@@ -43,7 +59,7 @@ namespace vmProjectBackend.Controllers
         {
             string userEmail = HttpContext.User.Identity.Name;
             // check if it is a professor
-            User user_prof = _auth.getAdmin(userEmail);
+            User user_prof = _auth.getAuth("admin");
 
             if (user_prof != null)
             {
@@ -58,7 +74,7 @@ namespace vmProjectBackend.Controllers
         {
             string userEmail = HttpContext.User.Identity.Name;
             //check if it is a professor
-            User professorUser = _auth.getAdmin(userEmail);
+            User professorUser = _auth.getAuth("admin");
 
             if (professorUser != null)
             {
@@ -139,7 +155,7 @@ namespace vmProjectBackend.Controllers
         {
             string userEmail = HttpContext.User.Identity.Name;
             // check if it is a professor
-            User professorUser = _auth.getAdmin(userEmail);
+            User professorUser = _auth.getAuth("admin");
 
 
             if (professorUser != null)
@@ -160,7 +176,7 @@ namespace vmProjectBackend.Controllers
         {
             string userEmail = HttpContext.User.Identity.Name;
             // check if it is a professor
-            User professorUser = _auth.getAdmin(userEmail);
+            User professorUser = _auth.getAuth("admin");
 
             if (professorUser != null)
             {
@@ -186,7 +202,7 @@ namespace vmProjectBackend.Controllers
         {
             string userEmail = HttpContext.User.Identity.Name;
             //check if it is a professor
-            User professorUser = _auth.getAdmin(userEmail);
+            User professorUser = _auth.getAuth("admin");
 
             //Save what we have in vmUtilization model into our database
             if (professorUser != null)
@@ -207,7 +223,7 @@ namespace vmProjectBackend.Controllers
         {
             string userEmail = HttpContext.User.Identity.Name;
             // check if it is a professor
-            User professorUser = _auth.getAdmin(userEmail);
+            User professorUser = _auth.getAuth("admin");
 
 
             if (professorUser != null)
@@ -222,7 +238,7 @@ namespace vmProjectBackend.Controllers
         {
             string userEmail = HttpContext.User.Identity.Name;
             // check if it is student
-            User studentUser = _auth.getUser(userEmail);
+            User studentUser = _auth.getAuth("user");
             // students are able to store their vm's details 
             if (studentUser != null)
             {
@@ -236,7 +252,7 @@ namespace vmProjectBackend.Controllers
         {
             string userEmail = HttpContext.User.Identity.Name;
             // check if it is student
-            User studentUser = _auth.getUser(userEmail);
+            User studentUser = _auth.getAuth("admin");
             // students are able to store their vm's details
 
             if (studentUser != null)
@@ -263,7 +279,7 @@ namespace vmProjectBackend.Controllers
         {
             string userEmail = HttpContext.User.Identity.Name;
             //check if it is a professor
-            User professorUser = _auth.getAdmin(userEmail);
+            User professorUser = _auth.getAuth("admin");
 
             if (professorUser != null)
             {
@@ -281,7 +297,7 @@ namespace vmProjectBackend.Controllers
         {
             string userEmail = HttpContext.User.Identity.Name;
             //check if it is a professor
-            User professorUser = _auth.getAdmin(userEmail);
+            User professorUser = _auth.getAuth("admin");
 
             //Save what we have in vmUtilization model into our database
             if (professorUser != null)
@@ -305,7 +321,7 @@ namespace vmProjectBackend.Controllers
         {
             string userEmail = HttpContext.User.Identity.Name;
             //check if it is a professor
-            User professorUser = _auth.getAdmin(userEmail);
+            User professorUser = _auth.getAuth("admin");
 
             if (professorUser != null)
             {

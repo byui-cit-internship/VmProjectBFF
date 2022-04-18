@@ -1,12 +1,15 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
+using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using vmProjectBackend.DAL;
+using vmProjectBackend.DTO;
 using vmProjectBackend.Models;
 using vmProjectBackend.Services;
 
@@ -17,17 +20,29 @@ namespace vmProjectBackend.Controllers
     [ApiController]
     public class CourseController : ControllerBase
     {
-        private readonly DatabaseContext _context;
         private readonly Authorization _auth;
+        private readonly Backend _backend;
+        private readonly DatabaseContext _context;
+        private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ILogger<CourseController> _logger;
 
-        ILogger Logger { get; } = AppLogger.CreateLogger<CourseController>();
         public IHttpClientFactory _httpClientFactory { get; }
 
-        public CourseController(DatabaseContext context, IHttpClientFactory httpClientFactory)
+        public CourseController(
+            DatabaseContext context,
+            IConfiguration configuration,
+            IHttpClientFactory httpClientFactory,
+            IHttpContextAccessor httpContextAccessor,
+            ILogger<CourseController> logger)
         {
             _context = context;
+            _logger = logger;
+            _configuration = configuration;
+            _httpContextAccessor = httpContextAccessor;
+            _backend = new(_httpContextAccessor, _logger, _configuration);
+            _auth = new(_backend, _context, _logger);
             _httpClientFactory = httpClientFactory;
-            _auth = new Authorization(_context);
         }
 
         /****************************************
@@ -36,41 +51,31 @@ namespace vmProjectBackend.Controllers
         [HttpGet("professor/semester/{course_semester}")]
         public async Task<ActionResult> GetCoursesBySemester(string semester)
         {
-            // Gets email from session
-            string userEmail = HttpContext.User.Identity.Name;
-
-            // Returns a professor user or null if email is not associated with a professor
-            User professor = _auth.getAdmin(userEmail);
-
-            if (professor != null)
+            try
             {
-                // Returns a list of course name, section id, semester, and professor
-                // based on the professor and semester variables
-                var listOfCourse = (from c in _context.Courses
-                                    join sec in _context.Sections
-                                    on c.CourseId equals sec.CourseId
-                                    join sem in _context.Semesters
-                                    on sec.SemesterId equals sem.SemesterId
-                                    join usr in _context.UserSectionRoles
-                                    on sec.SectionId equals usr.SectionId
-                                    join u in _context.Users
-                                    on usr.UserId equals u.UserId
-                                    where u.Email == professor.Email
-                                    && sem.SemesterTerm == semester
-                                    select new
-                                    {
-                                        course_name = c.CourseName,
-                                        course_id = sec.SectionId,
-                                        course_semester = sem.SemesterTerm,
-                                        course_professor = $"{u.FirstName} {u.LastName}"
-                                    }).ToList();
 
-                return Ok(listOfCourse);
+
+                // Returns a professor user or null if email is not associated with a professor
+                User professor = _auth.getAuth("admin");
+
+                if (professor != null)
+                {
+                    // Returns a list of course name, section id, semester, and professor
+                    // based on the professor and semester variables
+                    BackendResponse sectionListResponse = _backend.Get($"api/v1/section/sectionList/{semester}");
+                    List<OldSectionDTO> sectionList = JsonConvert.DeserializeObject<List<OldSectionDTO>>(sectionListResponse.Response);
+                    return Ok(sectionList);
+
+                }
+
+                else
+                {
+                    return NotFound("You are not Authorized and not a Professor");
+                }
             }
-
-            else
+            catch (BackendException be)
             {
-                return NotFound("You are not Authorized and not a Professor");
+                return StatusCode((int)be.StatusCode, be.Message);
             }
         }
 
@@ -80,11 +85,8 @@ namespace vmProjectBackend.Controllers
         [HttpPost("professor/checkCanvasToken")]
         public async Task<ActionResult> CallCanvas([FromBody] CanvasCredentials canvasCredentials)
         {
-            // Gets email from session
-            string userEmail = HttpContext.User.Identity.Name;
-
             // Returns a professor user or null if email is not associated with a professor
-            User professor = _auth.getAdmin(userEmail);
+            User professor = _auth.getAuth("admin");
 
             if (professor != null)
             {

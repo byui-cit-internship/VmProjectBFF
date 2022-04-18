@@ -2,16 +2,20 @@ using Google.Apis.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using vmProjectBackend.DAL;
+using vmProjectBackend.DTO;
 using vmProjectBackend.Models;
-
+using vmProjectBackend.Services;
 
 namespace vmProjectBackend.Controllers
 {
@@ -20,17 +24,25 @@ namespace vmProjectBackend.Controllers
     public class TokenController : ControllerBase
     {
         private readonly DatabaseContext _context;
-        public IHttpClientFactory _httpClientFactory { get; }
+        private readonly ILogger<TokenController> _logger;
+        private readonly Backend _backend;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        ILogger Logger { get; } = AppLogger.CreateLogger<TokenController>();
-        public const string SessionKeyName = "_Name";
-        public const string SessionKeyId = "_Id";
+        private readonly IConfiguration _configuration;
+        private readonly HttpClient _httpClient;
 
-        public TokenController(DatabaseContext context, IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor)
+        public TokenController(
+            DatabaseContext context,
+            ILogger<TokenController> logger,
+            IHttpClientFactory httpClientFactory,
+            IHttpContextAccessor httpContextAccessor,
+            IConfiguration configuration)
         {
             _context = context;
-            _httpClientFactory = httpClientFactory;
+            _logger = logger;
             _httpContextAccessor = httpContextAccessor;
+            _configuration = configuration;
+            _backend = new Backend(_httpContextAccessor, _logger, _configuration);
+            _httpClient = httpClientFactory.CreateClient();
         }
 
         /**************************************
@@ -43,87 +55,35 @@ namespace vmProjectBackend.Controllers
         {
             try
             {
-                HttpClient httpClient = _httpClientFactory.CreateClient();
-                httpClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, $"Bearer {accessTokenObj.AccessTokenValue}");
-                HttpResponseMessage response = await httpClient.GetAsync($"https://www.googleapis.com/userinfo/v2/me");
+                BackendResponse authResponse = _backend.Post("api/v1/token", accessTokenObj);
 
-                if (response.IsSuccessStatusCode)
+                if (authResponse.HttpResponse.Headers.Contains("Set-Cookie"))
                 {
-                    string responseString = await response.Content.ReadAsStringAsync();
-
-                    dynamic students = JsonConvert.DeserializeObject<dynamic>(responseString);
-
-                    string email = students.email;
-
-                    User user = (from u in _context.Users
-                                 where u.Email == email
-                                 select u).FirstOrDefault();
-
-                    if (user == null)
+                    string cookieHeader = authResponse.HttpResponse.Headers.GetValues("Set-Cookie")?.ToArray()[0];
+                    if (cookieHeader == null)
                     {
-
-                        user = new User();
-                        user.Email = email;
-                        user.FirstName = students.given_name;
-                        user.LastName = students.family_name;
-                        user.IsAdmin = false;
-
-                        _context.Users.Add(user); ;
-                        _context.SaveChanges();
-
+                        return StatusCode(505, "Cookie not recieved on success");
                     }
+                    string cookie = cookieHeader.Split(';', 2)[0];
 
-                    AccessToken accessToken = (from at in _context.AccessTokens
-                                               where at.AccessTokenValue == accessTokenObj.AccessTokenValue
-                                               select at).FirstOrDefault();
-                    if (accessToken == null)
-                    {
-                        accessToken = new();
-                        accessToken.AccessTokenValue = accessTokenObj.AccessTokenValue;
-                        accessToken.ExpireDate = DateTime.Now.AddHours(1);
-                        accessToken.User = user;
+                    _httpContextAccessor.HttpContext.Session.SetString("backendSessionCookie", cookie);
+                    User authenticatedUser = JsonConvert.DeserializeObject<User>(authResponse.Response);
 
-                        _context.AccessTokens.Add(accessToken);
-                        _context.SaveChanges();
-                    }
-                    else if (DateTime.Compare(accessToken.ExpireDate, DateTime.Now) < 0)
-                    {
-                        return Forbid();
-                    }
-
-
-                    SessionToken sessionToken = (from st in _context.SessionTokens
-                                                 where st.AccessToken == accessToken
-                                                 orderby st.ExpireDate descending
-                                                 select st).FirstOrDefault();
-                    if (sessionToken == null)
-                    {
-                        sessionToken = new();
-                        sessionToken.SessionTokenValue = sessionToken.SessionTokenValue = Guid.NewGuid();
-                        sessionToken.SessionCookie = sessionToken.SessionTokenValue.ToString();
-                        sessionToken.AccessToken = accessToken;
-                        sessionToken.ExpireDate = DateTime.Now.AddDays(3000);
-
-                        _context.SessionTokens.Add(sessionToken);
-                        _context.SaveChanges();
-                        _httpContextAccessor.HttpContext.Response.Cookies.Append("vima_session_cookie",sessionToken.SessionCookie, new CookieOptions(){SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict});
-                    }
-                    else if (DateTime.Compare(sessionToken.ExpireDate, DateTime.Now) < 0)
-                    {
-                        return Forbid();
-                    }
-                    // outside return statment
-                    return Ok(user);
+                    _httpContextAccessor.HttpContext.Session.SetString("serializedUser", JsonConvert.SerializeObject(authenticatedUser));
+                    return Ok(authenticatedUser);
                 }
                 else
                 {
-                    return BadRequest();
+                    return StatusCode(505, "Cookie not recieved on success");
                 }
 
+            } catch (BackendException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
             }
             catch (Exception ex)
             {
-                return StatusCode(500);
+                return StatusCode(500, ex);
 
             }
         }
@@ -131,9 +91,16 @@ namespace vmProjectBackend.Controllers
         [HttpDelete()]
         public async Task<ActionResult> DeleteSession()
         {
-            _httpContextAccessor.HttpContext.Session.Clear();
-            _httpContextAccessor.HttpContext.Response.Cookies.Delete("vima_session_cookie");
-            return Ok();
+            try
+            {
+                BackendResponse deleteResponse = _backend.Delete("api/v1/token", null);
+                _httpContextAccessor.HttpContext.Session.Clear();
+                _httpContextAccessor.HttpContext.Response.Cookies.Delete(".VmProjectBFF.Session");
+                return Ok();
+            } catch (BackendException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
         }
     }
 }

@@ -4,7 +4,6 @@ using vmProjectBackend.Models;
 using vmProjectBackend.DTO;
 using Newtonsoft.Json;
 using System;
-using System.Linq;
 using System.Net.Http;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -12,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 using vmProjectBackend.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Logging;
 
 namespace vmProjectBackend.Controllers
 {
@@ -21,16 +21,27 @@ namespace vmProjectBackend.Controllers
     [Authorize]
     public class CreateVmController : ControllerBase
     {
-        private readonly DatabaseContext _context;
-        private readonly IHttpClientFactory _httpClientFactory;
         private readonly Authorization _auth;
-        public IConfiguration Configuration { get; }
-        public CreateVmController(DatabaseContext context, IHttpClientFactory httpClientFactory, IConfiguration configuration)
+        private readonly Backend _backend;
+        private readonly DatabaseContext _context;
+        private readonly IConfiguration _configuration;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ILogger<CreateVmController> _logger;
+
+        public CreateVmController(
+            DatabaseContext context,
+            IConfiguration configuration,
+            IHttpClientFactory httpClientFactory,
+            IHttpContextAccessor httpContextAccessor,
+            ILogger<CreateVmController> logger)
         {
             _context = context;
+            _logger = logger; _configuration = configuration;
+            _httpContextAccessor = httpContextAccessor;
+            _backend = new(_httpContextAccessor, _logger, _configuration);
+            _auth = new(_backend, _context, _logger);
             _httpClientFactory = httpClientFactory;
-            _auth = new Authorization(_context);
-            Configuration = configuration;
         }
 
         [HttpGet("libraries")]
@@ -87,7 +98,7 @@ namespace vmProjectBackend.Controllers
         }
 
         [HttpGet("folders")]
-        public async Task<ActionResult<IEnumerable<Folder>>> GetFolders()
+        public async Task<ActionResult<IEnumerable<OldFolder>>> GetFolders()
         {
             //Open uri communication
             var httpClient = _httpClientFactory.CreateClient();
@@ -117,13 +128,13 @@ namespace vmProjectBackend.Controllers
 
 
                 FolderResponse folderResponse = JsonConvert.DeserializeObject<FolderResponse>(folderResponseString);
-                List<Folder> folders = new List<Folder>();
+                List<OldFolder> folders = new List<OldFolder>();
 
                 //declare variable from configuration (appsettings.json)
-                string ignoreFolder = Configuration["IgnoreFolder"];
+                string ignoreFolder = _configuration["IgnoreFolder"];
 
 
-                foreach (Folder folder in folderResponse.value)
+                foreach (OldFolder folder in folderResponse.value)
                 {
                     if (folder.name != ignoreFolder)
                         // string response2String = await response2.Content.ReadAsStringAsync();
@@ -141,7 +152,7 @@ namespace vmProjectBackend.Controllers
         {
             string userEmail = HttpContext.User.Identity.Name;
             //check if it is a professor
-            User professorUser = _auth.getAdmin(userEmail);
+            User professorUser = _auth.getAuth("admin");
 
             if (professorUser != null)
             {

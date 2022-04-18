@@ -6,7 +6,7 @@ namespace vmProjectBackend.DTO
     public class FolderResponse
     {
 
-        public List<Folder> value { get; set; }
+        public List<OldFolder> value { get; set; }
 
     }
 }

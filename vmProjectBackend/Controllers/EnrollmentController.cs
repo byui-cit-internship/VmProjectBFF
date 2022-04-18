@@ -9,6 +9,11 @@ using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
 using vmProjectBackend.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Http;
+using vmProjectBackend.DTO;
+using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace vmProjectBackend.Controllers
 {
@@ -17,22 +22,32 @@ namespace vmProjectBackend.Controllers
     [ApiController]
     public class EnrollmentController : ControllerBase
     {
-        private readonly DatabaseContext _context;
-        private readonly IHttpClientFactory _httpClientFactory;
         private readonly Authorization _auth;
+        private readonly Backend _backend;
+        private readonly DatabaseContext _context;
+        private readonly IConfiguration _configuration;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ILogger<EnrollmentController> _logger;
         private readonly BackgroundService1 _bs1;
-
-
         private readonly IServiceScope _scope;
+        private BackendResponse _lastResponse;
 
-        ILogger Logger { get; } = AppLogger.CreateLogger<EnrollmentController>();
-
-
-        public EnrollmentController(DatabaseContext context, IHttpClientFactory httpClientFactory, IServiceProvider serviceProvider)
+        public EnrollmentController(
+            DatabaseContext context,
+            IConfiguration configuration,
+            IHttpClientFactory httpClientFactory,
+            IHttpContextAccessor httpContextAccessor,
+            ILogger<EnrollmentController> logger,
+            IServiceProvider serviceProvider)
         {
             _context = context;
+            _logger = logger;
+            _configuration = configuration;
+            _httpContextAccessor = httpContextAccessor;
+            _backend = new(_httpContextAccessor, _logger, _configuration);
+            _auth = new(_backend, _context, _logger);
             _httpClientFactory = httpClientFactory;
-            _auth = new Authorization(_context);
             // _scope = scope;
         }
 
@@ -56,42 +71,82 @@ namespace vmProjectBackend.Controllers
             string userEmail = HttpContext.User.Identity.Name;
 
             // Returns a professor user or null if email is not associated with a professor
-            User professor = _auth.getAdmin(userEmail);
+            User professor = _auth.getAuth("admin");
 
             if (professor != null && courseDetails != null)
             {
                 // Check if a course already exists
-                int courseExist = (from s in _context.Sections
-                                   where s.SectionCanvasId == Int32.Parse(courseDetails.canvasCourseId)
-                                   select s.SectionCanvasId).Count();
+
+                _lastResponse = _backend.Get($"api/v2/Section?section_canvas_id={courseDetails.canvasCourseId}");
+                SectionDTO courseExist = JsonConvert.DeserializeObject<SectionDTO>(_lastResponse.Response);
 
                 // If not, create course
-                if (courseExist == 0)
+                if (courseExist == null)
                 {
-                    // Create new course
-                    Course course = new Course();
+                    _lastResponse = _backend.Get($"api/v2/Course?courseName={courseDetails.courseName}");
+                    CourseDTO course = JsonConvert.DeserializeObject<CourseDTO>(_lastResponse.Response);
+
+                    if (course == null) {
+
+                        _lastResponse = _backend.Get($"api/v2/ResourceGroupTemplate?memory={0}&cpu={0}");
+                        ResourceGroup resourceGroupTemplate = JsonConvert.DeserializeObject<ResourceGroup>(_lastResponse.Response);
+                        if (resourceGroupTemplate == null)
+                        {
+                            resourceGroupTemplate = new(0, 0);
+                            _lastResponse = _backend.Post("api/v2/ResourceGroupTemplate", resourceGroupTemplate);
+                            resourceGroupTemplate = JsonConvert.DeserializeObject<ResourceGroup>(_lastResponse.Response);
+                        }
+
+                        // Create new course
+                        course.CourseName = courseDetails.courseName;
+                        course.CourseCode = courseDetails.courseName;
+                        course.ResourceGroupTemplateId = (int)resourceGroupTemplate.ResourceGroupId;
+
+                        _lastResponse = _backend.Post("api/v2/Course", course);
+                        course = JsonConvert.DeserializeObject<CourseDTO>(_lastResponse.Response);
+                    }
+
+                    _lastResponse = _backend.Get($"api/v2/Folder?vcenterFolderId={courseDetails.folder}");
+                    Folder folder = JsonConvert.DeserializeObject<Folder>(_lastResponse.Response);
+
+                    if (folder == null)
+                    {
+                        folder.VcenterFolderId = courseDetails.folder;
+                        _lastResponse = _backend.Post($"api/v2/Folder", folder);
+                        folder = JsonConvert.DeserializeObject<Folder>(_lastResponse.Response);
+                    }
+
+                    /*
                     course.CanvasCourseId = courseDetails.canvasCourseId;
                     course.CourseName = courseDetails.courseName;
-                    course.ContentLibrary = courseDetails.contentLibrary;
+                    //course.ContentLibrary = courseDetails.contentLibrary; // why here
                     course.TemplateVm = courseDetails.templateVm;
-                    course.Semester = courseDetails.semester;
-                    course.Description = courseDetails.description;
+                    //course.Semester = courseDetails.semester; // shouldn't be nessesary
+                    //course.Description = courseDetails.description;
                     course.Folder = courseDetails.folder;
                     course.Resource_pool = courseDetails.resource_pool;
                     course.Section = courseDetails.section;
                     _context.Courses.Add(course);
                     _context.SaveChanges();
+                    */
 
                     // Update professor's canvas api token
+
                     professor.CanvasToken = courseDetails.canvas_token;
-                    _context.Users.Update(professor);
-                    _context.SaveChanges();
+                    _lastResponse = _backend.Put("api/v2/User", professor);
+                    professor = JsonConvert.DeserializeObject<User>(_lastResponse.Response);
 
                     // Return a semester from the database using provided semester term
-                    Semester term = (from s in _context.Semesters
-                                     where s.SemesterTerm == courseDetails.semester
-                                     && s.SemesterYear == 2022
-                                     select s).FirstOrDefault();
+                    _lastResponse = _backend.Get($"api/v2/Semester?semesterTerm={courseDetails.semester}&semesterYear={2022}");
+                    Semester term = JsonConvert.DeserializeObject<Semester>(_lastResponse.Response);
+
+                    _lastResponse = _backend.Get($"api/v2/ResourceGroupTemplate?resourceGroupTemplateId={course.ResourceGroupTemplateId}");
+                    ResourceGroup resourceGroup = JsonConvert.DeserializeObject<ResourceGroup>(_lastResponse.Response);
+                    resourceGroup.ResourceGroupId = null;
+
+
+                    _lastResponse = _backend.Post($"api/v2/ResourceGroup", resourceGroup);
+                    resourceGroup = JsonConvert.DeserializeObject<ResourceGroup>(_lastResponse.Response);
 
                     // If no semester exists, make a semester.
                     if (term == null)
@@ -101,14 +156,14 @@ namespace vmProjectBackend.Controllers
                         term.SemesterYear = 2022;
                         term.StartDate = new DateTime(2022, 1, 1);
                         term.EndDate = new DateTime(2022, 12, 31);
-                        _context.Semesters.Add(term);
-                        _context.SaveChanges();
+
+                        _lastResponse = _backend.Post($"api/v2/Semester", term);
+                        term = JsonConvert.DeserializeObject<Semester>(_lastResponse.Response);
                     }
 
                     // Return a vm template from the database using the provided vsphere template id
-                    VmTemplate template = (from t in _context.VmTemplates
-                                           where t.VmTemplateVcenterId == courseDetails.vmTableID
-                                           select t).FirstOrDefault();
+                    _lastResponse = _backend.Get($"api/v2/VmTemplate?vmTemplateVcenterId={courseDetails.vmTableID}");
+                    VmTemplate template = JsonConvert.DeserializeObject<VmTemplate>(_lastResponse.Response);
 
                     // If template doesn't exist, create it
                     if (template == null)
@@ -117,24 +172,75 @@ namespace vmProjectBackend.Controllers
                         template.VmTemplateVcenterId = courseDetails.vmTableID;
                         template.VmTemplateName = "test";
                         template.VmTemplateAccessDate = new DateTime(2022, 1, 1);
-                        _context.VmTemplates.Add(template);
-                        _context.SaveChanges();
+
+                        _lastResponse = _backend.Post($"api/v2/VmTemplate", template);
+                        template = JsonConvert.DeserializeObject<VmTemplate>(_lastResponse.Response);
                     }
 
                     // Create section in database using provided canvas course id and section number,
                     // along with previous course and term
-                    Section newSection = new Section();
-                    newSection.Course = course;
+                    SectionDTO newSection = new();
+                    newSection.CourseId = (int)course.CourseId;
                     newSection.SectionCanvasId = Int32.Parse(courseDetails.canvasCourseId);
-                    newSection.Semester = term;
+                    newSection.SemesterId = term.SemesterId;
                     newSection.SectionNumber = courseDetails.section_num;
-                    _context.Sections.Add(newSection);
-                    _context.SaveChanges();
+                    newSection.FolderId = folder.FolderId;
+                    newSection.ResourceGroupId = resourceGroup.ResourceGroupId;
+
+                    _lastResponse = _backend.Post($"api/v2/Section", newSection);
+                    newSection = JsonConvert.DeserializeObject<SectionDTO>(_lastResponse.Response);
 
                     // Get role to signify that the person craeting this section is a professor
-                    Role profRole = (from r in _context.Roles
-                                     where r.RoleName == "Professor"
-                                     select r).First();
+                    _lastResponse = _backend.Get($"api/v2/Role?roleName=Professor");
+                    Role profRole = JsonConvert.DeserializeObject<List<Role>>(_lastResponse.Response).FirstOrDefault();
+                    
+                    if (profRole == null)
+                    {
+                        profRole.RoleName = "Professor";
+                        profRole.CanvasRoleId = 56898;
+
+                        _lastResponse = _backend.Post($"api/v2/Role", profRole);
+                        profRole = JsonConvert.DeserializeObject<Role>(_lastResponse.Response);
+                    }
+
+                    _lastResponse = _backend.Get($"api/v2/TagCategory?tagCategoryName=Course");
+                    TagCategory tagCategory = JsonConvert.DeserializeObject<TagCategory>(_lastResponse.Response);
+
+                    if (tagCategory == null)
+                    {
+                        tagCategory.TagCategoryVcenterId = "TEMP_USE";
+                        tagCategory.TagCategoryName = "Course";
+                        tagCategory.TagCategoryDescription = "Do not attempt to use with VCenter.";
+
+                        _lastResponse = _backend.Post($"api/v2/TagCategory", tagCategory);
+                        tagCategory = JsonConvert.DeserializeObject<TagCategory>(_lastResponse.Response);
+                    }
+
+                    _lastResponse = _backend.Get($"api/v2/Tag?tagCategoryId={tagCategory.TagCategoryId}&tagName={course.CourseCode}");
+                    Tag tag = JsonConvert.DeserializeObject<Tag>(_lastResponse.Response);
+
+                    if (tag == null)
+                    {
+                        tag.TagVcenterId = "TEMP_USE";
+                        tag.TagCategoryId = tagCategory.TagCategoryId;
+                        tag.TagName = course.CourseCode;
+                        tag.TagDescription = "Do not attempt to use with VCenter.";
+
+                        _lastResponse = _backend.Post($"api/v2/Tag", tag);
+                        tag = JsonConvert.DeserializeObject<Tag>(_lastResponse.Response);
+                    }
+
+                    _lastResponse = _backend.Get($"api/v2/VmTemplateTag?tagId={tag.TagId}&vmTemplateId={template.VmTemplateId}");
+                    VmTemplateTag vmTemplateTag = JsonConvert.DeserializeObject<VmTemplateTag>(_lastResponse.Response);
+
+                    if (vmTemplateTag == null)
+                    {
+                        vmTemplateTag.VmTemplateId = template.VmTemplateId;
+                        vmTemplateTag.TagId = tag.TagId;
+
+                        _lastResponse = _backend.Post($"api/v2/VmTemplateTag", vmTemplateTag);
+                        vmTemplateTag = JsonConvert.DeserializeObject<VmTemplateTag>(_lastResponse.Response);
+                    }
 
                     // Create a link between the created section and the professor, effectively enrolling them
                     // in the class they created.
@@ -142,10 +248,14 @@ namespace vmProjectBackend.Controllers
                     {
                         UserId = professor.UserId,
                         RoleId = profRole.RoleId,
-                        SectionId = newSection.SectionId
+                        SectionId = (int)newSection.SectionId
                     };
-                    _context.UserSectionRoles.Add(enrollment);
-                    _context.SaveChanges();
+
+                    _lastResponse = _backend.Post($"api/v2/UserSectionRole", enrollment);
+                    enrollment = JsonConvert.DeserializeObject<UserSectionRole>(_lastResponse.Response);
+
+
+
 
                     return Ok("ID " + newSection.SectionId + " enrollment was created");
 

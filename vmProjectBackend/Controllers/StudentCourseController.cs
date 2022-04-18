@@ -8,6 +8,7 @@ using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
 using Microsoft.AspNetCore.Authorization;
 using vmProjectBackend.Services;
+using Microsoft.Extensions.Logging;
 
 namespace vmProjectBackend.Controllers
 {
@@ -17,12 +18,14 @@ namespace vmProjectBackend.Controllers
     public class StudentCourseController : ControllerBase
     {
         private readonly DatabaseContext _context; 
+        private readonly ILogger<StudentCourseController> _logger;
         private readonly Authorization _auth;
 
-        public StudentCourseController(DatabaseContext context)
+        public StudentCourseController(DatabaseContext context, ILogger<StudentCourseController> logger)
         {
             _context = context;
-            _auth = new Authorization(_context);
+            _logger = logger;
+            _auth = new Authorization(_context, _logger);
         }
 
         //Student get to see all their classes that they are enrolled in

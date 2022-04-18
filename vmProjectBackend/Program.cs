@@ -33,6 +33,11 @@ namespace vmProjectBackend
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .ConfigureLogging(logging =>
+                {
+                    logging.ClearProviders();
+                    logging.AddConsole();
+                })
                 .ConfigureServices((hostContext, services) =>
                 {
                     services.AddScoped<BackgroundService1>();

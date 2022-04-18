@@ -16,14 +16,16 @@ namespace vmProjectBackend.Controllers
     public class UserController : ControllerBase
     {
         private readonly DatabaseContext _context;
+        private readonly ILogger<UserController> _logger;
         private readonly Authorization _auth;
 
         ILogger Logger { get; } = AppLogger.CreateLogger<EnrollmentController>();
 
-        public UserController(DatabaseContext context)
+        public UserController(DatabaseContext context, ILogger<UserController> logger)
         {
             _context = context;
-            _auth = new Authorization(_context);
+            _logger = logger;
+            _auth = new Authorization(_context, _logger); ;
         }
 
         /****************************************

@@ -24,19 +24,28 @@ namespace vmProjectBackend.Controllers
     [Authorize]
     public class DeployVmController : ControllerBase
     {
-        private readonly DatabaseContext _context;
-        public IConfiguration Configuration { get; }
-
-        ILogger Logger { get; } = AppLogger.CreateLogger<DeployVmController>();
-        private readonly IHttpClientFactory _httpClientFactory;
         private readonly Authorization _auth;
-        public DeployVmController(DatabaseContext context, IHttpClientFactory httpClientFactory, IConfiguration configuration)
+        private readonly Backend _backend;
+        private readonly DatabaseContext _context;
+        private readonly IConfiguration _configuration;
+        private readonly ILogger<DeployVmController> _logger;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public DeployVmController(
+            DatabaseContext context,
+            IConfiguration configuration,
+            IHttpClientFactory httpClientFactory,
+            IHttpContextAccessor httpContextAccessor,
+            ILogger<DeployVmController> logger)
         {
             _context = context;
+            _logger = logger;
+            _configuration = configuration;
+            _httpContextAccessor = httpContextAccessor;
+            _backend = new(_httpContextAccessor, _logger, _configuration);
+            _auth = new(_backend, _context, _logger);
             _httpClientFactory = httpClientFactory;
-
-            Configuration = configuration;
-            _auth = new Authorization(_context);
         }
 
         //Connect our API to a second API that creates our vms 
@@ -45,7 +54,7 @@ namespace vmProjectBackend.Controllers
         {
             string userEmail = HttpContext.User.Identity.Name;
             // check if it is student
-            User studentUser = _auth.getUser(userEmail);
+            User studentUser = _auth.getAuth("user");
             // students are able to store their vm's details
 
             if (studentUser != null)
@@ -88,7 +97,7 @@ namespace vmProjectBackend.Controllers
                 httpClient.DefaultRequestHeaders.Add("Cookie", $"vmware-api-session-id={tokenstring}");
                 if (tokenResponse.IsSuccessStatusCode)
                 {
-                    string resourcePool = Configuration["Resource_Pool"];
+                    string resourcePool = _configuration["Resource_Pool"];
                     // Create vm with the information we have in vsphere
                     var deploy = new Deploy
                     {
