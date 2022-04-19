@@ -5,7 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Controllers\StudentCourseController.cs" />
     <Compile Remove="Controllers\UserController.cs" />
   </ItemGroup>
 
@@ -38,7 +37,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Controllers\StudentCourseController.cs" />
     <None Include="Controllers\UserController.cs" />
   </ItemGroup>
 

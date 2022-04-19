@@ -68,7 +68,7 @@ namespace vmProjectBackend.Controllers
 
                     _httpContextAccessor.HttpContext.Session.SetString("backendSessionCookie", cookie);
                     User authenticatedUser = JsonConvert.DeserializeObject<User>(authResponse.Response);
-
+                    var thing = _httpContextAccessor.HttpContext.Response.Cookies;
                     _httpContextAccessor.HttpContext.Session.SetString("serializedUser", JsonConvert.SerializeObject(authenticatedUser));
                     return Ok(authenticatedUser);
                 }

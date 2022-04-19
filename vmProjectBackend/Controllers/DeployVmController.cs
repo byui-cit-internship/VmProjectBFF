@@ -56,7 +56,6 @@ namespace vmProjectBackend.Controllers
             // check if it is student
             User studentUser = _auth.getAuth("user");
             // students are able to store their vm's details
-
             if (studentUser != null)
             {
                 //Query the student name in order to use it as the vm's name
