@@ -77,7 +77,7 @@ namespace vmProjectBackend.Controllers
             {
                 // Check if a course already exists
 
-                _lastResponse = _backend.Get($"api/v2/Section?section_canvas_id={courseDetails.canvasCourseId}");
+                _lastResponse = _backend.Get($"api/v2/Section?sectionCanvasId={courseDetails.canvasCourseId}");
                 SectionDTO courseExist = JsonConvert.DeserializeObject<SectionDTO>(_lastResponse.Response);
 
                 // If not, create course
@@ -98,9 +98,10 @@ namespace vmProjectBackend.Controllers
                         }
 
                         // Create new course
+                        course = new();
                         course.CourseName = courseDetails.courseName;
                         course.CourseCode = courseDetails.courseName;
-                        course.ResourceGroupTemplateId = (int)resourceGroupTemplate.ResourceGroupId;
+                        course.ResourceGroupTemplateId = resourceGroupTemplate.ResourceGroupTemplateId;
 
                         _lastResponse = _backend.Post("api/v2/Course", course);
                         course = JsonConvert.DeserializeObject<CourseDTO>(_lastResponse.Response);
@@ -111,6 +112,7 @@ namespace vmProjectBackend.Controllers
 
                     if (folder == null)
                     {
+                        folder = new();
                         folder.VcenterFolderId = courseDetails.folder;
                         _lastResponse = _backend.Post($"api/v2/Folder", folder);
                         folder = JsonConvert.DeserializeObject<Folder>(_lastResponse.Response);
@@ -142,7 +144,6 @@ namespace vmProjectBackend.Controllers
 
                     _lastResponse = _backend.Get($"api/v2/ResourceGroupTemplate?resourceGroupTemplateId={course.ResourceGroupTemplateId}");
                     ResourceGroup resourceGroup = JsonConvert.DeserializeObject<ResourceGroup>(_lastResponse.Response);
-                    resourceGroup.ResourceGroupId = null;
 
 
                     _lastResponse = _backend.Post($"api/v2/ResourceGroup", resourceGroup);
@@ -162,14 +163,14 @@ namespace vmProjectBackend.Controllers
                     }
 
                     // Return a vm template from the database using the provided vsphere template id
-                    _lastResponse = _backend.Get($"api/v2/VmTemplate?vmTemplateVcenterId={courseDetails.vmTableID}");
+                    _lastResponse = _backend.Get($"api/v2/VmTemplate?vmTemplateVcenterId={courseDetails.templateVm}");
                     VmTemplate template = JsonConvert.DeserializeObject<VmTemplate>(_lastResponse.Response);
 
                     // If template doesn't exist, create it
                     if (template == null)
                     {
                         template = new VmTemplate();
-                        template.VmTemplateVcenterId = courseDetails.vmTableID;
+                        template.VmTemplateVcenterId = courseDetails.templateVm;
                         template.VmTemplateName = "test";
                         template.VmTemplateAccessDate = new DateTime(2022, 1, 1);
 
@@ -196,6 +197,7 @@ namespace vmProjectBackend.Controllers
                     
                     if (profRole == null)
                     {
+                        profRole = new();
                         profRole.RoleName = "Professor";
                         profRole.CanvasRoleId = 56898;
 
@@ -208,6 +210,7 @@ namespace vmProjectBackend.Controllers
 
                     if (tagCategory == null)
                     {
+                        tagCategory = new();
                         tagCategory.TagCategoryVcenterId = "TEMP_USE";
                         tagCategory.TagCategoryName = "Course";
                         tagCategory.TagCategoryDescription = "Do not attempt to use with VCenter.";
@@ -221,6 +224,7 @@ namespace vmProjectBackend.Controllers
 
                     if (tag == null)
                     {
+                        tag = new();
                         tag.TagVcenterId = "TEMP_USE";
                         tag.TagCategoryId = tagCategory.TagCategoryId;
                         tag.TagName = course.CourseCode;
@@ -235,6 +239,7 @@ namespace vmProjectBackend.Controllers
 
                     if (vmTemplateTag == null)
                     {
+                        vmTemplateTag = new();
                         vmTemplateTag.VmTemplateId = template.VmTemplateId;
                         vmTemplateTag.TagId = tag.TagId;
 

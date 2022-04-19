@@ -52,7 +52,7 @@ namespace vmProjectBackend.Services
             toSend.RequestUri = new Uri($"{_configuration.GetConnectionString("BackendRootUri")}{path}");
             toSend.Method = method;
             toSend.Headers.Add(HeaderNames.Cookie,
-                _cookie != null & Cookie != "" ? _cookie : _httpContextAccessor.HttpContext.Session.GetString("backendSessionCookie"));
+                _cookie != null && _cookie != "" ? _cookie : _httpContextAccessor.HttpContext.Session.GetString("backendSessionCookie"));
             toSend.Content = new StringContent(JsonConvert.SerializeObject(content), Encoding.UTF8, "application/json");
             HttpResponseMessage response = _httpClient.Send(toSend);
             if (!response.IsSuccessStatusCode)

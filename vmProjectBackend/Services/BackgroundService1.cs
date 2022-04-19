@@ -36,7 +36,7 @@ namespace vmProjectBackend.Services
             _context = context;
             _logger = logger;
             _configuration = configuration;
-            _backend = new(_logger, _configuration);
+            _backend = new("hi", _logger, _configuration);
             _httpClientFactory = httpClientFactory;
             canvasStudentRoleId = Int32.Parse(_configuration["Canvas:StudentRoleId"]);
         }

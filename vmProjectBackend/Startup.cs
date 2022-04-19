@@ -41,14 +41,6 @@ namespace vmProjectBackend
            .AddNewtonsoftJson(
                opts => opts.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
            );
-            // This is needed to register my Background service
-            // UNCOMMENT LATER services.AddHostedService<BackgroundService1>();
-            // Allow to use client Factory
-            services.AddHttpClient();
-
-            services.AddHttpContextAccessor();
-
-            services.AddDistributedMemoryCache();
 
             services.AddSession(options =>
             {
@@ -59,6 +51,15 @@ namespace vmProjectBackend
                 options.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest;
                 options.IdleTimeout = TimeSpan.FromDays(5);
             });
+
+            // This is needed to register my Background service
+            // UNCOMMENT LATER services.AddHostedService<BackgroundService1>();
+            // Allow to use client Factory
+            services.AddHttpClient();
+
+            services.AddHttpContextAccessor();
+
+            services.AddDistributedMemoryCache();
 
             services.AddControllers().AddNewtonsoftJson(s =>
             {

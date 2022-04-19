@@ -2,7 +2,9 @@
 {
     public class ResourceGroup
     {
-        public int? ResourceGroupId { get; set; }
+        public int ResourceGroupId { get; set; }
+
+        public int ResourceGroupTemplateId { get; set; }
 
         public double Memory { get; set; }
 
