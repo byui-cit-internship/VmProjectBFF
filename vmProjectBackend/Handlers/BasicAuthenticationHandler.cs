@@ -2,6 +2,7 @@
 using Google.Apis.Auth;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
@@ -14,15 +15,22 @@ using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using vmProjectBackend.DAL;
+using vmProjectBackend.DTO;
 using vmProjectBackend.Models;
+using vmProjectBackend.Services;
 
 namespace vmProjectBackend.Handlers
 {
     public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {
         // Inject the DBcontext into the handler so that we can compare te credentials
+        private readonly Backend _backend;
         private readonly ILogger<BasicAuthenticationHandler> _logger;
+        private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
+
+        private BackendResponse _lastResponse;
+
         // BAsic Authentication needs contructor and this is it below
         public BasicAuthenticationHandler(
             IOptionsMonitor<AuthenticationSchemeOptions> options,
@@ -30,28 +38,62 @@ namespace vmProjectBackend.Handlers
             UrlEncoder encoder,
             ILogger<BasicAuthenticationHandler> logger,
             ISystemClock clock,
-            IHttpContextAccessor httpContextAccessor
+            IHttpContextAccessor httpContextAccessor,
+            IConfiguration configuration
             )
             : base(options, loggerFactory, encoder, clock)
         {
             // intialize the context
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
+            _configuration = configuration;
+            _backend = new(_httpContextAccessor, _logger, _configuration);
         }
+
+
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
 
             string serializedUser = _httpContextAccessor.HttpContext.Session.GetString("serializedUser");
-            if (serializedUser != null)
+            string sessionTokenValue = _httpContextAccessor.HttpContext.Session.GetString("sessionTokenValue");
+
+            string storedCookie = _httpContextAccessor.HttpContext.Session.GetString("BFFSessionCookie");
+            string requestCookie = _httpContextAccessor.HttpContext.Request.Cookies[".VMProjectBFF.Session"] != null ? $".VMProjectBFF.Session={_httpContextAccessor.HttpContext.Request.Cookies[".VMProjectBFF.Session"]}" : null;
+
+            if (storedCookie == requestCookie)
             {
                 User authenticatedUser = JsonConvert.DeserializeObject<User>(serializedUser);
+                return SuccessResult(authenticatedUser.Email);
+            }
+            else if (requestCookie != null)
+            {
+                string[] cookieParts = requestCookie.Split('=', 2);
+                _lastResponse = _backend.Get($"api/v2/Cookie?cookieName={cookieParts[0]}&cookieValue={cookieParts[1]}&siteFrom=BFF");
+                Cookie dbCookie = JsonConvert.DeserializeObject<Cookie>(_lastResponse.Response);
+                if (dbCookie != null)
+                {
+                    if (storedCookie == null)
+                    {
+                        _lastResponse = _backend.Get($"api/v2/UserSession?cookieName={cookieParts[0]}&cookieValue={cookieParts[1]}&siteFrom=BFF");
+                        UserSession userSession = JsonConvert.DeserializeObject<UserSession>(_lastResponse.Response);
+
+                        _lastResponse = _backend.Get($"api/v2/Cookie?siteFrom=BE&sessionTokenValue={userSession.SessionToken.SessionTokenValue.ToString()}");
+                        Cookie beCookie = JsonConvert.DeserializeObject<Cookie>(_lastResponse.Response);
+
+                        _httpContextAccessor.HttpContext.Session.SetString("BESessionCookie", $"{beCookie.CookieName}={dbCookie.CookieValue}");
+
+                        _lastResponse = _backend.Get("");
+
+                    }
+                }
+            }
+
+            if (serializedUser != null)
+            {
+
                 if (authenticatedUser != null)
                 {
-                    Claim[] claims = new[] { new Claim(ClaimTypes.Name, authenticatedUser.Email) };
-                    ClaimsIdentity identity = new(claims, Scheme.Name);
-                    ClaimsPrincipal principal = new(identity);
-                    AuthenticationTicket ticket = new(principal, Scheme.Name);
-                    return AuthenticateResult.Success(ticket);
+
                 }
                 else
                 {
@@ -62,6 +104,15 @@ namespace vmProjectBackend.Handlers
             {
                 return AuthenticateResult.Fail("No session token");
             }
+        }
+
+        public AuthenticateResult SuccessResult(string name)
+        {
+            var claims = new[] { new Claim(ClaimTypes.Name, name) };
+            var identity = new ClaimsIdentity(claims, Scheme.Name);
+            var principal = new ClaimsPrincipal(identity);
+            var ticket = new AuthenticationTicket(principal, Scheme.Name);
+            return AuthenticateResult.Success(ticket);
         }
     }
 }

@@ -82,12 +82,14 @@ namespace vmProjectBackend.Controllers
                         return StatusCode(505, "Cookie not recieved on success");
                     }
                 }
+                _httpContextAccessor.HttpContext.Session.SetString("BESessionCookie", cookie);
 
                 _lastResponse = _backend.Post("api/v1/token", accessTokenObj);
-                _httpContextAccessor.HttpContext.Session.SetString("BESessionCookie", cookie);
-                _httpContextAccessor.HttpContext.Session.SetString("BFFSessionCookie", $"{accessTokenObj.CookieName}={accessTokenObj.CookieValue}");
                 (User authenticatedUser, string sessionToken) authResult = JsonConvert.DeserializeObject<(User, string)>(_lastResponse.Response);
+
+                _httpContextAccessor.HttpContext.Session.SetString("BFFSessionCookie", $"{accessTokenObj.CookieName}={accessTokenObj.CookieValue}");
                 _httpContextAccessor.HttpContext.Session.SetString("serializedUser", JsonConvert.SerializeObject(authResult.authenticatedUser));
+                _httpContextAccessor.HttpContext.Session.SetString("sessionTokenValue", authResult.sessionToken);
                 return Ok(authResult.authenticatedUser);
             }
             catch (BackendException be)
