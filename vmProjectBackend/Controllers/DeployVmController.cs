@@ -26,31 +26,28 @@ namespace vmProjectBackend.Controllers
     {
         private readonly Authorization _auth;
         private readonly Backend _backend;
-        private readonly DatabaseContext _context;
         private readonly IConfiguration _configuration;
         private readonly ILogger<DeployVmController> _logger;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public DeployVmController(
-            DatabaseContext context,
             IConfiguration configuration,
             IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
             ILogger<DeployVmController> logger)
         {
-            _context = context;
             _logger = logger;
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
             _backend = new(_httpContextAccessor, _logger, _configuration);
-            _auth = new(_backend, _context, _logger);
+            _auth = new(_backend, _logger);
             _httpClientFactory = httpClientFactory;
         }
 
         //Connect our API to a second API that creates our vms 
         [HttpPost()]
-        public async Task<ActionResult<VmDetail>> PostVmTable(string enrollment_id)
+        public async Task<ActionResult> PostVmTable(string enrollment_id)
         {
             string userEmail = HttpContext.User.Identity.Name;
             // check if it is student

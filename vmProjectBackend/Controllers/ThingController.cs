@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using vmProjectBackend.DAL;
 using vmProjectBackend.DTO;
 using vmProjectBackend.Models;
 using vmProjectBackend.Services;
@@ -17,27 +18,30 @@ namespace vmProjectBackend.Controllers
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class CourseController : ControllerBase
+    public class ThingController : ControllerBase
     {
         private readonly Authorization _auth;
         private readonly Backend _backend;
+        private readonly DatabaseContext _context;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ILogger<CourseController> _logger;
+        private readonly ILogger<ThingController> _logger;
 
         public IHttpClientFactory _httpClientFactory { get; }
 
-        public CourseController(
+        public ThingController(
+            DatabaseContext context,
             IConfiguration configuration,
             IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
-            ILogger<CourseController> logger)
+            ILogger<ThingController> logger)
         {
+            _context = context;
             _logger = logger;
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
             _backend = new(_httpContextAccessor, _logger, _configuration);
-            _auth = new(_backend, _logger);
+            _auth = new(_backend, _context, _logger);
             _httpClientFactory = httpClientFactory;
         }
 
@@ -63,7 +67,6 @@ namespace vmProjectBackend.Controllers
                     return Ok(sectionList);
 
                 }
-
                 else
                 {
                     return NotFound("You are not Authorized and not a Professor");

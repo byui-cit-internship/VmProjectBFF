@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
 using vmProjectBackend.DTO;
 using Newtonsoft.Json;
@@ -23,24 +22,21 @@ namespace vmProjectBackend.Controllers
     {
         private readonly Authorization _auth;
         private readonly Backend _backend;
-        private readonly DatabaseContext _context;
         private readonly IConfiguration _configuration;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<CreateVmController> _logger;
 
         public CreateVmController(
-            DatabaseContext context,
             IConfiguration configuration,
             IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
             ILogger<CreateVmController> logger)
         {
-            _context = context;
             _logger = logger; _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
             _backend = new(_httpContextAccessor, _logger, _configuration);
-            _auth = new(_backend, _context, _logger);
+            _auth = new(_backend, _logger);
             _httpClientFactory = httpClientFactory;
         }
 

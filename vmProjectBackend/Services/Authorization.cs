@@ -12,17 +12,14 @@ namespace vmProjectBackend.Services
     public class Authorization
     {
         private readonly Backend _backend;
-        private readonly DatabaseContext _context;
         private readonly ILogger _logger;
 
         private readonly List<string> authTypes = new() { "professor", "admin", "user" };
         public Authorization(
             Backend backend,
-            DatabaseContext context,
             ILogger logger)
         {
             _backend = backend;
-            _context = context;
             _logger = logger;
         }
 
