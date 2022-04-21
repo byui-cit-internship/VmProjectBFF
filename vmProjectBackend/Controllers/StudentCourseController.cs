@@ -54,7 +54,7 @@ namespace vmProjectBackend.Controllers
             User student = _auth.getAuth("user");
             if (student != null)
             {
-                _lastResponse = _backend.Get($"api/v1/studentClass/courseList/{student.UserId}");
+                _lastResponse = _backend.Get($"api/v1/StudentCourse", new {queryUserId = student.UserId});
                 List<CourseListByUserDTO> courseList = JsonConvert.DeserializeObject<List<CourseListByUserDTO>>(_lastResponse.Response);
 
                 return Ok(courseList);

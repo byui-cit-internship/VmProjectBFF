@@ -2,11 +2,11 @@
 {
     public class CourseListByUserDTO
     {
-        private int canvasSectionId;
-        private string courseName;
-        private int enrollmentId;
-        private string studentFullName;
-        private string vcenterTemplateId;
+        public int canvasSectionId { get; set; }
+        public string courseName { get; set; }
+        public int enrollmentId { get; set; }
+        public string studentFullName { get; set; }
+        public string vcenterTemplateId { get; set; }
 
         public CourseListByUserDTO(int canvasSectionId, string courseName, int enrollmentId, string studentFullName, string vcenterTemplateId)
         {
