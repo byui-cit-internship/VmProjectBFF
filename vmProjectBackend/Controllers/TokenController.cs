@@ -66,23 +66,6 @@ namespace vmProjectBackend.Controllers
                 }
 
                 _lastResponse = _backend.Get("");
-                string cookie;
-                if (_lastResponse.HttpResponse.Headers.Contains("Set-Cookie"))
-                {
-                    string cookieHeader = _lastResponse.HttpResponse.Headers.GetValues("Set-Cookie")?.ToArray()[0];
-                    if (cookieHeader == null)
-                    {
-                        return StatusCode(505, "Cookie not recieved on success");
-                    }
-                    cookie = cookieHeader.Split(';', 2)[0];
-                }
-                else
-                {
-                    {
-                        return StatusCode(505, "Cookie not recieved on success");
-                    }
-                }
-                _httpContextAccessor.HttpContext.Session.SetString("BESessionCookie", cookie);
 
                 _lastResponse = _backend.Post("api/v1/token", accessTokenObj);
                 (User authenticatedUser, string sessionToken) authResult = JsonConvert.DeserializeObject<(User, string)>(_lastResponse.Response);
@@ -110,7 +93,8 @@ namespace vmProjectBackend.Controllers
             {
                 BackendResponse deleteResponse = _backend.Delete("api/v1/token", null);
                 _httpContextAccessor.HttpContext.Session.Clear();
-                _httpContextAccessor.HttpContext.Response.Cookies.Delete(".VmProjectBFF.Session");
+                _httpContextAccessor.HttpContext.Response.Cookies.Delete(".VMProjectBFF.Session");
+                _httpContextAccessor.HttpContext.Response.Cookies.Delete(".VMProject.Session");
                 return Ok();
             }
             catch (BackendException be)

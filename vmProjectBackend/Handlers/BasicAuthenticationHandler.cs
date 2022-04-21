@@ -1,20 +1,12 @@
-
-using Google.Apis.Auth;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
-using System;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
-using vmProjectBackend.DAL;
 using vmProjectBackend.DTO;
 using vmProjectBackend.Models;
 using vmProjectBackend.Services;
@@ -54,56 +46,67 @@ namespace vmProjectBackend.Handlers
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
 
-            string serializedUser = _httpContextAccessor.HttpContext.Session.GetString("serializedUser");
             string sessionTokenValue = _httpContextAccessor.HttpContext.Session.GetString("sessionTokenValue");
+            string serializedUser = _httpContextAccessor.HttpContext.Session.GetString("serializedUser");
 
             string storedCookie = _httpContextAccessor.HttpContext.Session.GetString("BFFSessionCookie");
             string requestCookie = _httpContextAccessor.HttpContext.Request.Cookies[".VMProjectBFF.Session"] != null ? $".VMProjectBFF.Session={_httpContextAccessor.HttpContext.Request.Cookies[".VMProjectBFF.Session"]}" : null;
 
-            if (storedCookie == requestCookie)
+
+            if (storedCookie == requestCookie && storedCookie != null)
             {
                 User authenticatedUser = JsonConvert.DeserializeObject<User>(serializedUser);
                 return SuccessResult(authenticatedUser.Email);
             }
+            else if (storedCookie == null && requestCookie == null)
+            {
+                return AuthenticateResult.Fail("No session cookie recieved or stored");
+            }
             else if (requestCookie != null)
             {
-                string[] cookieParts = requestCookie.Split('=', 2);
-                _lastResponse = _backend.Get($"api/v2/Cookie?cookieName={cookieParts[0]}&cookieValue={cookieParts[1]}&siteFrom=BFF");
-                Cookie dbCookie = JsonConvert.DeserializeObject<Cookie>(_lastResponse.Response);
-                if (dbCookie != null)
+                if (storedCookie == null)
                 {
-                    if (storedCookie == null)
+                    string[] cookieParts = requestCookie.Split('=', 2);
+                    _lastResponse = _backend.Get($"api/v2/Cookie", new { cookieName = cookieParts[0], cookieValue= cookieParts[1], siteFrom = "BFF" });
+                    Cookie dbCookie = JsonConvert.DeserializeObject<Cookie>(_lastResponse.Response);
+                    
+                    if (dbCookie != null)
                     {
-                        _lastResponse = _backend.Get($"api/v2/UserSession?cookieName={cookieParts[0]}&cookieValue={cookieParts[1]}&siteFrom=BFF");
+                        _lastResponse = _backend.Get($"api/v2/UserSession", new { cookieName = cookieParts[0], cookieValue = cookieParts[1], siteFrom = "BFF" });
                         UserSession userSession = JsonConvert.DeserializeObject<UserSession>(_lastResponse.Response);
 
-                        _lastResponse = _backend.Get($"api/v2/Cookie?siteFrom=BE&sessionTokenValue={userSession.SessionToken.SessionTokenValue.ToString()}");
+                        _lastResponse = _backend.Get($"api/v2/Cookie", new { siteFrom = "BE", sessionTokenValue = userSession.SessionToken.SessionTokenValue.ToString() });
                         Cookie beCookie = JsonConvert.DeserializeObject<Cookie>(_lastResponse.Response);
 
-                        _httpContextAccessor.HttpContext.Session.SetString("BESessionCookie", $"{beCookie.CookieName}={dbCookie.CookieValue}");
+                        _httpContextAccessor.HttpContext.Session.SetString("BESessionCookie", $"{beCookie.CookieName}={beCookie.CookieValue}");
+                        _httpContextAccessor.HttpContext.Session.SetString("BFFSessionCookie", $"{cookieParts[0]}={cookieParts[1]}");
+                        _httpContextAccessor.HttpContext.Session.SetString("serializedUser", JsonConvert.SerializeObject(userSession.User));
+                        _httpContextAccessor.HttpContext.Session.SetString("sessionTokenValue", userSession.SessionToken.SessionTokenValue.ToString());
 
-                        _lastResponse = _backend.Get("");
+                        return SuccessResult(userSession.User.Email);
+                    }
+                }
+                else if (storedCookie != null)
+                {
+                    string[] cookiePartsStored = storedCookie.Split('=', 2);
+                    string[] cookiePartsRequest = requestCookie.Split('=', 2);
+                    _lastResponse = _backend.Get($"api/v2/Cookie", new { cookieName = cookiePartsStored[0], cookieValue = cookiePartsStored[1], siteFrom = "BFF" });
+                    Cookie dbCookie = JsonConvert.DeserializeObject<Cookie>(_lastResponse.Response);
+                    if (dbCookie != null)
+                    {
+                        dbCookie.CookieValue = cookiePartsRequest[1];
+                        _lastResponse = _backend.Put("api/v2/Cookie", dbCookie);
 
+                        _httpContextAccessor.HttpContext.Session.SetString("BFFSessionCookie", $"{cookiePartsRequest[0]}={cookiePartsRequest[1]}");
+                        User authenticatedUser = JsonConvert.DeserializeObject<User>(serializedUser);
+
+                        return SuccessResult(authenticatedUser.Email);
                     }
                 }
             }
 
-            if (serializedUser != null)
-            {
+            return AuthenticateResult.Fail("No session token");
 
-                if (authenticatedUser != null)
-                {
-
-                }
-                else
-                {
-                    return AuthenticateResult.Fail("Invalid authorization token");
-                }
-            }
-            else
-            {
-                return AuthenticateResult.Fail("No session token");
-            }
         }
 
         public AuthenticateResult SuccessResult(string name)

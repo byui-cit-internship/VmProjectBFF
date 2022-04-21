@@ -67,7 +67,7 @@ namespace vmProjectBackend.Services
                 List<User> canvasUsers = JsonConvert.DeserializeObject<List<User>>(_lastResponse.Response);
 
 
-                _lastResponse = _backend.Get($"api/v2/Role?canvasRoleId={canvasStudentRoleId}");
+                _lastResponse = _backend.Get($"api/v2/Role", new { canvasRoleId = canvasStudentRoleId });
                 Role studentRole = JsonConvert.DeserializeObject<List<Role>>(_lastResponse.Response).FirstOrDefault();
 
                 if (studentRole == null)
@@ -84,7 +84,7 @@ namespace vmProjectBackend.Services
                 {
                     foreach (User professor in canvasUsers)
                     {
-                        _lastResponse = _backend.Get($"api/v2/Section?userId={professor.UserId}");
+                        _lastResponse = _backend.Get($"api/v2/Section", new { userId = professor.UserId });
                         List<Section> sections = JsonConvert.DeserializeObject<List<Section>>(_lastResponse.Response);
 
                         foreach (Section section in sections)

@@ -37,11 +37,11 @@ namespace vmProjectBackend.Services
                 if (authTypes.Contains(authType))
                 {
                     if (authType == "professor") {
-                        BackendResponse professorResponse = _backend.Get($"api/v2/authorization?authType=professor&sectionId={sectionId}");
+                        BackendResponse professorResponse = _backend.Get($"api/v2/authorization", new { authType = "professor", sectionId = sectionId });
                         return JsonConvert.DeserializeObject<User>(professorResponse.Response);
                     } else
                     {
-                        BackendResponse otherResponse = _backend.Get($"api/v2/authorization?authType={authType}");
+                        BackendResponse otherResponse = _backend.Get($"api/v2/authorization", new {authType=authType});
                         return JsonConvert.DeserializeObject<User>(otherResponse.Response);
                     }
                     

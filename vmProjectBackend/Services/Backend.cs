@@ -4,10 +4,14 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using vmProjectBackend.DTO;
 
 namespace vmProjectBackend.Services
@@ -46,7 +50,7 @@ namespace vmProjectBackend.Services
             _cookie = "";
         }
 
-        public async Task<HttpResponseMessage> Send(string path, HttpMethod method, dynamic content)
+        public HttpResponseMessage Send(string path, HttpMethod method, dynamic content)
         {
             HttpRequestMessage toSend = new();
             toSend.RequestUri = new Uri($"{_configuration.GetConnectionString("BackendRootUri")}{path}");
@@ -57,34 +61,50 @@ namespace vmProjectBackend.Services
             HttpResponseMessage response = _httpClient.Send(toSend);
             if (!response.IsSuccessStatusCode)
             {
-                string responseErrorContent = await response.Content.ReadAsStringAsync();
+                string responseErrorContent = response.Content.ReadAsStringAsync().Result;
                 LogError(path, response, responseErrorContent);
                 throw new BackendException(response.StatusCode, responseErrorContent);
+            }
+            if (response.Headers.Contains("Set-Cookie"))
+            {
+                string cookieHeader = response.Headers.GetValues("Set-Cookie")?.ToArray()[0];
+                _httpContextAccessor.HttpContext.Session.SetString("BESessionCookie", cookieHeader.Split(';', 2)[0]);
             }
             return response;
         }
 
         public BackendResponse Delete(string path, dynamic content)
         {
-            HttpResponseMessage deleteResponse = Send(path, HttpMethod.Delete, content).Result;
+            HttpResponseMessage deleteResponse = Send(path, HttpMethod.Delete, content);
             return new BackendResponse(deleteResponse.StatusCode, deleteResponse.Content.ReadAsStringAsync().Result, deleteResponse);
         }
 
         public BackendResponse Get(string path)
         {
-            HttpResponseMessage getResponse = Send(path, HttpMethod.Get, null).Result;
+            HttpResponseMessage getResponse = Send(path, HttpMethod.Get, null);
             return new BackendResponse(getResponse.StatusCode, getResponse.Content.ReadAsStringAsync().Result, getResponse);
+        }
+
+        public BackendResponse Get(string path, object queryParams)
+        {
+            List<string> stringParams = new();
+            foreach (PropertyInfo param in queryParams.GetType().GetProperties())
+            {
+                stringParams.Add($"{param.Name}={HttpUtility.UrlEncode(param.GetValue(queryParams).ToString())}");
+            }
+            path = string.Concat(path,"?", string.Join('&', stringParams));
+            return Get(path);
         }
 
         public BackendResponse Post(string path, dynamic content)
         {
-            HttpResponseMessage postResponse = Send(path, HttpMethod.Post, content).Result;
+            HttpResponseMessage postResponse = Send(path, HttpMethod.Post, content);
             return new BackendResponse(postResponse.StatusCode, postResponse.Content.ReadAsStringAsync().Result, postResponse);
         }
 
         public BackendResponse Put(string path, dynamic content)
         {
-            HttpResponseMessage postResponse = Send(path, HttpMethod.Put, content).Result;
+            HttpResponseMessage postResponse = Send(path, HttpMethod.Put, content);
             return new BackendResponse(postResponse.StatusCode, postResponse.Content.ReadAsStringAsync().Result, postResponse);
         }
 
