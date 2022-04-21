@@ -7,6 +7,10 @@ using vmProjectBackend.Models;
 using Microsoft.AspNetCore.Authorization;
 using vmProjectBackend.Services;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
+using System.Net.Http;
+using vmProjectBackend.DTO;
+using Newtonsoft.Json;
 
 namespace vmProjectBackend.Controllers
 {
@@ -15,17 +19,26 @@ namespace vmProjectBackend.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly DatabaseContext _context;
-        private readonly ILogger<UserController> _logger;
         private readonly Authorization _auth;
+        private readonly Backend _backend;
+        private readonly DatabaseContext _context;
+        private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ILogger<UserController> _logger;
+        private BackendResponse _lastResponse;
 
-        ILogger Logger { get; } = AppLogger.CreateLogger<EnrollmentController>();
-
-        public UserController(DatabaseContext context, ILogger<UserController> logger)
+        public UserController(
+            DatabaseContext context,
+            IConfiguration configuration,
+            IHttpContextAccessor httpContextAccessor,
+            ILogger<UserController> logger)
         {
             _context = context;
             _logger = logger;
-            _auth = new Authorization(_context, _logger); ;
+            _configuration = configuration;
+            _httpContextAccessor = httpContextAccessor;
+            _backend = new(_httpContextAccessor, _logger, _configuration);
+            _auth = new(_backend, _context, _logger);
         }
 
         /****************************************
@@ -34,16 +47,14 @@ namespace vmProjectBackend.Controllers
         [HttpPost("admin/createuser")]
         public async Task<ActionResult<User>> PostAdminUser(PostAdmin postUser)
         {
-            // Gets email from session
-            string userEmail = HttpContext.User.Identity.Name;
-
             // Returns a admin user or null if email is not associated with an administrator
-            User admin = _auth.getAdmin(userEmail);
+            User admin = _auth.getAuth("admin");
 
             if (admin != null)
             {
                 // Get user object on the email provided by post
-                User user = _auth.getUser(postUser.email);
+                _lastResponse = _backend.Get("api/v2/User", new { email = postUser.email });
+                User user = JsonConvert.DeserializeObject<User>(_lastResponse.Response);
 
                 // If user doesn't exist, create them with admin privileges
                 if (user == null)
@@ -53,17 +64,18 @@ namespace vmProjectBackend.Controllers
                     user.FirstName = postUser.firstName;
                     user.LastName = postUser.lastName;
                     user.IsAdmin = true;
-                    _context.Users.Add(user);
-                    _context.SaveChanges();
 
+                    _lastResponse = _backend.Post("api/v2/User", user);
+                    
                     return Ok("created user as admin");
                 }
                 // Else edit found user to be an admin
                 else
                 {
                     user.IsAdmin = true;
-                    _context.Users.Update(user);
-                    _context.SaveChanges();
+
+                    _lastResponse = _backend.Put("api/v2/User", user);
+
                     return Ok("modified user to be admin");
                 }
             }

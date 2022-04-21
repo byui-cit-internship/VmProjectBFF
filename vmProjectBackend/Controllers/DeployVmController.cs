@@ -30,6 +30,7 @@ namespace vmProjectBackend.Controllers
         private readonly ILogger<DeployVmController> _logger;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private BackendResponse _lastResponse;
 
         public DeployVmController(
             IConfiguration configuration,
@@ -49,32 +50,16 @@ namespace vmProjectBackend.Controllers
         [HttpPost()]
         public async Task<ActionResult> PostVmTable(string enrollment_id)
         {
-            string userEmail = HttpContext.User.Identity.Name;
             // check if it is student
             User studentUser = _auth.getAuth("user");
             // students are able to store their vm's details
             if (studentUser != null)
             {
+                _lastResponse = _backend.Get("api/v1/CreateVm", new {enrollmentId=enrollment_id});
+                CreateVmDTO createVm = JsonConvert.DeserializeObject<List<CreateVmDTO>>(_lastResponse.Response).FirstOrDefault();
                 //Query the student name in order to use it as the vm's name
-                var courseList = (from u in _context.Users
-                                  join usr in _context.UserSectionRoles
-                                  on u.UserId equals usr.UserId
-                                  join s in _context.Sections
-                                  on usr.SectionId equals s.SectionId
-                                  join c in _context.Courses
-                                  on s.CourseId equals c.CourseId
-                                  where u.UserId == studentUser.UserId
-                                  select new
-                                  {
-                                     student_name = $"{u.FirstName} {u.LastName}",
-                                     course_name = c.CourseName,
-                                     course_id = c.CourseId,
-                                     template_id = c.TemplateVm,
-                                     course_semester = c.Semester,
-                                     enrollment_id = usr.UserSectionRoleId,
-                                     folder = c.Folder
-                                  }).ToArray();
-                var template_id = courseList[0].template_id;
+                
+                string template_id = createVm.Template_id;
 
                 // Create a session token
                 var httpClient = _httpClientFactory.CreateClient();
@@ -101,7 +86,7 @@ namespace vmProjectBackend.Controllers
                         name = HttpContext.User.Identity.Name,
                         placement = new Placement
                         {
-                            folder = courseList[0].folder,
+                            folder = createVm.Folder,
 
                             resource_pool = resourcePool
 
@@ -123,16 +108,18 @@ namespace vmProjectBackend.Controllers
                     //  var content2 = await postResponse.Content.ReadAsStringAsync();
 
                     //  var createdCompany = JsonSerializer.Deserialize<DeployDto>(content, _options);
-                    VmTable vmTable = new VmTable();
+                    _lastResponse = _backend.Get("api/v2/VmTemplate", new { vmTeampleVcenterId = template_id });
+                    VmTemplate template = JsonConvert.DeserializeObject<List<VmTemplate>>(_lastResponse.Response).FirstOrDefault();
 
-                    vmTable.VmFolder = courseList[0].folder;
-                    vmTable.VmName = courseList[0].student_name;
-                    vmTable.VmResourcePool = resourcePool;
+                    VmInstance vmInstance = new();
+                    vmInstance.VmInstanceVcenterId = postResponse.Content.ReadAsStringAsync().Result;
+                    vmInstance.VmTemplateId = template.VmTemplateId;
+                    vmInstance.VmInstanceExpireDate = DateTime.MaxValue;
 
-                    _context.VmTables.Add(vmTable);
-                    await _context.SaveChangesAsync();
+                    _lastResponse = _backend.Post("api/v1/CreateVm", vmInstance);
+                    vmInstance = JsonConvert.DeserializeObject<VmInstance>(_lastResponse.Response);
 
-                    return Ok("something was sent");
+                    return Ok(vmInstance);
                 }
                 return Ok("here session");
             }

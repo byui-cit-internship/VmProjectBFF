@@ -130,10 +130,10 @@ namespace vmProjectBackend.Services
                                     string studentFirstName = splitName.First();
                                     string studentLastName = splitName.Last();
 
+
+                                    _lastResponse = _backend.Get("api/v2/User", new { email = studentEmail });
+                                    User student = JsonConvert.DeserializeObject<User>(_lastResponse.Response);
                                     // check if the student is already created, if not then create and enroll in that class
-                                    User student = (from u in _context.Users
-                                                    where u.Email == studentEmail
-                                                    select u).FirstOrDefault();
 
                                     if (student == null)
                                     {
@@ -142,37 +142,20 @@ namespace vmProjectBackend.Services
                                         student.FirstName = studentFirstName;
                                         student.LastName = studentLastName;
                                         student.IsAdmin = false;
-                                        _context.Users.Add(student);
-                                        _context.SaveChanges();
+
+                                        _lastResponse = _backend.Post("api/v2/User", student);
+                                        student = JsonConvert.DeserializeObject<User>(_lastResponse.Response);
                                     }
+                                    _lastResponse = _backend.Get("api/v2/UserSectioRole", new { userId = student.UserId, sectionId = section.SectionId });
+                                    UserSectionRole enrollment = JsonConvert.DeserializeObject<UserSectionRole>(_lastResponse.Response);
 
-                                    var studentSectionEnrollments = (from u in _context.Users
-                                                                     join usr in _context.UserSectionRoles
-                                                                     on u.UserId equals usr.UserId
-                                                                     join s in _context.Sections
-                                                                     on usr.SectionId equals s.SectionId
-                                                                     join c in _context.Courses
-                                                                     on s.CourseId equals c.CourseId
-                                                                     where u.UserId == student.UserId
-                                                                     where s.SectionId == section.SectionId
-                                                                     select new
-                                                                     {
-                                                                         course_id = s.SectionCanvasId,
-                                                                         course_name = c.CourseName,
-                                                                         enrollment_id = usr.UserSectionRoleId,
-                                                                         student_name = $"{u.FirstName} {u.LastName}",
-                                                                         template_id = c.TemplateVm
-                                                                     }).ToList();
-
-                                    if (studentSectionEnrollments.Count == 0)//student enrollment hasn't been imported from canvas to database yet
+                                    if (enrollment == null)//student enrollment hasn't been imported from canvas to database yet
                                     {
-
-                                        UserSectionRole enrollment = new UserSectionRole();
                                         enrollment.UserId = student.UserId;
                                         enrollment.RoleId = studentRole.RoleId;
                                         enrollment.SectionId = section.SectionId;
-                                        _context.UserSectionRoles.Add(enrollment);
-                                        _context.SaveChanges();
+
+                                        _lastResponse = _backend.Post("api/v2/UserSectionRole", enrollment);
                                     }
                                 }
                             }
