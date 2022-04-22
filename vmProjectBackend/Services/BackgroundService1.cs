@@ -108,7 +108,10 @@ namespace vmProjectBackend.Services
                                 // and enroll them in that class
                                 string studentEmail = canvasStudent["email"];
                                 string studentFullName = canvasStudent["name"];
-
+                                if (studentEmail == null)
+                                {
+                                    continue;
+                                }
                                 string[] splitName = studentFullName.Split(' ');
 
                                 string studentFirstName = splitName.First();
