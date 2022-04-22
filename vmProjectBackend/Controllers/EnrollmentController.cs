@@ -22,27 +22,15 @@ namespace vmProjectBackend.Controllers
         private readonly Authorization _auth;
         private readonly BackgroundService1 _bs1;
 
-
-        private readonly IServiceScope _scope;
-
         ILogger Logger { get; } = AppLogger.CreateLogger<EnrollmentController>();
 
 
-        public EnrollmentController(DatabaseContext context, IHttpClientFactory httpClientFactory, IServiceProvider serviceProvider)
+        public EnrollmentController(DatabaseContext context, IHttpClientFactory httpClientFactory)
         {
             _context = context;
             _httpClientFactory = httpClientFactory;
             _auth = new Authorization(_context);
-            // _scope = scope;
         }
-
-        // [HttpPost("backgroundservice")]
-        // public async Task<ActionResult> RunBackgroundService(){
-        //     IServiceProvider services = _scope.ServiceProvider;
-        //     BackgroundService1 backgroundService = services.GetRequiredService<BackgroundService1>();
-        //     await backgroundService.ReadAndUpdateDB();
-        //     return Ok();
-        // }
 
 
         /****************************************

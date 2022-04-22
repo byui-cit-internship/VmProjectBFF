@@ -106,7 +106,7 @@ namespace vmProjectBackend.Controllers
 
                         _context.SessionTokens.Add(sessionToken);
                         _context.SaveChanges();
-                        _httpContextAccessor.HttpContext.Response.Cookies.Append("vima_session_cookie",sessionToken.SessionCookie, new CookieOptions(){SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict});
+                        _httpContextAccessor.HttpContext.Session.SetString("sessionTokenValue", sessionToken.SessionTokenValue.ToString());
                     }
                     else if (DateTime.Compare(sessionToken.ExpireDate, DateTime.Now) < 0)
                     {
@@ -132,7 +132,7 @@ namespace vmProjectBackend.Controllers
         public async Task<ActionResult> DeleteSession()
         {
             _httpContextAccessor.HttpContext.Session.Clear();
-            _httpContextAccessor.HttpContext.Response.Cookies.Delete("vima_session_cookie");
+            _httpContextAccessor.HttpContext.Response.Cookies.Delete(".VMProject.Session");
             return Ok();
         }
     }
