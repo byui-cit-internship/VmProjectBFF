@@ -1,11 +1,9 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
-using vmProjectBackend.DAL;
 using vmProjectBackend.Services;
 
 namespace vmProjectBackend
@@ -26,7 +24,6 @@ namespace vmProjectBackend
             AppLogger.LoggerFactory = LoggerFactory;
             BackgroundService1 bs1 = services.GetRequiredService<BackgroundService1>();
             bs1.ReadAndUpdateDB();
-            CreateDbOrMigrate(services);
 
             host.Run();
         }
@@ -46,20 +43,5 @@ namespace vmProjectBackend
                 {
                     webBuilder.UseStartup<Startup>();
                 });
-
-        private static void CreateDbOrMigrate(IServiceProvider services)
-        {
-            DatabaseContext context = services.GetRequiredService<DatabaseContext>();
-            ILogger logger = AppLogger.CreateLogger<Program>();
-            try
-            {
-                context.Database.Migrate();
-                logger.LogInformation("Database is working and migrations have been applied.");
-            }
-            catch (Exception e)
-            {
-                logger.LogError(e, "An error occurred creating the DB.");
-            }
-        }
     }
 }

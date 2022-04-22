@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -7,7 +6,6 @@ using System;
 using System.Text;
 using System.Linq;
 using System.Net.Http;
-using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using vmProjectBackend.DTO;
@@ -184,10 +182,6 @@ namespace vmProjectBackend.Controllers
             var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session");
 
             return Ok("Session Deleted");
-
         }
-
     }
-
-
 }

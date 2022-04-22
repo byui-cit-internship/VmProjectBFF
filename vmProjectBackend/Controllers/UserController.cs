@@ -1,14 +1,11 @@
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
 using Microsoft.AspNetCore.Authorization;
 using vmProjectBackend.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
-using System.Net.Http;
 using vmProjectBackend.DTO;
 using Newtonsoft.Json;
 
@@ -21,24 +18,21 @@ namespace vmProjectBackend.Controllers
     {
         private readonly Authorization _auth;
         private readonly Backend _backend;
-        private readonly DatabaseContext _context;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<UserController> _logger;
         private BackendResponse _lastResponse;
 
         public UserController(
-            DatabaseContext context,
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor,
             ILogger<UserController> logger)
         {
-            _context = context;
             _logger = logger;
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
             _backend = new(_httpContextAccessor, _logger, _configuration);
-            _auth = new(_backend, _context, _logger);
+            _auth = new(_backend, _logger);
         }
 
         /****************************************

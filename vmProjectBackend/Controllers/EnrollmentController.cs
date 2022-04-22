@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
 using vmProjectBackend.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,7 +23,6 @@ namespace vmProjectBackend.Controllers
     {
         private readonly Authorization _auth;
         private readonly Backend _backend;
-        private readonly DatabaseContext _context;
         private readonly IConfiguration _configuration;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -34,19 +32,17 @@ namespace vmProjectBackend.Controllers
         private BackendResponse _lastResponse;
 
         public EnrollmentController(
-            DatabaseContext context,
             IConfiguration configuration,
             IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
             ILogger<EnrollmentController> logger,
             IServiceProvider serviceProvider)
         {
-            _context = context;
             _logger = logger;
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
             _backend = new(_httpContextAccessor, _logger, _configuration);
-            _auth = new(_backend, _context, _logger);
+            _auth = new(_backend, _logger);
             _httpClientFactory = httpClientFactory;
             // _scope = scope;
         }
