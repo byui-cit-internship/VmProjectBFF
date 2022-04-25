@@ -31,7 +31,11 @@ namespace vmProjectBackend.Services
         // public List<CourseCreate> coursedata = new List<CourseCreate>();
 
 
-        public BackgroundService1(DatabaseContext context, ILogger<BackgroundService1> logger, IHttpClientFactory httpClientFactory, IConfiguration configuration)
+        public BackgroundService1(
+            DatabaseContext context,
+            ILogger<BackgroundService1> logger,
+            IHttpClientFactory httpClientFactory,
+            IConfiguration configuration)
         {
             _context = context;
             _logger = logger;

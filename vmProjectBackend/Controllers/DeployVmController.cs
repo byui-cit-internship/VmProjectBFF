@@ -53,80 +53,87 @@ namespace vmProjectBackend.Controllers
         [HttpPost()]
         public async Task<ActionResult<VmDetail>> PostVmTable(string enrollment_id)
         {
-            // check if it is student
-            User studentUser = _auth.getAuth("user");
-            // students are able to store their vm's details
-            if (studentUser != null)
+            try
             {
-                _lastResponse = _backend.Get("api/v1/CreateVm", new {enrollmentId=enrollment_id});
-                CreateVmDTO createVm = JsonConvert.DeserializeObject<List<CreateVmDTO>>(_lastResponse.Response).FirstOrDefault();
-                //Query the student name in order to use it as the vm's name
-                
-                string template_id = createVm.Template_id;
 
-                // Create a session token
-                var httpClient = _httpClientFactory.CreateClient();
-                string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
-                //Adding headers
-                httpClient.DefaultRequestHeaders.Add("Authorization", base64);
-                var tokenResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session", null);
-                Console.WriteLine(tokenResponse);
-                string tokenstring = " ";
-                tokenstring = await tokenResponse.Content.ReadAsStringAsync();
-                //Taking quotes out of the tokenstring variable s = s.Replace("\"", "");
-                tokenstring = tokenstring.Replace("\"", "");
-                tokenstring = tokenstring.Replace("{", "");
-                tokenstring = tokenstring.Replace("value:", "");
-                tokenstring = tokenstring.Replace("}", "");
-                httpClient.DefaultRequestHeaders.Add("Cookie", $"vmware-api-session-id={tokenstring}");
-                if (tokenResponse.IsSuccessStatusCode)
+
+                User studentUser = _auth.getAuth("user");
+
+                if (studentUser != null)
                 {
-                    string resourcePool = _configuration["Resource_Pool"];
-                    // Create vm with the information we have in vsphere
-                    var deploy = new Deploy
+                    _lastResponse = _backend.Get("api/v1/CreateVm", new { enrollmentId = enrollment_id });
+                    CreateVmDTO createVm = JsonConvert.DeserializeObject<List<CreateVmDTO>>(_lastResponse.Response).FirstOrDefault();
+
+                    string template_id = createVm.Template_id;
+
+                    // Create a session token
+                    var httpClient = _httpClientFactory.CreateClient();
+                    string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
+                    //Adding headers
+                    httpClient.DefaultRequestHeaders.Add("Authorization", base64);
+                    var tokenResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session", null);
+                    Console.WriteLine(tokenResponse);
+                    string tokenstring = " ";
+                    tokenstring = await tokenResponse.Content.ReadAsStringAsync();
+                    //Taking quotes out of the tokenstring variable s = s.Replace("\"", "");
+                    tokenstring = tokenstring.Replace("\"", "");
+                    tokenstring = tokenstring.Replace("{", "");
+                    tokenstring = tokenstring.Replace("value:", "");
+                    tokenstring = tokenstring.Replace("}", "");
+                    httpClient.DefaultRequestHeaders.Add("Cookie", $"vmware-api-session-id={tokenstring}");
+                    if (tokenResponse.IsSuccessStatusCode)
                     {
-
-                        name = HttpContext.User.Identity.Name,
-                        placement = new Placement
+                        string resourcePool = _configuration["Resource_Pool"];
+                        // Create vm with the information we have in vsphere
+                        var deploy = new Deploy
                         {
-                            folder = createVm.Folder,
 
-                            resource_pool = resourcePool
+                            name = HttpContext.User.Identity.Name,
+                            placement = new Placement
+                            {
+                                folder = createVm.Folder,
 
-                        }
-                    };
-                    var deployResult = JsonConvert.SerializeObject(deploy);
+                                resource_pool = resourcePool
 
-                    // var content = new StringContent(deployResult);
+                            }
+                        };
+                        var deployResult = JsonConvert.SerializeObject(deploy);
 
-                    var deployContent = new StringContent(deployResult, Encoding.UTF8, "application/json");
+                        // var content = new StringContent(deployResult);
 
-                    // var content2 = new StringContent(content, Encoding.UTF8, "application/json");
+                        var deployContent = new StringContent(deployResult, Encoding.UTF8, "application/json");
 
-                    // return Ok(content2);
+                        // var content2 = new StringContent(content, Encoding.UTF8, "application/json");
 
-                    var postResponse = await httpClient.PostAsync($"https://vctr-dev.citwdd.net/api/vcenter/vm-template/library-items/{template_id}?action=deploy", deployContent);
-                    
-                    var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session");
-                    //  var content2 = await postResponse.Content.ReadAsStringAsync();
+                        // return Ok(content2);
 
-                    //  var createdCompany = JsonSerializer.Deserialize<DeployDto>(content, _options);
-                    _lastResponse = _backend.Get("api/v2/VmTemplate", new { vmTeampleVcenterId = template_id });
-                    VmTemplate template = JsonConvert.DeserializeObject<List<VmTemplate>>(_lastResponse.Response).FirstOrDefault();
+                        var postResponse = await httpClient.PostAsync($"https://vctr-dev.citwdd.net/api/vcenter/vm-template/library-items/{template_id}?action=deploy", deployContent);
 
-                    VmInstance vmInstance = new();
-                    vmInstance.VmInstanceVcenterId = postResponse.Content.ReadAsStringAsync().Result;
-                    vmInstance.VmTemplateId = template.VmTemplateId;
-                    vmInstance.VmInstanceExpireDate = DateTime.MaxValue;
+                        var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session");
+                        //  var content2 = await postResponse.Content.ReadAsStringAsync();
 
-                    _lastResponse = _backend.Post("api/v1/CreateVm", vmInstance);
-                    vmInstance = JsonConvert.DeserializeObject<VmInstance>(_lastResponse.Response);
+                        //  var createdCompany = JsonSerializer.Deserialize<DeployDto>(content, _options);
+                        _lastResponse = _backend.Get("api/v2/VmTemplate", new { vmTeampleVcenterId = template_id });
+                        VmTemplate template = JsonConvert.DeserializeObject<List<VmTemplate>>(_lastResponse.Response).FirstOrDefault();
 
-                    return Ok(vmInstance);
+                        VmInstance vmInstance = new();
+                        vmInstance.VmInstanceVcenterId = postResponse.Content.ReadAsStringAsync().Result;
+                        vmInstance.VmTemplateId = template.VmTemplateId;
+                        vmInstance.VmInstanceExpireDate = DateTime.MaxValue;
+
+                        _lastResponse = _backend.Post("api/v1/CreateVm", vmInstance);
+                        vmInstance = JsonConvert.DeserializeObject<VmInstance>(_lastResponse.Response);
+
+                        return Ok(vmInstance);
+                    }
+                    return Ok("here session");
                 }
-                return Ok("here session");
+                return Unauthorized("You are not Authorized and this is not a student");
             }
-            return Unauthorized("You are not Authorized and this is not a student");
+            catch (BackendException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
         }
 
         [HttpGet("resource-pool")]
@@ -166,7 +173,6 @@ namespace vmProjectBackend.Controllers
         }
 
         [HttpDelete()]
-
         public async Task<IActionResult> DeleteSession()
         {
             // Create a session token

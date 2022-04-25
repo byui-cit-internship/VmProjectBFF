@@ -57,13 +57,10 @@ namespace vmProjectBackend.Controllers
         [HttpGet("templates/all")]
         public async Task<ActionResult<IEnumerable<string>>> GetTemplates(string libraryId)
         {
-            string userEmail = HttpContext.User.Identity.Name;
-            //check if it is a professor
             User professorUser = _auth.getAuth("admin");
 
             if (professorUser != null)
             {
-
                 try
                 {
 

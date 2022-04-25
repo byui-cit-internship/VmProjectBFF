@@ -47,39 +47,42 @@ namespace vmProjectBackend.Controllers
         [HttpPost("admin/createuser")]
         public async Task<ActionResult<User>> PostAdminUser(PostAdmin postUser)
         {
-            // Returns a admin user or null if email is not associated with an administrator
-            User admin = _auth.getAuth("admin");
-
-            if (admin != null)
+            try
             {
-                // Get user object on the email provided by post
-                _lastResponse = _backend.Get("api/v2/User", new { email = postUser.email });
-                User user = JsonConvert.DeserializeObject<User>(_lastResponse.Response);
+                User admin = _auth.getAuth("admin");
 
-                // If user doesn't exist, create them with admin privileges
-                if (user == null)
+                if (admin != null)
                 {
-                    user = new User();
-                    user.Email = postUser.email;
-                    user.FirstName = postUser.firstName;
-                    user.LastName = postUser.lastName;
-                    user.IsAdmin = true;
+                    _lastResponse = _backend.Get("api/v2/User", new { email = postUser.email });
+                    User user = JsonConvert.DeserializeObject<User>(_lastResponse.Response);
 
-                    _lastResponse = _backend.Post("api/v2/User", user);
-                    
-                    return Ok("created user as admin");
+                    if (user == null)
+                    {
+                        user = new User();
+                        user.Email = postUser.email;
+                        user.FirstName = postUser.firstName;
+                        user.LastName = postUser.lastName;
+                        user.IsAdmin = true;
+
+                        _lastResponse = _backend.Post("api/v2/User", user);
+
+                        return Ok("created user as admin");
+                    }
+                    else
+                    {
+                        user.IsAdmin = true;
+
+                        _lastResponse = _backend.Put("api/v2/User", user);
+
+                        return Ok("modified user to be admin");
+                    }
                 }
-                // Else edit found user to be an admin
-                else
-                {
-                    user.IsAdmin = true;
-
-                    _lastResponse = _backend.Put("api/v2/User", user);
-
-                    return Ok("modified user to be admin");
-                }
+                return Unauthorized();
             }
-            return Unauthorized();
+            catch (BackendException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
         }
     }
 }

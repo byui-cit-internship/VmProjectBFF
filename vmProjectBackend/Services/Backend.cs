@@ -62,8 +62,8 @@ namespace vmProjectBackend.Services
             if (!response.IsSuccessStatusCode)
             {
                 string responseErrorContent = response.Content.ReadAsStringAsync().Result;
-                LogError(path, response, responseErrorContent);
-                throw new BackendException(response.StatusCode, responseErrorContent);
+                string responseErrorMessage = LogError(path, response, responseErrorContent);
+                throw new BackendException(response.StatusCode, responseErrorMessage);
             }
             if (response.Headers.Contains("Set-Cookie"))
             {
@@ -108,10 +108,12 @@ namespace vmProjectBackend.Services
             return new BackendResponse(postResponse.StatusCode, postResponse.Content.ReadAsStringAsync().Result, postResponse);
         }
 
-        public void LogError(string path, HttpResponseMessage httpResponse, string message)
+        public string LogError(string path, HttpResponseMessage httpResponse, string message)
         {
-            _logger.LogError($"Error has occurred in \"{httpResponse.RequestMessage.Method}\" request to \"{_configuration.GetConnectionString("BackendRootUri")}{path}\" "
-                           + $"with status code \"{(int)httpResponse.StatusCode}\" and message \"{message}\"");
+            string errorMessage = $"Error has occurred in \"{httpResponse.RequestMessage.Method}\" request to \"{_configuration.GetConnectionString("BackendRootUri")}{path}\" "
+                                + $"with status code \"{(int)httpResponse.StatusCode}\" and message \"{message}\""
+            _logger.LogError(errorMessage);
+            return errorMessage;
         }
     }
 }

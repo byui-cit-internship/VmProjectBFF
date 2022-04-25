@@ -51,15 +51,22 @@ namespace vmProjectBackend.Controllers
         [HttpGet()]
         public async Task<ActionResult<IEnumerable<Course>>> GetCourses()
         {
-            User student = _auth.getAuth("user");
-            if (student != null)
+            try
             {
-                _lastResponse = _backend.Get($"api/v1/StudentCourse", new {queryUserId = student.UserId});
-                List<CourseListByUserDTO> courseList = JsonConvert.DeserializeObject<List<CourseListByUserDTO>>(_lastResponse.Response);
+                User student = _auth.getAuth("user");
+                if (student != null)
+                {
+                    _lastResponse = _backend.Get($"api/v1/StudentCourse", new { queryUserId = student.UserId });
+                    List<CourseListByUserDTO> courseList = JsonConvert.DeserializeObject<List<CourseListByUserDTO>>(_lastResponse.Response);
 
-                return Ok(courseList);
+                    return Ok(courseList);
+                }
+                return Unauthorized("You are not an Authorized User");
             }
-            return Unauthorized("You are not an Authorized User");
+            catch (BackendException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
         }
     }
 }

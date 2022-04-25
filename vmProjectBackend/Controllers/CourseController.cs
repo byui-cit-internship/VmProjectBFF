@@ -46,31 +46,24 @@ namespace vmProjectBackend.Controllers
         }
 
         /****************************************
-        Returns secions taught by a professor in a given semester
-        ****************************************/
+         * 
+         ***************************************/
         [HttpGet("professor/semester/{course_semester}")]
         public async Task<ActionResult> GetCoursesBySemester(string semester)
         {
             try
             {
-
-
-                // Returns a professor user or null if email is not associated with a professor
                 User professor = _auth.getAuth("admin");
 
                 if (professor != null)
                 {
-                    // Returns a list of course name, section id, semester, and professor
-                    // based on the professor and semester variables
                     BackendResponse sectionListResponse = _backend.Get($"api/v1/section/sectionList/{semester}");
                     List<OldSectionDTO> sectionList = JsonConvert.DeserializeObject<List<OldSectionDTO>>(sectionListResponse.Response);
                     return Ok(sectionList);
-
                 }
-
                 else
                 {
-                    return NotFound("You are not Authorized and not a Professor");
+                    return BadRequest("You are not Authorized and not a Professor");
                 }
             }
             catch (BackendException be)
