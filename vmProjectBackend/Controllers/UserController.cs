@@ -1,13 +1,13 @@
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using vmProjectBackend.Models;
-using Microsoft.AspNetCore.Authorization;
-using vmProjectBackend.Services;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
-using vmProjectBackend.DTO;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System.Threading.Tasks;
+using vmProjectBackend.DTO;
+using vmProjectBackend.Models;
+using vmProjectBackend.Services;
 
 namespace vmProjectBackend.Controllers
 {
