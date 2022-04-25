@@ -1,13 +1,13 @@
 ﻿namespace vmProjectBackend.DTO
 {
-    public class AccessToken
+    public class AccessTokenDTO
     {
         public string AccessTokenValue { get; set; }
         public string CookieValue { get; set; }
         public string CookieName { get; set; }
         public string SiteFrom { get; set; }
 
-        public AccessToken(string accessTokenValue)
+        public AccessTokenDTO(string accessTokenValue)
         {
             AccessTokenValue = accessTokenValue;
         }

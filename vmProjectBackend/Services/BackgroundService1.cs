@@ -46,7 +46,7 @@ namespace vmProjectBackend.Services
         {
             try
             {
-                _lastResponse = _backend.Post("api/v1/token", new DTO.AccessToken(_configuration.GetConnectionString("BackendConnectionPassword")));
+                _lastResponse = _backend.Post("api/v1/token", new DTO.AccessTokenDTO(_configuration.GetConnectionString("BackendConnectionPassword")));
 
                 if (!_lastResponse.HttpResponse.IsSuccessStatusCode && !_lastResponse.HttpResponse.Headers.Contains("Set-Cookie"))
                 {

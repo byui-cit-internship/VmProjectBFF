@@ -43,7 +43,7 @@ namespace vmProjectBackend.Controllers
         ****************************************/
         [HttpPost()]
         [AllowAnonymous]
-        public async Task<ActionResult> GetToken([FromBody] DTO.AccessToken accessTokenObj)
+        public async Task<ActionResult> GetToken([FromBody] DTO.AccessTokenDTO accessTokenObj)
         {
             try
             {
