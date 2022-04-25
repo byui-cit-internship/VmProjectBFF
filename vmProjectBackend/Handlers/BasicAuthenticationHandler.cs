@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using System;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
@@ -111,6 +112,10 @@ namespace vmProjectBackend.Handlers
             catch (BackendException be)
             {
                 return AuthenticateResult.Fail($"Failure to contact backend, returned message \"{be.Message}\"");
+            } 
+            catch (Exception e)
+            {
+                return AuthenticateResult.Fail("Something's wrong");
             }
         }
 
