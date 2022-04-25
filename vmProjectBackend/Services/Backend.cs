@@ -110,7 +110,7 @@ namespace vmProjectBackend.Services
         public string LogError(string path, HttpResponseMessage httpResponse, string message)
         {
             string errorMessage = $"Error has occurred in \"{httpResponse.RequestMessage.Method}\" request to \"{_configuration.GetConnectionString("BackendRootUri")}{path}\" "
-                                + $"with status code \"{(int)httpResponse.StatusCode}\" and message \"{message}\""
+                                + $"with status code \"{(int)httpResponse.StatusCode}\" and message \"{message}\"";
             _logger.LogError(errorMessage);
             return errorMessage;
         }

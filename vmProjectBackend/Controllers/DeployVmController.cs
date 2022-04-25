@@ -50,8 +50,6 @@ namespace vmProjectBackend.Controllers
         {
             try
             {
-
-
                 User studentUser = _auth.getAuth("user");
 
                 if (studentUser != null)

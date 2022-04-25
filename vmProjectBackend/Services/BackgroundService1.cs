@@ -30,7 +30,6 @@ namespace vmProjectBackend.Services
 
 
         public BackgroundService1(
-            DatabaseContext context,
             ILogger<BackgroundService1> logger,
             IHttpClientFactory httpClientFactory,
             IConfiguration configuration)
