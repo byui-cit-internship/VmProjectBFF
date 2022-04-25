@@ -9,7 +9,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
 using vmProjectBackend.DTO;
 
@@ -18,7 +17,6 @@ namespace vmProjectBackend.Services
     public class BackgroundService1 : BackgroundService
     {
         private readonly Backend _backend;
-        private readonly DatabaseContext _context;
         private readonly IConfiguration _configuration;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<BackgroundService1> _logger;
@@ -37,7 +35,6 @@ namespace vmProjectBackend.Services
             IHttpClientFactory httpClientFactory,
             IConfiguration configuration)
         {
-            _context = context;
             _logger = logger;
             _configuration = configuration;
             _backend = new("temp", _logger, _configuration);

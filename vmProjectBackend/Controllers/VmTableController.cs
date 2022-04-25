@@ -1,20 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
 using vmProjectBackend.DTO;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Http;
-using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http;
-using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
 using vmProjectBackend.Services;
 using Microsoft.Extensions.Logging;
@@ -31,25 +23,22 @@ namespace vmProjectBackend.Controllers
 
         private readonly Authorization _auth;
         private readonly Backend _backend;
-        private readonly DatabaseContext _context;
         private readonly IConfiguration _configuration;
         private readonly ILogger<VmTableController> _logger;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public VmTableController(
-            DatabaseContext context,
             IConfiguration configuration,
             IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
             ILogger<VmTableController> logger)
         {
-            _context = context;
             _logger = logger;
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
             _backend = new(_httpContextAccessor, _logger, _configuration);
-            _auth = new(_backend, _context, _logger);
+            _auth = new(_backend, _logger);
             _httpClientFactory = httpClientFactory;
         }
 

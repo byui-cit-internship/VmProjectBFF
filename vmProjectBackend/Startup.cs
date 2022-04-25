@@ -9,9 +9,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Linq;
-using vmProjectBackend.DAL;
 using vmProjectBackend.Handlers;
-using vmProjectBackend.Services;
 
 namespace vmProjectBackend
 {
@@ -84,9 +82,6 @@ namespace vmProjectBackend
             // ********************ONLY FOR NOW USE****************************
             string connectionString = Configuration.GetConnectionString("DatabaseString");
 
-            services.AddDbContext<DatabaseContext>(opt =>
-                                             opt.UseSqlServer(connectionString));
-
             Logger.LogInformation("Services Configured correctly");
         }
 
@@ -126,19 +121,6 @@ namespace vmProjectBackend
                 Console.WriteLine($"{route.AttributeRouteInfo.Template}");
             }
             Console.WriteLine("Application configured successfully");
-        }
-
-        private static void UpdateDatabase(IApplicationBuilder app)
-        {
-            using (var serviceScope = app.ApplicationServices
-                .GetRequiredService<IServiceScopeFactory>()
-                .CreateScope())
-            {
-                using (var context = serviceScope.ServiceProvider.GetService<DatabaseContext>())
-                {
-                    context.Database.Migrate();
-                }
-            }
         }
     }
 }

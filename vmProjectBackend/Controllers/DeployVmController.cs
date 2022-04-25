@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -7,7 +6,6 @@ using System;
 using System.Text;
 using System.Linq;
 using System.Net.Http;
-using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using vmProjectBackend.DTO;
@@ -26,7 +24,6 @@ namespace vmProjectBackend.Controllers
     {
         private readonly Authorization _auth;
         private readonly Backend _backend;
-        private readonly DatabaseContext _context;
         private readonly IConfiguration _configuration;
         private readonly ILogger<DeployVmController> _logger;
         private readonly IHttpClientFactory _httpClientFactory;
@@ -34,24 +31,22 @@ namespace vmProjectBackend.Controllers
         private BackendResponse _lastResponse;
 
         public DeployVmController(
-            DatabaseContext context,
             IConfiguration configuration,
             IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
             ILogger<DeployVmController> logger)
         {
-            _context = context;
             _logger = logger;
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
             _backend = new(_httpContextAccessor, _logger, _configuration);
-            _auth = new(_backend, _context, _logger);
+            _auth = new(_backend, _logger);
             _httpClientFactory = httpClientFactory;
         }
 
         //Connect our API to a second API that creates our vms 
         [HttpPost()]
-        public async Task<ActionResult<VmDetail>> PostVmTable(string enrollment_id)
+        public async Task<ActionResult> PostVmTable(string enrollment_id)
         {
             try
             {
@@ -193,10 +188,6 @@ namespace vmProjectBackend.Controllers
             var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session");
 
             return Ok("Session Deleted");
-
         }
-
     }
-
-
 }

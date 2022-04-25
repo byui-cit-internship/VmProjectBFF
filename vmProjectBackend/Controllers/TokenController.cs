@@ -1,18 +1,12 @@
-using Google.Apis.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
-using vmProjectBackend.DAL;
 using vmProjectBackend.DTO;
 using vmProjectBackend.Models;
 using vmProjectBackend.Services;
@@ -23,7 +17,6 @@ namespace vmProjectBackend.Controllers
     [ApiController]
     public class TokenController : ControllerBase
     {
-        private readonly DatabaseContext _context;
         private readonly ILogger<TokenController> _logger;
         private readonly Backend _backend;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -32,13 +25,11 @@ namespace vmProjectBackend.Controllers
         private BackendResponse _lastResponse;
 
         public TokenController(
-            DatabaseContext context,
             ILogger<TokenController> logger,
             IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
             IConfiguration configuration)
         {
-            _context = context;
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
             _configuration = configuration;

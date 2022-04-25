@@ -2,7 +2,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using vmProjectBackend.DAL;
 
 // this endpoint is needed for your cloudbuild-dev.yaml file for the livenessProbe.
 // may want to review whether you need to add the [Attorize] declarator.
