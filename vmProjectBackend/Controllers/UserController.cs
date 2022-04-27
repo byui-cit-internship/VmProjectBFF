@@ -40,7 +40,6 @@ namespace vmProjectBackend.Controllers
          * ********************************************/
 
         [HttpPut("")]
-
         public async Task<ActionResult> PutUser(User user)
         {
             User admin = _auth.getAuth("admin");

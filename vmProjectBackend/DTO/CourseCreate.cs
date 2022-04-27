@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace vmProjectBackend.Models
 {
@@ -15,7 +16,7 @@ namespace vmProjectBackend.Models
 
         public string folder { get; set; }
 
-        public string templateVm { get; set; }
+        public List<string> templateVm { get; set; }
 
         public string resource_pool { get; set; }
 

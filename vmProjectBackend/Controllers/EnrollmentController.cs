@@ -137,18 +137,24 @@ namespace vmProjectBackend.Controllers
                         _lastResponse = _backend.Post($"api/v2/ResourceGroup", resourceGroup);
                         resourceGroup = JsonConvert.DeserializeObject<ResourceGroup>(_lastResponse.Response);
 
-                        _lastResponse = _backend.Get($"api/v2/VmTemplate", new { vmTemplateVcenterId = courseDetails.templateVm });
-                        VmTemplate template = JsonConvert.DeserializeObject<VmTemplate>(_lastResponse.Response);
-
-                        if (template == null)
+                        List<VmTemplate> vmTemplates = new();
+                        foreach (string templateVmId in courseDetails.templateVm)
                         {
-                            template = new VmTemplate();
-                            template.VmTemplateVcenterId = courseDetails.templateVm;
-                            template.VmTemplateName = "test";
-                            template.VmTemplateAccessDate = new DateTime(2022, 1, 1);
+                            _lastResponse = _backend.Get($"api/v2/VmTemplate", new { vmTemplateVcenterId = templateVmId });
+                            VmTemplate template = JsonConvert.DeserializeObject<VmTemplate>(_lastResponse.Response);
 
-                            _lastResponse = _backend.Post($"api/v2/VmTemplate", template);
-                            template = JsonConvert.DeserializeObject<VmTemplate>(_lastResponse.Response);
+                            if (template == null)
+                            {
+                                template = new VmTemplate();
+                                template.VmTemplateVcenterId = templateVmId;
+                                template.VmTemplateName = "test";
+                                template.VmTemplateAccessDate = new DateTime(2022, 1, 1);
+
+                                _lastResponse = _backend.Post($"api/v2/VmTemplate", template);
+                                template = JsonConvert.DeserializeObject<VmTemplate>(_lastResponse.Response);
+                            }
+
+                            vmTemplates.Add(template);
                         }
 
                         SectionDTO newSection = new();
@@ -204,17 +210,20 @@ namespace vmProjectBackend.Controllers
                             tag = JsonConvert.DeserializeObject<Tag>(_lastResponse.Response);
                         }
 
-                        _lastResponse = _backend.Get($"api/v2/VmTemplateTag", new { tagId = tag.TagId, vmTemplateId = template.VmTemplateId });
-                        VmTemplateTag vmTemplateTag = JsonConvert.DeserializeObject<VmTemplateTag>(_lastResponse.Response);
-
-                        if (vmTemplateTag == null)
+                        foreach (VmTemplate vmTemplate in vmTemplates)
                         {
-                            vmTemplateTag = new();
-                            vmTemplateTag.VmTemplateId = template.VmTemplateId;
-                            vmTemplateTag.TagId = tag.TagId;
+                            _lastResponse = _backend.Get($"api/v2/VmTemplateTag", new { tagId = tag.TagId, vmTemplateId = vmTemplate.VmTemplateId });
+                            VmTemplateTag vmTemplateTag = JsonConvert.DeserializeObject<VmTemplateTag>(_lastResponse.Response);
 
-                            _lastResponse = _backend.Post($"api/v2/VmTemplateTag", vmTemplateTag);
-                            vmTemplateTag = JsonConvert.DeserializeObject<VmTemplateTag>(_lastResponse.Response);
+                            if (vmTemplateTag == null)
+                            {
+                                vmTemplateTag = new();
+                                vmTemplateTag.VmTemplateId = vmTemplate.VmTemplateId;
+                                vmTemplateTag.TagId = tag.TagId;
+
+                                _lastResponse = _backend.Post($"api/v2/VmTemplateTag", vmTemplateTag);
+                                vmTemplateTag = JsonConvert.DeserializeObject<VmTemplateTag>(_lastResponse.Response);
+                            }
                         }
 
                         UserSectionRole enrollment = new UserSectionRole
