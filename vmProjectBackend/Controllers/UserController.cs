@@ -34,6 +34,52 @@ namespace vmProjectBackend.Controllers
             _backend = new(_httpContextAccessor, _logger, _configuration);
             _auth = new(_backend, _logger);
         }
+        /***********************************************
+         * This is for updating a user
+         * If you are updating your self. 
+         * ********************************************/
+
+        [HttpPut("")]
+
+        public async Task<ActionResult> PutUser(User user)
+        {
+            User admin = _auth.getAuth("admin");
+            if (admin != null)
+            {
+                _lastResponse = _backend.Put("api/v2/User", user);
+                User changedUser = JsonConvert.DeserializeObject<User>(_lastResponse.Response);
+
+                if (admin.UserId == changedUser.UserId)
+                {
+                    return Ok(changedUser);
+                }
+                else
+                {
+                    return Ok("User was modified successfully");
+                }
+
+            }
+            User authUser = _auth.getAuth("user");
+            if (authUser != null)
+            {
+                if(user.UserId == authUser.UserId && user.IsAdmin == authUser.IsAdmin)
+                {
+                    _lastResponse = _backend.Put("api/v2/User", user);
+                    User changedUser = JsonConvert.DeserializeObject<User>(_lastResponse.Response);
+
+                    return Ok(changedUser);
+                }
+                else
+                {
+                    return BadRequest("Bad Request");
+                }
+            }
+
+
+            return Unauthorized("Contact your admin to get access");
+
+
+        }
 
         /****************************************
         Create or update a user in the database to have admin privileges
