@@ -81,21 +81,21 @@ namespace vmProjectBackend.Controllers
                         {
 
                             _lastResponse = _backend.Get($"api/v2/ResourceGroup", new { memory = 0, cpu = 0, resourceGroupName = courseDetails.courseName });
-                            ResourceGroup resourceGroupTemplate = JsonConvert.DeserializeObject<ResourceGroup>(_lastResponse.Response);
-                            if (resourceGroupTemplate == null)
+                            ResourceGroup resourceGroupCourse = JsonConvert.DeserializeObject<ResourceGroup>(_lastResponse.Response);
+                            if (resourceGroupCourse == null)
                             {
-                                resourceGroupTemplate = new();
-                                resourceGroupTemplate.Cpu = 0;
-                                resourceGroupTemplate.Memory = 0;
-                                resourceGroupTemplate.ResourceGroupName = courseDetails.courseName;
-                                _lastResponse = _backend.Post("api/v2/ResourceGroup", resourceGroupTemplate);
-                                resourceGroupTemplate = JsonConvert.DeserializeObject<ResourceGroup>(_lastResponse.Response);
+                                resourceGroupCourse = new();
+                                resourceGroupCourse.Cpu = 0;
+                                resourceGroupCourse.Memory = 0;
+                                resourceGroupCourse.ResourceGroupName = courseDetails.courseName;
+                                _lastResponse = _backend.Post("api/v2/ResourceGroup", resourceGroupCourse);
+                                resourceGroupCourse = JsonConvert.DeserializeObject<ResourceGroup>(_lastResponse.Response);
                             }
 
                             course = new();
                             course.CourseName = courseDetails.courseName;
                             course.CourseCode = courseDetails.courseName;
-                            course.ResourceGroupId = resourceGroupTemplate.ResourceGroupId;
+                            course.ResourceGroupId = resourceGroupCourse.ResourceGroupId;
 
                             _lastResponse = _backend.Post("api/v2/Course", course);
                             course = JsonConvert.DeserializeObject<Course>(_lastResponse.Response);
@@ -132,10 +132,15 @@ namespace vmProjectBackend.Controllers
                         }
 
                         _lastResponse = _backend.Get($"api/v2/ResourceGroup", new { resourceGroupId = course.ResourceGroupId });
-                        ResourceGroup resourceGroup = JsonConvert.DeserializeObject<ResourceGroup>(_lastResponse.Response);
+                        ResourceGroup resourceGroupTemplate = JsonConvert.DeserializeObject<ResourceGroup>(_lastResponse.Response);
 
-                        _lastResponse = _backend.Post($"api/v2/ResourceGroup", resourceGroup);
-                        resourceGroup = JsonConvert.DeserializeObject<ResourceGroup>(_lastResponse.Response);
+                        ResourceGroup resourceGroupSection = new();
+                        resourceGroupSection.Cpu = resourceGroupTemplate.Cpu;
+                        resourceGroupSection.Memory = resourceGroupTemplate.Memory;
+                        resourceGroupSection.ResourceGroupName = $"{resourceGroupTemplate.ResourceGroupName}-{courseDetails.courseName}";
+
+                        _lastResponse = _backend.Post($"api/v2/ResourceGroup", resourceGroupSection);
+                        resourceGroupSection = JsonConvert.DeserializeObject<ResourceGroup>(_lastResponse.Response);
 
                         List<VmTemplate> vmTemplates = new();
                         foreach (string templateVmId in courseDetails.templateVm)
@@ -163,7 +168,7 @@ namespace vmProjectBackend.Controllers
                         newSection.SemesterId = term.SemesterId;
                         newSection.SectionNumber = courseDetails.section_num;
                         newSection.FolderId = folder.FolderId;
-                        newSection.ResourceGroupId = resourceGroup.ResourceGroupId;
+                        newSection.ResourceGroupId = resourceGroupSection.ResourceGroupId;
 
                         _lastResponse = _backend.Post($"api/v2/Section", newSection);
                         newSection = JsonConvert.DeserializeObject<SectionDTO>(_lastResponse.Response);
