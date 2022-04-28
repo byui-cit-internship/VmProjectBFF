@@ -1,22 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
 using vmProjectBackend.DTO;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Http;
-using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http;
-using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
 using vmProjectBackend.Services;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 
 namespace vmProjectBackend.Controllers
 {
@@ -27,42 +21,35 @@ namespace vmProjectBackend.Controllers
 
     {
 
-        private readonly DatabaseContext _context;
-        private readonly IHttpClientFactory _httpClientFactory;
         private readonly Authorization _auth;
-        public VmTableController(DatabaseContext context, IHttpClientFactory httpClientFactory)
+        private readonly Backend _backend;
+        private readonly IConfiguration _configuration;
+        private readonly ILogger<VmTableController> _logger;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public VmTableController(
+            IConfiguration configuration,
+            IHttpClientFactory httpClientFactory,
+            IHttpContextAccessor httpContextAccessor,
+            ILogger<VmTableController> logger)
         {
-            _context = context;
+            _logger = logger;
+            _configuration = configuration;
+            _httpContextAccessor = httpContextAccessor;
+            _backend = new(_httpContextAccessor, _logger, _configuration);
+            _auth = new(_backend, _logger);
             _httpClientFactory = httpClientFactory;
-            _auth = new Authorization(_context);
-        }
-
-        // GET: api/VmTable
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<VmTable>>> GetVmTables()
-        {
-            string userEmail = HttpContext.User.Identity.Name;
-            // check if it is a professor
-            User user_prof = _auth.getAdmin(userEmail);
-
-            if (user_prof != null)
-            {
-                return await _context.VmTables.ToListAsync();
-            }
-            return Unauthorized("You are not Authorized and this is not a professor");
         }
 
         //GET: api/vmtable/templates
         [HttpGet("templates/all")]
         public async Task<ActionResult<IEnumerable<string>>> GetTemplates(string libraryId)
         {
-            string userEmail = HttpContext.User.Identity.Name;
-            //check if it is a professor
-            User professorUser = _auth.getAdmin(userEmail);
+            User professorUser = _auth.getAuth("admin");
 
             if (professorUser != null)
             {
-
                 try
                 {
 
@@ -132,212 +119,6 @@ namespace vmProjectBackend.Controllers
             }
             return Unauthorized("You are not Authorized and is not a professor");
 
-        }
-        // GET: api/VmTable/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<VmTable>> GetVmTable(int id)
-        {
-            string userEmail = HttpContext.User.Identity.Name;
-            // check if it is a professor
-            User professorUser = _auth.getAdmin(userEmail);
-
-
-            if (professorUser != null)
-            {
-                var vmTable = await _context.VmTables.FindAsync(id);
-
-                if (vmTable == null)
-                {
-                    return NotFound();
-                }
-                return Ok(vmTable);
-            }
-            return Unauthorized();
-        }
-        // patch a vm template
-        [HttpPatch("update/{id}")]
-        public async Task<ActionResult> PartialUpdate(int id, JsonPatchDocument<VmTable> patchDoc)
-        {
-            string userEmail = HttpContext.User.Identity.Name;
-            // check if it is a professor
-            User professorUser = _auth.getAdmin(userEmail);
-
-            if (professorUser != null)
-            {
-                var orginalVm = await _context.VmTables.FirstOrDefaultAsync(c => c.VmTableID == id);
-
-                if (orginalVm == null)
-                {
-                    return NotFound();
-                }
-
-                patchDoc.ApplyTo(orginalVm, ModelState);
-                await _context.SaveChangesAsync();
-
-                return Ok(orginalVm);
-            }
-            return Unauthorized();
-
-        }
-        // POST: Api/Utilization
-        //professor creates a template
-        [HttpPost("utilization/professor")]
-        public async Task<ActionResult<VmUtilization>> PostVmRecord(VmUtilization vmUtilization)
-        {
-            string userEmail = HttpContext.User.Identity.Name;
-            //check if it is a professor
-            User professorUser = _auth.getAdmin(userEmail);
-
-            //Save what we have in vmUtilization model into our database
-            if (professorUser != null)
-            {
-                // Saves the information into our db                    
-                _context.VmUtilizations.Add(vmUtilization);
-                await _context.SaveChangesAsync();
-
-                return Ok(vmUtilization);
-
-            }
-
-            return Unauthorized();
-        }
-
-        [HttpGet("utilization")]
-        public async Task<ActionResult<IEnumerable<VmUtilization>>> VmUtilization()
-        {
-            string userEmail = HttpContext.User.Identity.Name;
-            // check if it is a professor
-            User professorUser = _auth.getAdmin(userEmail);
-
-
-            if (professorUser != null)
-            {
-                return await _context.VmUtilizations.ToListAsync();
-            }
-            return Unauthorized("You are not Authorized and you are not a professor");
-        }
-
-        [HttpGet("utilization/student")]
-        public async Task<ActionResult<IEnumerable<VmUtilization>>> GetUtilizations()
-        {
-            string userEmail = HttpContext.User.Identity.Name;
-            // check if it is student
-            User studentUser = _auth.getUser(userEmail);
-            // students are able to store their vm's details 
-            if (studentUser != null)
-            {
-                return await _context.VmUtilizations.ToListAsync();
-            }
-            return Unauthorized("You are not Authorized and you are not a professor");
-        }
-        //Make a request to create a vm in Vcenter
-        [HttpPost("virtualmachine")]
-        public async Task<ActionResult<VmUtilization>> PostVm(VmUtilization vmUtilization)
-        {
-            string userEmail = HttpContext.User.Identity.Name;
-            // check if it is student
-            User studentUser = _auth.getUser(userEmail);
-            // students are able to store their vm's details
-
-            if (studentUser != null)
-            {
-                var httpClient = _httpClientFactory.CreateClient();
-                // Create a vm by calling Vcenter
-                httpClient.DefaultRequestHeaders.Add("Authorization", "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x");
-                // Send vm detalis to Vcenter
-                var response3 = await httpClient.PostAsync("https://vctr-dev.citwdd.net/rest/vcenter/vm", null);
-                string response3String = await response3.Content.ReadAsStringAsync();
-                return Ok(vmUtilization);
-
-            }
-            else
-            {
-                return Unauthorized();
-            }
-
-        }
-        // POST: api/VmTable
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost()]
-        public async Task<ActionResult<VmTable>> PostVmTable(VmTable vmTable)
-        {
-            string userEmail = HttpContext.User.Identity.Name;
-            //check if it is a professor
-            User professorUser = _auth.getAdmin(userEmail);
-
-            if (professorUser != null)
-            {
-                _context.VmTables.Add(vmTable);
-                await _context.SaveChangesAsync();
-
-                return Ok(vmTable);
-            }
-            return Unauthorized();
-        }
-
-        // DELETE: api/VmTable/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteVmTable(int id)
-        {
-            string userEmail = HttpContext.User.Identity.Name;
-            //check if it is a professor
-            User professorUser = _auth.getAdmin(userEmail);
-
-            //Save what we have in vmUtilization model into our database
-            if (professorUser != null)
-            {
-                var vmTable = await _context.VmTables.FindAsync(id);
-                if (vmTable == null)
-                {
-                    return NotFound();
-                }
-                _context.VmTables.Remove(vmTable);
-                await _context.SaveChangesAsync();
-
-                return NoContent();
-            }
-            return Unauthorized();
-        }
-        // PUT: api/VmTable/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("update/{id}")]
-        public async Task<IActionResult> PutVmTable(int id, VmTable vmTable)
-        {
-            string userEmail = HttpContext.User.Identity.Name;
-            //check if it is a professor
-            User professorUser = _auth.getAdmin(userEmail);
-
-            if (professorUser != null)
-            {
-                if (id != vmTable.VmTableID)
-                {
-                    return BadRequest();
-                }
-
-                _context.Entry(vmTable).State = EntityState.Modified;
-
-                try
-                {
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!VmTableExists(id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return NoContent();
-            }
-            return Unauthorized();
-        }
-        private bool VmTableExists(int id)
-        {
-            return _context.VmTables.Any(e => e.VmTableID == id);
         }
     }
 }

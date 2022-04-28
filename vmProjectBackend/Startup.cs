@@ -9,9 +9,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Linq;
-using vmProjectBackend.DAL;
 using vmProjectBackend.Handlers;
-using vmProjectBackend.Services;
 
 namespace vmProjectBackend
 {
@@ -41,6 +39,17 @@ namespace vmProjectBackend
            .AddNewtonsoftJson(
                opts => opts.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
            );
+
+            services.AddSession(options =>
+            {
+                options.Cookie.Name = ".VMProjectBFF.Session";
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+                options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict;
+                options.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest;
+                options.IdleTimeout = TimeSpan.FromDays(5);
+            });
+
             // This is needed to register my Background service
             // UNCOMMENT LATER services.AddHostedService<BackgroundService1>();
             // Allow to use client Factory
@@ -49,16 +58,6 @@ namespace vmProjectBackend
             services.AddHttpContextAccessor();
 
             services.AddDistributedMemoryCache();
-
-            services.AddSession(options =>
-            {
-                options.Cookie.Name = ".VMProject.Session";
-                options.Cookie.HttpOnly = true;
-                options.Cookie.IsEssential = true;
-                options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict;
-                options.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest;
-                options.IdleTimeout = TimeSpan.FromDays(5);
-            });
 
             services.AddControllers().AddNewtonsoftJson(s =>
             {
@@ -82,9 +81,6 @@ namespace vmProjectBackend
 
             // ********************ONLY FOR NOW USE****************************
             string connectionString = Configuration.GetConnectionString("DatabaseString");
-
-            services.AddDbContext<DatabaseContext>(opt =>
-                                             opt.UseSqlServer(connectionString));
 
             Logger.LogInformation("Services Configured correctly");
         }
@@ -125,19 +121,6 @@ namespace vmProjectBackend
                 Console.WriteLine($"{route.AttributeRouteInfo.Template}");
             }
             Console.WriteLine("Application configured successfully");
-        }
-
-        private static void UpdateDatabase(IApplicationBuilder app)
-        {
-            using (var serviceScope = app.ApplicationServices
-                .GetRequiredService<IServiceScopeFactory>()
-                .CreateScope())
-            {
-                using (var context = serviceScope.ServiceProvider.GetService<DatabaseContext>())
-                {
-                    context.Database.Migrate();
-                }
-            }
         }
     }
 }

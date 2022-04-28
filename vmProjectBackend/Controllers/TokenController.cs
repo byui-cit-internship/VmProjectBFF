@@ -1,17 +1,15 @@
-using Google.Apis.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
 using System;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using vmProjectBackend.DAL;
+using vmProjectBackend.DTO;
 using vmProjectBackend.Models;
-
+using vmProjectBackend.Services;
 
 namespace vmProjectBackend.Controllers
 {
@@ -19,18 +17,24 @@ namespace vmProjectBackend.Controllers
     [ApiController]
     public class TokenController : ControllerBase
     {
-        private readonly DatabaseContext _context;
-        public IHttpClientFactory _httpClientFactory { get; }
+        private readonly ILogger<TokenController> _logger;
+        private readonly Backend _backend;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        ILogger Logger { get; } = AppLogger.CreateLogger<TokenController>();
-        public const string SessionKeyName = "_Name";
-        public const string SessionKeyId = "_Id";
+        private readonly IConfiguration _configuration;
+        private readonly HttpClient _httpClient;
+        private BackendResponse _lastResponse;
 
-        public TokenController(DatabaseContext context, IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor)
+        public TokenController(
+            ILogger<TokenController> logger,
+            IHttpClientFactory httpClientFactory,
+            IHttpContextAccessor httpContextAccessor,
+            IConfiguration configuration)
         {
-            _context = context;
-            _httpClientFactory = httpClientFactory;
+            _logger = logger;
             _httpContextAccessor = httpContextAccessor;
+            _configuration = configuration;
+            _backend = new(_httpContextAccessor, _logger, _configuration);
+            _httpClient = httpClientFactory.CreateClient();
         }
 
         /**************************************
@@ -39,91 +43,35 @@ namespace vmProjectBackend.Controllers
         ****************************************/
         [HttpPost()]
         [AllowAnonymous]
-        public async Task<ActionResult> GetToken([FromBody] DTO.AccessToken accessTokenObj)
+        public async Task<ActionResult> GetToken([FromBody] DTO.AccessTokenDTO accessTokenObj)
         {
             try
             {
-                HttpClient httpClient = _httpClientFactory.CreateClient();
-                httpClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, $"Bearer {accessTokenObj.AccessTokenValue}");
-                HttpResponseMessage response = await httpClient.GetAsync($"https://www.googleapis.com/userinfo/v2/me");
+                accessTokenObj.CookieName = ".VMProjectBFF.Session";
+                accessTokenObj.CookieValue = _httpContextAccessor.HttpContext.Request.Cookies[accessTokenObj.CookieName];
+                accessTokenObj.SiteFrom = "BFF";
 
-                if (response.IsSuccessStatusCode)
+                if (accessTokenObj.CookieValue == null)
                 {
-                    string responseString = await response.Content.ReadAsStringAsync();
-
-                    dynamic students = JsonConvert.DeserializeObject<dynamic>(responseString);
-
-                    string email = students.email;
-
-                    User user = (from u in _context.Users
-                                 where u.Email == email
-                                 select u).FirstOrDefault();
-
-                    if (user == null)
-                    {
-
-                        user = new User();
-                        user.Email = email;
-                        user.FirstName = students.given_name;
-                        user.LastName = students.family_name;
-                        user.IsAdmin = false;
-
-                        _context.Users.Add(user); ;
-                        _context.SaveChanges();
-
-                    }
-
-                    AccessToken accessToken = (from at in _context.AccessTokens
-                                               where at.AccessTokenValue == accessTokenObj.AccessTokenValue
-                                               select at).FirstOrDefault();
-                    if (accessToken == null)
-                    {
-                        accessToken = new();
-                        accessToken.AccessTokenValue = accessTokenObj.AccessTokenValue;
-                        accessToken.ExpireDate = DateTime.Now.AddHours(1);
-                        accessToken.User = user;
-
-                        _context.AccessTokens.Add(accessToken);
-                        _context.SaveChanges();
-                    }
-                    else if (DateTime.Compare(accessToken.ExpireDate, DateTime.Now) < 0)
-                    {
-                        return Forbid();
-                    }
-
-
-                    SessionToken sessionToken = (from st in _context.SessionTokens
-                                                 where st.AccessToken == accessToken
-                                                 orderby st.ExpireDate descending
-                                                 select st).FirstOrDefault();
-                    if (sessionToken == null)
-                    {
-                        sessionToken = new();
-                        sessionToken.SessionTokenValue = sessionToken.SessionTokenValue = Guid.NewGuid();
-                        sessionToken.SessionCookie = sessionToken.SessionTokenValue.ToString();
-                        sessionToken.AccessToken = accessToken;
-                        sessionToken.ExpireDate = DateTime.Now.AddDays(3000);
-
-                        _context.SessionTokens.Add(sessionToken);
-                        _context.SaveChanges();
-                        _httpContextAccessor.HttpContext.Session.SetString("sessionTokenValue", sessionToken.SessionTokenValue.ToString());
-                    }
-                    else if (DateTime.Compare(sessionToken.ExpireDate, DateTime.Now) < 0)
-                    {
-                        return Forbid();
-                    }
-                    // outside return statment
-                    return Ok(user);
-                }
-                else
-                {
-                    return BadRequest();
+                    return StatusCode(505, "Session cookie not set. Try again.");
                 }
 
+                _lastResponse = _backend.Get("");
+                _lastResponse = _backend.Post("api/v1/token", accessTokenObj);
+                (User authenticatedUser, string sessionToken) authResult = JsonConvert.DeserializeObject<(User, string)>(_lastResponse.Response);
+
+                _httpContextAccessor.HttpContext.Session.SetString("BFFSessionCookie", $"{accessTokenObj.CookieName}={accessTokenObj.CookieValue}");
+                _httpContextAccessor.HttpContext.Session.SetString("serializedUser", JsonConvert.SerializeObject(authResult.authenticatedUser));
+                _httpContextAccessor.HttpContext.Session.SetString("sessionTokenValue", authResult.sessionToken);
+                return Ok(authResult.authenticatedUser);
+            }
+            catch (BackendException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
             }
             catch (Exception ex)
             {
-                return StatusCode(500);
+                return StatusCode(500, ex);
 
             }
         }
@@ -131,9 +79,18 @@ namespace vmProjectBackend.Controllers
         [HttpDelete()]
         public async Task<ActionResult> DeleteSession()
         {
-            _httpContextAccessor.HttpContext.Session.Clear();
-            _httpContextAccessor.HttpContext.Response.Cookies.Delete(".VMProject.Session");
-            return Ok();
+            try
+            {
+                BackendResponse deleteResponse = _backend.Delete("api/v1/token", null);
+                _httpContextAccessor.HttpContext.Session.Clear();
+                _httpContextAccessor.HttpContext.Response.Cookies.Delete(".VMProjectBFF.Session");
+                _httpContextAccessor.HttpContext.Response.Cookies.Delete(".VMProject.Session");
+                return Ok();
+            }
+            catch (BackendException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
         }
     }
 }

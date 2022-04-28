@@ -1,13 +1,15 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using vmProjectBackend.DAL;
 using vmProjectBackend.Models;
 using Microsoft.AspNetCore.Authorization;
 using vmProjectBackend.Services;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
+using System.Net.Http;
+using vmProjectBackend.DTO;
+using Newtonsoft.Json;
 
 namespace vmProjectBackend.Controllers
 {
@@ -16,13 +18,26 @@ namespace vmProjectBackend.Controllers
     [ApiController]
     public class StudentCourseController : ControllerBase
     {
-        private readonly DatabaseContext _context; 
         private readonly Authorization _auth;
+        private readonly Backend _backend;
+        private readonly IConfiguration _configuration;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ILogger<StudentCourseController> _logger;
+        private BackendResponse _lastResponse;
 
-        public StudentCourseController(DatabaseContext context)
+        public StudentCourseController(
+            IConfiguration configuration,
+            IHttpClientFactory httpClientFactory,
+            IHttpContextAccessor httpContextAccessor,
+            ILogger<StudentCourseController> logger)
         {
-            _context = context;
-            _auth = new Authorization(_context);
+            _logger = logger;
+            _configuration = configuration;
+            _httpContextAccessor = httpContextAccessor;
+            _backend = new(_httpContextAccessor, _logger, _configuration);
+            _auth = new(_backend, _logger);
+            _httpClientFactory = httpClientFactory;
         }
 
         //Student get to see all their classes that they are enrolled in
@@ -30,32 +45,22 @@ namespace vmProjectBackend.Controllers
         [HttpGet()]
         public async Task<ActionResult<IEnumerable<Course>>> GetCourses()
         {
-            string useremail = HttpContext.User.Identity.Name;
-            // check if it is a Student
-            User student = _auth.getUser(useremail);
-            if (student != null)
+            try
             {
-                var courseList = await (from u in _context.Users
-                                                        join usr in _context.UserSectionRoles
-                                                        on u.UserId equals usr.UserId
-                                                        join s in _context.Sections
-                                                        on usr.SectionId equals s.SectionId
-                                                        join c in _context.Courses
-                                                        on s.CourseId equals c.CourseId
-                                                        where u.UserId == student.UserId
-                                                        select new
-                                                        {
-                                                            course_id = s.SectionCanvasId,
-                                                            course_name = c.CourseName,
-                                                            enrollment_id = usr.UserSectionRoleId,
-                                                            student_name = $"{u.FirstName} {u.LastName}",
-                                                            template_id = c.TemplateVm
-                                                        }).ToArrayAsync();
-                
+                User student = _auth.getAuth("user");
+                if (student != null)
+                {
+                    _lastResponse = _backend.Get($"api/v1/StudentCourse", new { queryUserId = student.UserId });
+                    List<CourseListByUserDTO> courseList = JsonConvert.DeserializeObject<List<CourseListByUserDTO>>(_lastResponse.Response);
 
-                return Ok(courseList);
+                    return Ok(courseList);
+                }
+                return Unauthorized("You are not an Authorized User");
             }
-            return Unauthorized("You are not an Authorized User");
+            catch (BackendException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
         }
     }
 }
