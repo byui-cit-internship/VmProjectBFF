@@ -57,7 +57,6 @@ namespace vmProjectBackend.Controllers
                 }
 
                 _lastResponse = _backend.Get("");
-
                 _lastResponse = _backend.Post("api/v1/token", accessTokenObj);
                 (User authenticatedUser, string sessionToken) authResult = JsonConvert.DeserializeObject<(User, string)>(_lastResponse.Response);
 

@@ -44,16 +44,7 @@ namespace vmProjectBackend.Controllers
             _backend = new(_httpContextAccessor, _logger, _configuration);
             _auth = new(_backend, _logger);
             _httpClientFactory = httpClientFactory;
-            // _scope = scope;
         }
-
-        // [HttpPost("backgroundservice")]
-        // public async Task<ActionResult> RunBackgroundService(){
-        //     IServiceProvider services = _scope.ServiceProvider;
-        //     BackgroundService1 backgroundService = services.GetRequiredService<BackgroundService1>();
-        //     await backgroundService.ReadAndUpdateDB();
-        //     return Ok();
-        // }
 
 
         /****************************************
