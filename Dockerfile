@@ -10,15 +10,6 @@ RUN dotnet restore
 # Copy everything else and build
 COPY . ./
 
-# Install Entity Framework
-RUN dotnet tool install --global dotnet-ef
-
-# Create initial schema on Development Database
-# RUN /root/.dotnet/tools/dotnet-ef -v migrations add InitialCreate
-
-# Run database migrations (schema updates)
-RUN /root/.dotnet/tools/dotnet-ef database update
-
 RUN dotnet publish -c Release -o out
 
 # Build runtime image

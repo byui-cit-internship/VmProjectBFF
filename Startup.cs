@@ -79,9 +79,6 @@ namespace vmProjectBFF
             services.AddAuthentication("BasicAuthentication")
             .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
 
-            // ********************ONLY FOR NOW USE****************************
-            string connectionString = Configuration.GetConnectionString("DatabaseString");
-
             Logger.LogInformation("Services Configured correctly");
         }
 
