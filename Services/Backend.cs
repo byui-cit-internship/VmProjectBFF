@@ -43,9 +43,17 @@ namespace vmProjectBFF.Services
 
         public Backend(ILogger logger, IConfiguration configuration)
         {
+
+
+            var handler = new HttpClientHandler();
+            handler.ClientCertificateOptions = ClientCertificateOption.Manual;
+            handler.ServerCertificateCustomValidationCallback = (httpRequestMessage, cert, cetChain, policyErrors) =>
+            {
+                return true;
+            };            
             _logger = logger;
             _configuration = configuration;
-            _httpClient = new HttpClient();
+            _httpClient = new HttpClient(handler);
             _cookie = "";
         }
 
@@ -57,6 +65,7 @@ namespace vmProjectBFF.Services
             toSend.Headers.Add(HeaderNames.Cookie,
                 _cookie != null && _cookie != "" ? _cookie : _httpContextAccessor.HttpContext.Session.GetString("BESessionCookie"));
             toSend.Content = new StringContent(JsonConvert.SerializeObject(content), Encoding.UTF8, "application/json");
+            _logger.LogInformation("Sending request to URL: "+toSend.RequestUri.ToString());
             HttpResponseMessage response = _httpClient.Send(toSend);
             if (!response.IsSuccessStatusCode)
             {
