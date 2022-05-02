@@ -116,7 +116,8 @@ namespace vmProjectBFF.Handlers
             } 
             catch (Exception e)
             {
-                return AuthenticateResult.Fail("Something's wrong");
+                _logger.LogCritical(e.StackTrace);
+                return AuthenticateResult.Fail("Validating authentication token failed due to: "+e.Message);
             }
         }
 
