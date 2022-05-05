@@ -53,7 +53,9 @@ namespace vmProjectBFF.Controllers
 
                 if (accessTokenObj.CookieValue == null)
                 {
-                    return StatusCode(505, "Session cookie not set. Try again.");
+                    // return StatusCode(505, "Session cookie not set. Try again.");
+                    accessTokenObj.CookieValue = Guid.NewGuid().ToString();
+                    _httpContextAccessor.HttpContext.Response.Cookies.Append(accessTokenObj.CookieName, accessTokenObj.CookieValue, new CookieOptions(){SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict});
                 }
 
                 _lastResponse = _backend.Get("");
