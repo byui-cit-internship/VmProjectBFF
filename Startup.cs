@@ -91,6 +91,9 @@ namespace vmProjectBFF
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+            } else
+            {
+                app.UseHttpsRedirection();
             }
 
             //app.UseHttpsRedirection();
