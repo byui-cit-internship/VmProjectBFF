@@ -9,6 +9,8 @@ using Newtonsoft.Json.Serialization;
 using System;
 using System.Linq;
 using vmProjectBFF.Handlers;
+using System.Reflection;
+using System.IO;
 
 namespace vmProjectBFF
 {
@@ -38,6 +40,14 @@ namespace vmProjectBFF
            .AddNewtonsoftJson(
                opts => opts.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
            );
+
+            services.AddEndpointsApiExplorer();
+            services.AddSwaggerGen(options =>
+            {
+                string xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+            });
+
 
             services.AddSession(options =>
             {
@@ -84,6 +94,8 @@ namespace vmProjectBFF
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, Microsoft.AspNetCore.Mvc.Infrastructure.IActionDescriptorCollectionProvider actionProvider)
         {
+            app.UseSwagger();
+            app.UseSwaggerUI();
             // *******************CHNAGE SOON******************************
             
 

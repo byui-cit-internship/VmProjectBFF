@@ -56,7 +56,6 @@ namespace vmProjectBFF.Handlers
 
 
                 if (storedCookie == requestCookie && storedCookie != null)
-
                 {
                     User authenticatedUser = JsonConvert.DeserializeObject<User>(serializedUser);
                     return SuccessResult(authenticatedUser.Email);
