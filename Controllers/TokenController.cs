@@ -41,6 +41,55 @@ namespace vmProjectBFF.Controllers
         Validate the token given by the front end
         and then determines whether they are a teacher or professor
         ****************************************/
+        /**
+         * <summary>
+         * Authenticates user. 
+         * </summary>
+         * <returns>A "User" object representing the user who logged in</returns>
+         * <remarks>
+         * Only certain parameter combinations are allowed. Possible combinations include:<br/>
+         * <![CDATA[
+         *      <pre>
+         *          <code>/api/token
+         *          </code>
+         *      </pre>
+         * ]]>
+         * Sample requests:
+         *
+         *      Returns the user logging in.
+         *      POST /api/token
+         *      BODY 
+         *      {
+         *          "AccessTokenValue": "{accessTokenValue}"
+         *      }
+         *      RETURNS
+         *      {
+         *          "userId": 1,
+         *          "firstName": "Michael",
+         *          "lastName": "Ebenal",
+         *          "email": "ebe17003@byui.edu",
+         *          "is_admin": true,
+         *          "canvas_token": null
+         *      }
+         *
+         * A <c>505</c> error code signifies that the <c>.VMProjectBFF.Session</c> cookie is not set.
+         * If before sending a request to this endpoint the cookies are checked and this cookie
+         * does exist, check it is being sent in the headers of the request. Requests can be
+         * seen in their entirety in the Network tab of Chrome Dev Tools. If the cookie can be
+         * verified as being present in the cookies store and is in the headers in the request
+         * to the BFF to this endpoint, escalate the issue immediately so it may be resolved.
+         * If the cookie does not exist prior to sending a request to this endpoint, the fix is
+         * to send any request to the BFF application, which should set the cookie. The liveprobe
+         * endpoint is a great candidate for an empty GET request which will set the cookie. If the
+         * cookie is still not being set, generally that has to do with the conditions under which
+         * the first "empty" request was sent. Some combinations of headers do not allow the
+         * responding application (the BFF) to set cookies, which will cause problems.
+         *
+         * </remarks>
+         * <response code="200">Returns a user object representing the person logged in</response>
+         * <response code="500">Server side error</response>
+         * <response code="505">Cookie not set upon recieving request. NYI</response>
+         */
         [HttpPost()]
         [AllowAnonymous]
         public async Task<ActionResult> GetToken([FromBody] DTO.AccessTokenDTO accessTokenObj)
