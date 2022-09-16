@@ -72,7 +72,7 @@ namespace vmProjectBFF.Controllers
          *          "canvas_token": null
          *      }
          *
-         * A <c>505</c> error code signifies that the <c>.VMProjectBFF.Session</c> cookie is not set.
+         * A <c>510</c> error code signifies that the <c>.VMProjectBFF.Session</c> cookie is not set.
          * If before sending a request to this endpoint the cookies are checked and this cookie
          * does exist, check it is being sent in the headers of the request. Requests can be
          * seen in their entirety in the Network tab of Chrome Dev Tools. If the cookie can be
@@ -88,10 +88,13 @@ namespace vmProjectBFF.Controllers
          * </remarks>
          * <response code="200">Returns a user object representing the person logged in</response>
          * <response code="500">Server side error</response>
-         * <response code="505">Cookie not set upon recieving request. NYI</response>
+         * <response code="510">Cookie not set upon recieving request. NYI</response>
          */
         [HttpPost()]
         [AllowAnonymous]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(510)]
         public async Task<ActionResult> GetToken([FromBody] DTO.AccessTokenDTO accessTokenObj)
         {
             try
@@ -102,7 +105,7 @@ namespace vmProjectBFF.Controllers
 
                 if (accessTokenObj.CookieValue == null)
                 {
-                    // return StatusCode(505, "Session cookie not set. Try again.");
+                    // return StatusCode(510, "Session cookie not set. Try again.");
                     accessTokenObj.CookieValue = Guid.NewGuid().ToString();
                     _httpContextAccessor.HttpContext.Response.Cookies.Append(accessTokenObj.CookieName, accessTokenObj.CookieValue, new CookieOptions(){SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict});
                 }
@@ -127,7 +130,25 @@ namespace vmProjectBFF.Controllers
             }
         }
 
+        /**
+         * <summary>
+         * Logs out user. 
+         * </summary>
+         * <returns>An empty response with status code 200</returns>
+         * <remarks>
+         * Sample requests:
+         *
+         *      Returns the user logging in.
+         *      DELETE /api/token
+         *      RETURNS
+         *      {
+         *      }
+         *
+         * </remarks>
+         * <response code="200">Signifies a user has been successfully signed out</response>
+         */
         [HttpDelete()]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult> DeleteSession()
         {
             try
