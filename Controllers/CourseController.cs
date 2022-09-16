@@ -44,7 +44,46 @@ namespace vmProjectBFF.Controllers
         /****************************************
          * 
          ***************************************/
+        /**
+         * <summary>
+         * Returns a list of courses based on the semester.
+         * </summary>
+         * <returns>A list of "OldSectionDTO" objects repesenting information about sections the requesting professor teaches.</returns>
+         * <remarks>
+         * Only certain parameter combinations are allowed. Possible combinations include:<br/>
+         * <![CDATA[
+         *      <pre>
+         *          <code>/api/course/professor/semester/{semester}
+         *          </code>
+         *      </pre>
+         * ]]>
+         * Sample requests:
+         *
+         *      Returns the user logging in.
+         *      GET /api/course/professor/semester/fall
+         *      RETURNS
+         *      {
+         *          [
+         *              {
+         *                  "courseName": "Into to Databases",
+         *                  "sectionId": 23,
+         *                  "semesterTerm": "Fall",
+         *                  "sectionNumber": 1,
+         *                  "fullName": "Michael Ebenal"
+         *              },
+         *              .
+         *              .
+         *              .
+         *          ]
+         *      }
+         *
+         * </remarks>
+         * <response code="200">Returns a list of objects representing sections.</response>
+         * <response code="403">Insufficent permission to make request.</response>
+         */
         [HttpGet("professor/semester/{course_semester}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult> GetCoursesBySemester(string semester)
         {
             try
@@ -59,7 +98,7 @@ namespace vmProjectBFF.Controllers
                 }
                 else
                 {
-                    return BadRequest("You are not Authorized and not a Professor");
+                    return Forbid("You are not Authorized and not a Professor");
                 }
             }
             catch (BackendException be)
@@ -68,10 +107,47 @@ namespace vmProjectBFF.Controllers
             }
         }
 
+
         /****************************************
         Checks canvas section id and canvas api key
         ****************************************/
+        /**
+         * <summary>
+         * Checks whether a canvas token is valid.
+         * </summary>
+         * <returns>A copy of the information sent.</returns>
+         * <remarks>
+         * Only certain parameter combinations are allowed. Possible combinations include:<br/>
+         * <![CDATA[
+         *      <pre>
+         *          <code>/api/course/professor/checkCanvasToken
+         *          </code>
+         *      </pre>
+         * ]]>
+         * Sample requests:
+         *
+         *      Returns the user logging in.
+         *      POST /api/course/professor/checkCanvasToken
+         *      BODY
+         *      {
+         *          "canvas_token": "sffgjlkdgjhsdsfdlkfjghsdfgsdlkjfgh",
+         *          "canvas_course_id": 234125
+         *      }
+         *      RETURNS
+         *      {
+         *          "canvas_token": "sffgjlkdgjhsdsfdlkfjghsdfgsdlkjfgh",
+         *          "canvas_course_id": 234125
+         *      }
+         *
+         * </remarks>
+         * <response code="200">Returns aa copy of the information that was sent.</response>
+         * <response code="403">Insufficent permission to make request.</response>
+         * <response code="413">Canvas token is incorrect/invalid</response>
+         */
         [HttpPost("professor/checkCanvasToken")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(413)]
         public async Task<ActionResult> CallCanvas([FromBody] CanvasCredentials canvasCredentials)
         {
             // Returns a professor user or null if email is not associated with a professor
@@ -89,10 +165,10 @@ namespace vmProjectBFF.Controllers
                 {
                     return Ok(canvasCredentials);
                 }
-                return Unauthorized("Invalid token");
+                return StatusCode(413, "Invalid token");
                 // return Ok(canvasCredentials);
             }
-            return Unauthorized("You are not Authorized and is not a Professor");
+            return Forbid("You are not Authorized and is not a Professor");
 
         }
     }
