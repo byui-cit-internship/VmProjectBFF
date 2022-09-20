@@ -40,7 +40,43 @@ namespace vmProjectBFF.Controllers
             _httpClientFactory = httpClientFactory;
         }
 
+
+        /**
+         * <summary>
+         * Gets a list of libraries from vsphere
+         * </summary>
+         * <returns>A list of vsphere libraries, where each list member contains the vsphere id and name of the library.</returns>
+         * <remarks>
+         * Only certain parameter combinations are allowed. Possible combinations include:<br/>
+         * <![CDATA[
+         *      <pre>
+         *          <code>/api/CreateVm/libraries
+         *          </code>
+         *      </pre>
+         * ]]>
+         * Sample requests:
+         *
+         *      Returns the user logging in.
+         *      GET /api/CreateVm/libraries
+         *      BODY
+         *      RETURNS
+         *      {
+         *          [
+         *              {
+         *                  "id": "sffgjlkdgjhsdsfdlkfjghsdfgsdlkjfgh",
+         *                  "name": "I am a library name"
+         *              },
+         *              ...
+         *          ]
+         *      }
+         *
+         * </remarks>
+         * <response code="200">Returns a list of vsphere libraries.</response>
+         * <response code="550">Error code from vsphere.</response>
+         */
         [HttpGet("libraries")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(550)]
         public async Task<ActionResult<IEnumerable<Library>>> GetLibraries()
         {
             //Open uri communication
@@ -90,9 +126,43 @@ namespace vmProjectBFF.Controllers
                 //     return Ok("Session was deleted here");
                 // }
             }
-            return Unauthorized("here");
+            return StatusCode(550, "Bad response from vsphere.");
         }
 
+
+        /**
+         * <summary>
+         * Gets a list of folders from vsphere
+         * </summary>
+         * <returns>A list of vsphere folders, where each list member contains the vsphere name and identifier of the folder.</returns>
+         * <remarks>
+         * Only certain parameter combinations are allowed. Possible combinations include:<br/>
+         * <![CDATA[
+         *      <pre>
+         *          <code>/api/CreateVm/folders
+         *          </code>
+         *      </pre>
+         * ]]>
+         * Sample requests:
+         *
+         *      Returns the user logging in.
+         *      GET /api/CreateVm/folders
+         *      BODY
+         *      RETURNS
+         *      {
+         *          [
+         *              {
+         *                  "name": "I am a folder name",
+         *                  "folder": "folder3526"
+         *              },
+         *              ...
+         *          ]
+         *      }
+         *
+         * </remarks>
+         * <response code="200">Returns a list of vsphere folders.</response>
+         * <response code="550">Error code from vsphere.</response>
+         */
         [HttpGet("folders")]
         public async Task<ActionResult<IEnumerable<OldFolder>>> GetFolders()
         {
@@ -140,9 +210,43 @@ namespace vmProjectBFF.Controllers
 
                 return Ok(folders);
             }
-            return Unauthorized("here");
+            return StatusCode(550);
         }
 
+
+        /**
+         * <summary>
+         * Gets a list of templates from vsphere given a vsphere library id
+         * </summary>
+         * <returns>A list of vsphere folders, where each list member contains the vsphere name and identifier of the folder.</returns>
+         * <remarks>
+         * Only certain parameter combinations are allowed. Possible combinations include:<br/>
+         * <![CDATA[
+         *      <pre>
+         *          <code>/api/CreateVm/templates/{id}
+         *          </code>
+         *      </pre>
+         * ]]>
+         * Sample requests:
+         *
+         *      Returns the user logging in.
+         *      GET /api/CreateVm/templates/asdjhkgjjshdgfkasd
+         *      BODY
+         *      RETURNS
+         *      {
+         *          [
+         *              {
+         *                  "id": "asdfghjkldfghjkl",
+         *                  "name": "I am a vsphere template name"
+         *              },
+         *              ...
+         *          ]
+         *      }
+         *
+         * </remarks>
+         * <response code="200">Returns a list of vsphere templates from a library.</response>
+         * <response code="550">Error code from vsphere.</response>
+         */
         [HttpGet("templates/{id}")]
         public async Task<ActionResult<IEnumerable<string>>> GetTemplates(string Id)
         {
@@ -183,7 +287,7 @@ namespace vmProjectBFF.Controllers
                 }
                 return Ok(templates);
             }
-            return Unauthorized();
+            return StatusCode(550);
         }
     }
 }
