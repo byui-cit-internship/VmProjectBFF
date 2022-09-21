@@ -77,7 +77,7 @@ namespace vmProjectBFF.Services
             {
                 string cookieHeader = response.Headers.GetValues("Set-Cookie")?.ToArray()[0];
                 if (_httpContextAccessor.HttpContext == null) {
-                    _cookie = cookieHeader.Split(';', 2)[0].Split('=', 2)[1];
+                    _cookie = cookieHeader.Split(';', 2)[0].Split('=',2)[1];
                 } else {
                 _httpContextAccessor.HttpContext.Session.SetString("BESessionCookie", cookieHeader.Split(';', 2)[0]);
                 }

@@ -21,6 +21,7 @@ namespace vmProjectBFF.Services
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<BackgroundService1> _logger;
         private readonly int canvasStudentRoleId;
+        private readonly IHttpContextAccessor _contextAccessor;
         private BackendResponse _lastResponse;
 
         public IServiceProvider Services;
@@ -32,11 +33,13 @@ namespace vmProjectBFF.Services
         public BackgroundService1(
             ILogger<BackgroundService1> logger,
             IHttpClientFactory httpClientFactory,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IHttpContextAccessor contextAccessor)
         {
             _logger = logger;
             _configuration = configuration;
-            _backend = new("temp", _logger, _configuration);
+            _contextAccessor = contextAccessor;
+            _backend = new(_contextAccessor, _logger, _configuration);
             _httpClientFactory = httpClientFactory;
             canvasStudentRoleId = Int32.Parse(_configuration["Canvas:StudentRoleId"]);
         }
