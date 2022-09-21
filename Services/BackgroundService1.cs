@@ -45,6 +45,8 @@ namespace vmProjectBFF.Services
         {
             try
             {
+                _backend.Cookie = "temp";
+                _lastResponse = _backend.Get("");
                 _lastResponse = _backend.Post("api/v1/token", new DTO.AccessTokenDTO(_configuration.GetConnectionString("BackendConnectionPassword")));
 
                 if (!_lastResponse.HttpResponse.IsSuccessStatusCode && !_lastResponse.HttpResponse.Headers.Contains("Set-Cookie"))
