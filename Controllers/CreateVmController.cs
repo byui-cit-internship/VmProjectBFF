@@ -49,7 +49,7 @@ namespace vmProjectBFF.Controllers
             string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
             //Adding headers
             httpClient.DefaultRequestHeaders.Add("Authorization", base64);
-            var tokenResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session", null);
+            var tokenResponse = await httpClient.PostAsync("https://vctr-dev.cit.byui.edu/rest/com/vmware/cis/session", null);
             if (tokenResponse.IsSuccessStatusCode)
             {
                 string tokenstring = " ";
@@ -65,7 +65,7 @@ namespace vmProjectBFF.Controllers
                 //Make a list of Library objects
                 List<Library> libraries = new List<Library>();
                 //Call library uri in vsphere
-                var responseLibraryIds = await httpClient.GetAsync("https://vctr-dev.citwdd.net/api/content/local-library");
+                var responseLibraryIds = await httpClient.GetAsync("https://vctr-dev.cit.byui.edu/api/content/local-library");
                 //Turn these objects responses into a readable string
                 string responseStringLibraries = await responseLibraryIds.Content.ReadAsStringAsync();
                 //Make a list of library id's   
@@ -74,7 +74,7 @@ namespace vmProjectBFF.Controllers
                 foreach (string libraryId in libraryIds)
                 {
                     // return Ok(libraryIds);
-                    var libraryresponse = await httpClient.GetAsync($"https://vctr-dev.citwdd.net/api/content/local-library/" + libraryId);
+                    var libraryresponse = await httpClient.GetAsync($"https://vctr-dev.cit.byui.edu/api/content/local-library/" + libraryId);
                     string response2String = await libraryresponse.Content.ReadAsStringAsync();
                     Library library = JsonConvert.DeserializeObject<Library>(response2String);
                     libraries.Add(library);
@@ -86,7 +86,7 @@ namespace vmProjectBFF.Controllers
                 //     httpClient.DefaultRequestHeaders.Add("Authorization", base64);
                 //     httpClient.DefaultRequestHeaders.Add("Cookie", $"vmware-api-session-id={tokenstring}");
 
-                //     var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session");
+                //     var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.cit.byui.edu/rest/com/vmware/cis/session");
                 //     return Ok("Session was deleted here");
                 // }
             }
@@ -102,7 +102,7 @@ namespace vmProjectBFF.Controllers
             string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
             //Adding headers
             httpClient.DefaultRequestHeaders.Add("Authorization", base64);
-            var tokenResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session", null);
+            var tokenResponse = await httpClient.PostAsync("https://vctr-dev.cit.byui.edu/rest/com/vmware/cis/session", null);
             if (tokenResponse.IsSuccessStatusCode)
             {
                 string tokenstring = " ";
@@ -117,7 +117,7 @@ namespace vmProjectBFF.Controllers
                 httpClient.DefaultRequestHeaders.Add("Cookie", $"vmware-api-session-id={tokenstring}");
                 //Make a list of Library object
                 //Call library uri in vsphere
-                var responseFolders = await httpClient.GetAsync("https://vctr-dev.citwdd.net/rest/vcenter/folder?filter.type=VIRTUAL_MACHINE");
+                var responseFolders = await httpClient.GetAsync("https://vctr-dev.cit.byui.edu/rest/vcenter/folder?filter.type=VIRTUAL_MACHINE");
                 //Turn these objects responses into a readable string
                 //
                 string folderResponseString = await responseFolders.Content.ReadAsStringAsync();
@@ -157,7 +157,7 @@ namespace vmProjectBFF.Controllers
                 string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
                 //Adding headers
                 httpClient.DefaultRequestHeaders.Add("Authorization", base64);
-                var tokenResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session", null);
+                var tokenResponse = await httpClient.PostAsync("https://vctr-dev.cit.byui.edu/rest/com/vmware/cis/session", null);
                 string tokenstring = " ";
                 //Turn this object into a readable string
                 tokenstring = await tokenResponse.Content.ReadAsStringAsync();
@@ -169,13 +169,13 @@ namespace vmProjectBFF.Controllers
                 httpClient.DefaultRequestHeaders.Add("Cookie", $"vmware-api-session-id={tokenstring}");
                 List<Template> templates = new List<Template>();
                 // 
-                var response = await httpClient.GetAsync($"https://vctr-dev.citwdd.net/api/content/library/item?library_id={Id}");
+                var response = await httpClient.GetAsync($"https://vctr-dev.cit.byui.edu/api/content/library/item?library_id={Id}");
                 string responseString = await response.Content.ReadAsStringAsync();
                 // return Ok(responseString);
                 List<String> templateIds = templateIds = JsonConvert.DeserializeObject<List<String>>(responseString);
                 foreach (string templateId in templateIds)
                 {
-                    var response2 = await httpClient.GetAsync($"https://vctr-dev.citwdd.net/api/content/library/item/" + templateId);
+                    var response2 = await httpClient.GetAsync($"https://vctr-dev.cit.byui.edu/api/content/library/item/" + templateId);
                     Console.WriteLine($"Second response {response2}");
                     string response2String = await response2.Content.ReadAsStringAsync();
                     Template template = JsonConvert.DeserializeObject<Template>(response2String);
