@@ -23,7 +23,7 @@ namespace vmProjectBFF.Controllers
         private readonly Backend _backend;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ILogger<CourseController> _logger;
+        private readonly ILogger<TestController> _logger;
 
         public IHttpClientFactory _httpClientFactory { get; }
 
@@ -31,7 +31,7 @@ namespace vmProjectBFF.Controllers
             IConfiguration configuration,
             IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
-            ILogger<CourseController> logger)
+            ILogger<TestController> logger)
         {
             _logger = logger;
             _configuration = configuration;
@@ -41,11 +41,66 @@ namespace vmProjectBFF.Controllers
             _httpClientFactory = httpClientFactory;
         }
 
-        [HttpGet()]
-        public async Task<ActionResult> GetTest()
+        [HttpGet("{var}")]
+        public async Task<ActionResult> GetTest([FromRoute]string var)
         {
-            dynamic data = "{\"data\": \"You successfully called an endpoint\"}";
-            return Ok(data);
+            dynamic data = $"{{\"data\": \"Your variable var is equal to {var}\"}}";
+            return StatusCode(200, data);
+        }
+
+        [HttpGet()]
+        public async Task<ActionResult> GetTestQuery([FromQuery] string username, [FromQuery] int? age)
+        {
+            dynamic data = $"{{\"data\": \"Your name is {username} and your age is {age}\"}}";
+            return StatusCode(200, data);
+        }
+
+        [HttpPost()]
+        public async Task<ActionResult> PostTest([FromBody]dynamic data)
+        {
+            dynamic data2 = $"{{\"data\": \"Your name is {data.name} and your age is {data.age}\"}}";
+            return StatusCode(200, data2);
+        }
+
+        [HttpPut("{uniqueId}")]
+        public async Task<ActionResult> PutTest([FromRoute] int uniqueId, [FromBody] dynamic data)
+        {
+            string name, newName;
+            int age;
+            int? newAge;
+            switch (uniqueId) {
+                case 1:
+                    name = "michael";
+                    age = 24;
+                    break;
+                case 2:
+                    name = "murdock";
+                    age = 35;
+                    break;
+                case 3:
+                    name = "jaren";
+                    age = 23;
+                    break;
+                default:
+                    name = "unknown";
+                    age = 0;
+                    break;
+            }
+
+            newAge = data.age;
+            newName = data.name;
+
+            if (null != newAge)
+            {
+                age = (int)newAge;
+            }
+            if (null != newName)
+            {
+                name = newName;
+            }
+
+            dynamic data2 = $"{{\"data\": \"Your name is {name} and your age is {age}\"}}";
+            return StatusCode(200, data2);
         }
     }
 }
