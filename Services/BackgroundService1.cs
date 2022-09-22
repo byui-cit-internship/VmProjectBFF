@@ -21,6 +21,7 @@ namespace vmProjectBFF.Services
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<BackgroundService1> _logger;
         private readonly int canvasStudentRoleId;
+        private readonly IHttpContextAccessor _contextAccessor;
         private BackendResponse _lastResponse;
 
         public IServiceProvider Services;
@@ -32,11 +33,13 @@ namespace vmProjectBFF.Services
         public BackgroundService1(
             ILogger<BackgroundService1> logger,
             IHttpClientFactory httpClientFactory,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IHttpContextAccessor contextAccessor)
         {
             _logger = logger;
             _configuration = configuration;
-            _backend = new("temp", _logger, _configuration);
+            _contextAccessor = contextAccessor;
+            _backend = new(_contextAccessor, _logger, _configuration);
             _httpClientFactory = httpClientFactory;
             canvasStudentRoleId = Int32.Parse(_configuration["Canvas:StudentRoleId"]);
         }
@@ -45,6 +48,8 @@ namespace vmProjectBFF.Services
         {
             try
             {
+                _backend.Cookie = "temp";
+                _lastResponse = _backend.Get("");
                 _lastResponse = _backend.Post("api/v1/token", new DTO.AccessTokenDTO(_configuration.GetConnectionString("BackendConnectionPassword")));
 
                 if (!_lastResponse.HttpResponse.IsSuccessStatusCode && !_lastResponse.HttpResponse.Headers.Contains("Set-Cookie"))
@@ -52,16 +57,6 @@ namespace vmProjectBFF.Services
                     _logger.LogCritical("Could not authenticate to backend server in service \"BackendService1\". Unsuccessful response code or no cookie set.");
                     return;
                 }
-
-                string cookieHeader = _lastResponse.HttpResponse.Headers.GetValues("Set-Cookie")?.ToArray()[0];
-                if (cookieHeader == null)
-                {
-                    _logger.LogCritical("Could not authenticate to backend server in service \"BackendService1\". Could not parse cookie value returned from backend on successful response");
-                    return;
-                }
-                string cookie = cookieHeader.Split(';', 2)[0];
-                _backend.Cookie = cookie;
-
 
                 _lastResponse = _backend.Get("api/v1/User/canvasUsers");
                 List<User> canvasUsers = JsonConvert.DeserializeObject<List<User>>(_lastResponse.Response);
