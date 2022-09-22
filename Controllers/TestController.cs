@@ -56,9 +56,9 @@ namespace vmProjectBFF.Controllers
         }
 
         [HttpPost()]
-        public async Task<ActionResult> PostTest([FromBody]dynamic data)
+        public async Task<ActionResult> PostTest([FromBody]Test data)
         {
-            dynamic data2 = $"{{\"data\": \"Your name is {data.name} and your age is {data.age}\"}}";
+            dynamic data2 = $"{{\"data\": \"Your name is {data.Name} and your age is {data.Age}\"}}";
             return StatusCode(200, data2);
         }
 
