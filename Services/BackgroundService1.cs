@@ -58,16 +58,6 @@ namespace vmProjectBFF.Services
                     return;
                 }
 
-                string cookieHeader = _lastResponse.HttpResponse.Headers.GetValues("Set-Cookie")?.ToArray()[0];
-                if (cookieHeader == null)
-                {
-                    _logger.LogCritical("Could not authenticate to backend server in service \"BackendService1\". Could not parse cookie value returned from backend on successful response");
-                    return;
-                }
-                string cookie = cookieHeader.Split(';', 2)[0];
-                _backend.Cookie = cookie;
-
-
                 _lastResponse = _backend.Get("api/v1/User/canvasUsers");
                 List<User> canvasUsers = JsonConvert.DeserializeObject<List<User>>(_lastResponse.Response);
 

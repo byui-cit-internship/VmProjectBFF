@@ -60,7 +60,7 @@ namespace vmProjectBFF.Controllers
 
                     httpClient.DefaultRequestHeaders.Add("Authorization", base64);
 
-                    var tokenResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/api/session", null);
+                    var tokenResponse = await httpClient.PostAsync("https://vctr-dev.cit.byui.edu/api/session", null);
                     Console.WriteLine(tokenResponse);
                     string tokenstring = " ";
                     if (tokenResponse.IsSuccessStatusCode)
@@ -80,7 +80,7 @@ namespace vmProjectBFF.Controllers
                     // This URL enpoint gives a list of all the Templates we have in our vcenter 
                     List<Template> templates = new List<Template>();
 
-                    var response = await httpClient.GetAsync($"https://vctr-dev.citwdd.net/api/content/library/item?library_id={libraryId}");
+                    var response = await httpClient.GetAsync($"https://vctr-dev.cit.byui.edu/api/content/library/item?library_id={libraryId}");
                     Console.WriteLine($" response to the second call {response}");
 
                     string responseString = await response.Content.ReadAsStringAsync();
@@ -91,7 +91,7 @@ namespace vmProjectBFF.Controllers
                     //call Api, convert it to templates, and get the list of templates
                     foreach (string templateId in templateIds)
                     {
-                        var response2 = await httpClient.GetAsync($"https://vctr-dev.citwdd.net/api/content/library/item/" + templateId);
+                        var response2 = await httpClient.GetAsync($"https://vctr-dev.cit.byui.edu/api/content/library/item/" + templateId);
                         Console.WriteLine($"Second response {response2}");
 
 

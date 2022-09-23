@@ -64,7 +64,7 @@ namespace vmProjectBFF.Controllers
                     string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
                     //Adding headers
                     httpClient.DefaultRequestHeaders.Add("Authorization", base64);
-                    var tokenResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session", null);
+                    var tokenResponse = await httpClient.PostAsync("https://vctr-dev.cit.byui.edu/rest/com/vmware/cis/session", null);
                     Console.WriteLine(tokenResponse);
                     string tokenstring = " ";
                     tokenstring = await tokenResponse.Content.ReadAsStringAsync();
@@ -100,9 +100,9 @@ namespace vmProjectBFF.Controllers
 
                         // return Ok(content2);
 
-                        var postResponse = await httpClient.PostAsync($"https://vctr-dev.citwdd.net/api/vcenter/vm-template/library-items/{template_id}?action=deploy", deployContent);
+                        var postResponse = await httpClient.PostAsync($"https://vctr-dev.cit.byui.edu/api/vcenter/vm-template/library-items/{template_id}?action=deploy", deployContent);
 
-                        var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session");
+                        var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.cit.byui.edu/rest/com/vmware/cis/session");
                         //  var content2 = await postResponse.Content.ReadAsStringAsync();
 
                         //  var createdCompany = JsonSerializer.Deserialize<DeployDto>(content, _options);
@@ -140,7 +140,7 @@ namespace vmProjectBFF.Controllers
 
             
             httpClient.DefaultRequestHeaders.Add("Authorization", base64);
-            var tokenResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session", null);
+            var tokenResponse = await httpClient.PostAsync("https://vctr-dev.cit.byui.edu/rest/com/vmware/cis/session", null);
             if (tokenResponse.IsSuccessStatusCode)
             {
                 string tokenstring = " ";
@@ -154,7 +154,7 @@ namespace vmProjectBFF.Controllers
                 tokenstring = tokenstring.Replace("}", "");
                 httpClient.DefaultRequestHeaders.Add("Cookie", $"vmware-api-session-id={tokenstring}");
                 //Call resource-pool uri in vsphere
-                var response = await httpClient.GetAsync("https://vctr-dev.citwdd.net/api/vcenter/resource-pool");
+                var response = await httpClient.GetAsync("https://vctr-dev.cit.byui.edu/api/vcenter/resource-pool");
                 //Turn these objects responses into a readable string
                 string poolResponseString = await response.Content.ReadAsStringAsync();
                 // Pool poolResponse = JsonConvert.DeserializeObject<Pool>(poolResponseString);
@@ -173,7 +173,7 @@ namespace vmProjectBFF.Controllers
             string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
             //Adding headers
             httpClient.DefaultRequestHeaders.Add("Authorization", base64);
-            var tokenResponse = await httpClient.PostAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session", null);
+            var tokenResponse = await httpClient.PostAsync("https://vctr-dev.cit.byui.edu/rest/com/vmware/cis/session", null);
             string tokenstring = " ";
             tokenstring = await tokenResponse.Content.ReadAsStringAsync();
             //Scape characters functions to filter the new header results
@@ -183,7 +183,7 @@ namespace vmProjectBFF.Controllers
             tokenstring = tokenstring.Replace("}", "");
             httpClient.DefaultRequestHeaders.Add("Cookie", $"vmware-api-session-id={tokenstring}");
 
-            var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.citwdd.net/rest/com/vmware/cis/session");
+            var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.cit.byui.edu/rest/com/vmware/cis/session");
 
             return Ok("Session Deleted");
         }
