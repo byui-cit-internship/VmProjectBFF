@@ -168,7 +168,7 @@ namespace vmProjectBFF.Controllers
                 return StatusCode(413, "Invalid token");
                 // return Ok(canvasCredentials);
             }
-            return Forbid("You are not Authorized and is not a Professor");
+            return Forbid();
 
         }
     }

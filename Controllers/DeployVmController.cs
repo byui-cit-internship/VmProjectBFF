@@ -46,7 +46,7 @@ namespace vmProjectBFF.Controllers
 
         //Connect our API to a second API that creates our vms 
         [HttpPost()]
-        public async Task<ActionResult> PostVmTable(string enrollment_id)
+        public async Task<ActionResult> PostVmTable([FromBody]string enrollment_id)
         {
             try
             {
@@ -61,10 +61,10 @@ namespace vmProjectBFF.Controllers
 
                     // Create a session token
                     var httpClient = _httpClientFactory.CreateClient();
-                    string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
+                    string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11xMQ==";
                     //Adding headers
                     httpClient.DefaultRequestHeaders.Add("Authorization", base64);
-                    var tokenResponse = await httpClient.PostAsync("https://vctr-dev.cit.byui.edu/rest/com/vmware/cis/session", null);
+                    var tokenResponse = await httpClient.PostAsync("https://vctr-dev.cit.byui.edu/api/session", null);
                     Console.WriteLine(tokenResponse);
                     string tokenstring = " ";
                     tokenstring = await tokenResponse.Content.ReadAsStringAsync();
@@ -102,7 +102,7 @@ namespace vmProjectBFF.Controllers
 
                         var postResponse = await httpClient.PostAsync($"https://vctr-dev.cit.byui.edu/api/vcenter/vm-template/library-items/{template_id}?action=deploy", deployContent);
 
-                        var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.cit.byui.edu/rest/com/vmware/cis/session");
+                        var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.cit.byui.edu/api/session");
                         //  var content2 = await postResponse.Content.ReadAsStringAsync();
 
                         //  var createdCompany = JsonSerializer.Deserialize<DeployDto>(content, _options);
@@ -135,12 +135,12 @@ namespace vmProjectBFF.Controllers
             //Open uri communication
             var httpClient = _httpClientFactory.CreateClient();
             // Basic authentication in base64
-            string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
+            string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11xMQ==";
             //Adding headers
 
             
             httpClient.DefaultRequestHeaders.Add("Authorization", base64);
-            var tokenResponse = await httpClient.PostAsync("https://vctr-dev.cit.byui.edu/rest/com/vmware/cis/session", null);
+            var tokenResponse = await httpClient.PostAsync("https://vctr-dev.cit.byui.edu/api/session", null);
             if (tokenResponse.IsSuccessStatusCode)
             {
                 string tokenstring = " ";
@@ -170,10 +170,10 @@ namespace vmProjectBFF.Controllers
         {
             // Create a session token
             var httpClient = _httpClientFactory.CreateClient();
-            string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
+            string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11xMQ==";
             //Adding headers
             httpClient.DefaultRequestHeaders.Add("Authorization", base64);
-            var tokenResponse = await httpClient.PostAsync("https://vctr-dev.cit.byui.edu/rest/com/vmware/cis/session", null);
+            var tokenResponse = await httpClient.PostAsync("https://vctr-dev.cit.byui.edu/api/session", null);
             string tokenstring = " ";
             tokenstring = await tokenResponse.Content.ReadAsStringAsync();
             //Scape characters functions to filter the new header results
@@ -183,7 +183,7 @@ namespace vmProjectBFF.Controllers
             tokenstring = tokenstring.Replace("}", "");
             httpClient.DefaultRequestHeaders.Add("Cookie", $"vmware-api-session-id={tokenstring}");
 
-            var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.cit.byui.edu/rest/com/vmware/cis/session");
+            var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.cit.byui.edu/api/session");
 
             return Ok("Session Deleted");
         }

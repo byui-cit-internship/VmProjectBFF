@@ -82,10 +82,10 @@ namespace vmProjectBFF.Controllers
             //Open uri communication
             var httpClient = _httpClientFactory.CreateClient();
             // Basic authentication in base64
-            string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
+            string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11xMQ==";
             //Adding headers
             httpClient.DefaultRequestHeaders.Add("Authorization", base64);
-            var tokenResponse = await httpClient.PostAsync("https://vctr-dev.cit.byui.edu/rest/com/vmware/cis/session", null);
+            var tokenResponse = await httpClient.PostAsync("https://vctr-dev.cit.byui.edu/api/session", null);
             if (tokenResponse.IsSuccessStatusCode)
             {
                 string tokenstring = " ";
@@ -169,10 +169,10 @@ namespace vmProjectBFF.Controllers
             //Open uri communication
             var httpClient = _httpClientFactory.CreateClient();
             // Basic authentication in base64
-            string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
+            string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11xMQ==";
             //Adding headers
             httpClient.DefaultRequestHeaders.Add("Authorization", base64);
-            var tokenResponse = await httpClient.PostAsync("https://vctr-dev.cit.byui.edu/rest/com/vmware/cis/session", null);
+            var tokenResponse = await httpClient.PostAsync("https://vctr-dev.cit.byui.edu/api/session", null);
             if (tokenResponse.IsSuccessStatusCode)
             {
                 string tokenstring = " ";
