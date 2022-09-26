@@ -11,14 +11,23 @@ using System.Linq;
 using vmProjectBFF.Handlers;
 using System.Reflection;
 using System.IO;
+using vmProjectBFF.Services;
 
 namespace vmProjectBFF
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration, IWebHostEnvironment env)
+        public Startup(IWebHostEnvironment env)
         {
-            Configuration = configuration;
+            DotEnv.Load(Path.Combine(Directory.GetCurrentDirectory(), ".env"));
+
+            IConfigurationBuilder builder = new ConfigurationBuilder()
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+                .AddEnvironmentVariables();
+
+            Configuration = builder.Build();
             Environment = env;
             MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
         }
@@ -54,7 +63,7 @@ namespace vmProjectBFF
                 options.Cookie.Name = ".VMProjectBFF.Session";
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
-                options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict;
+                options.Cookie.SameSite = SameSiteMode.Strict;
                 options.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest;
                 options.IdleTimeout = TimeSpan.FromDays(5);
             });
