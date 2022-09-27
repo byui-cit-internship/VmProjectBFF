@@ -55,7 +55,7 @@ namespace vmProjectBFF.Controllers
 
                     // Creating the client request and setting headers
                     var httpClient = _httpClientFactory.CreateClient();
-                    string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
+                    string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11xMQ==";
                     Console.WriteLine(base64);
 
                     httpClient.DefaultRequestHeaders.Add("Authorization", base64);

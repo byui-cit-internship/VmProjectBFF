@@ -10,7 +10,7 @@ namespace vmProjectBFF
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             IHost host = CreateHostBuilder(args).Build();
 
@@ -23,7 +23,7 @@ namespace vmProjectBFF
             ILoggerFactory LoggerFactory = services.GetRequiredService<ILoggerFactory>();
             AppLogger.LoggerFactory = LoggerFactory;
             BackgroundService1 bs1 = services.GetRequiredService<BackgroundService1>();
-            bs1.ReadAndUpdateDB();
+            await bs1.ReadAndUpdateDB();
 
             host.Run();
         }
