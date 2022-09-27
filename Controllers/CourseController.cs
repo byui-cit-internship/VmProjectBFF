@@ -118,7 +118,7 @@ namespace vmProjectBFF.Controllers
 
                 if (professor != null)
                 {
-                    BackendResponse courseListResponse = _backend.Get($"api/v2/course/getCourse");
+                    BackendResponse courseListResponse = _backend.Get($"api/v2/course");
                     List<Course> courseList = JsonConvert.DeserializeObject<List<Course>>(courseListResponse.Response);
                     return Ok(courseList);
                 }
@@ -146,7 +146,7 @@ namespace vmProjectBFF.Controllers
 
                 if (professor != null)
                 {
-                    BackendResponse sectionListResponse = _backend.Get($"api/v2/section/sectionList");
+                    BackendResponse sectionListResponse = _backend.Get($"api/v2/section");
                     List<SectionDTO> sectionList = JsonConvert.DeserializeObject<List<SectionDTO>>(sectionListResponse.Response);
                     return Ok(sectionList);
                 }
