@@ -107,7 +107,59 @@ namespace vmProjectBFF.Controllers
             }
         }
 
+        [HttpGet("professor/getAllCourses")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult> GetAllCourses()
+        {
+            try
+            {
+                User professor = _auth.getAuth("admin");
 
+                if (professor != null)
+                {
+                    BackendResponse courseListResponse = _backend.Get($"api/v2/course/getCourse");
+                    List<Course> courseList = JsonConvert.DeserializeObject<List<Course>>(courseListResponse.Response);
+                    return Ok(courseList);
+                }
+                else
+                {
+                    return Forbid("You are not Authorized and not a Professor");
+                }
+            }
+            catch (BackendException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
+        }
+
+
+
+        [HttpGet("professor/getAllSections")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult> GetAllSections()
+        {
+            try
+            {
+                User professor = _auth.getAuth("admin");
+
+                if (professor != null)
+                {
+                    BackendResponse sectionListResponse = _backend.Get($"api/v2/section/sectionList");
+                    List<SectionDTO> sectionList = JsonConvert.DeserializeObject<List<SectionDTO>>(sectionListResponse.Response);
+                    return Ok(sectionList);
+                }
+                else
+                {
+                    return Forbid("You are not Authorized and not a Professor");
+                }
+            }
+            catch (BackendException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
+        }
         /****************************************
         Checks canvas section id and canvas api key
         ****************************************/
