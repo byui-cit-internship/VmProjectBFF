@@ -42,7 +42,7 @@ namespace vmProjectBFF.Controllers
             _backend = new(_httpContextAccessor, _logger, _configuration);
             _auth = new(_backend, _logger);
             _httpClientFactory = httpClientFactory;
-        }
+        } // If there is not json in req body it stops here - Daniel
 
         //Connect our API to a second API that creates our vms 
         [HttpPost()]
@@ -54,8 +54,9 @@ namespace vmProjectBFF.Controllers
 
                 if (studentUser != null)
                 {
+                    // "[{\"student_name\":\"Trevor Wayman\",\"course_name\":\"CIT 270\",\"course_id\":1,\"template_id\":\"cit270-empty-vm-template\",\"course_semester\":\"Spring\",\"enrollment_id\":33,\"folder\":\"CIT270\"}]"
                     _lastResponse = _backend.Get("api/v1/CreateVm", new { enrollmentId = enrollment_id });
-                    CreateVmDTO createVm = JsonConvert.DeserializeObject<List<CreateVmDTO>>(_lastResponse.Response).FirstOrDefault();
+                    CreateVmDTO createVm = JsonConvert.DeserializeObject<List<CreateVmDTO>>(_lastResponse.Response).FirstOrDefault(); // Should validation be added so createVm is not made by any student on behalf of another student??
 
                     string template_id = createVm.Template_id;
 
@@ -84,7 +85,7 @@ namespace vmProjectBFF.Controllers
                             name = HttpContext.User.Identity.Name,
                             placement = new Placement
                             {
-                                folder = createVm.Folder,
+                                folder = createVm.Folder, // Check CIT270 error 
 
                                 resource_pool = resourcePool
 
@@ -100,14 +101,14 @@ namespace vmProjectBFF.Controllers
 
                         // return Ok(content2);
 
-                        var postResponse = await httpClient.PostAsync($"https://vctr-dev.cit.byui.edu/api/vcenter/vm-template/library-items/{template_id}?action=deploy", deployContent);
+                        var postResponse = await httpClient.PostAsync($"https://vctr-dev.cit.byui.edu/api/vcenter/vm-template/library-items/{template_id}?action=deploy", deployContent); // Here I get a 404
 
                         var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.cit.byui.edu/api/session");
                         //  var content2 = await postResponse.Content.ReadAsStringAsync();
 
                         //  var createdCompany = JsonSerializer.Deserialize<DeployDto>(content, _options);
-                        _lastResponse = _backend.Get("api/v2/VmTemplate", new { vmTeampleVcenterId = template_id });
-                        VmTemplate template = JsonConvert.DeserializeObject<List<VmTemplate>>(_lastResponse.Response).FirstOrDefault();
+                        _lastResponse = _backend.Get("api/v2/VmTemplate", new { vmTemplateVcenterId = template_id });
+                        VmTemplate template = JsonConvert.DeserializeObject<VmTemplate>(_lastResponse.Response);
 
                         VmInstance vmInstance = new();
                         vmInstance.VmInstanceVcenterId = postResponse.Content.ReadAsStringAsync().Result;
