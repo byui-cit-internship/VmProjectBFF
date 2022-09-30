@@ -115,6 +115,7 @@ namespace vmProjectBFF.Controllers
                     Library library = JsonConvert.DeserializeObject<Library>(response2String);
                     libraries.Add(library);
                 }
+                var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.cit.byui.edu/api/session");
                 return Ok(libraries);
                 // if (libraries != null)
                 // {
@@ -199,6 +200,7 @@ namespace vmProjectBFF.Controllers
                 //declare variable from configuration (appsettings.json)
                 string ignoreFolder = _configuration["IgnoreFolder"];
 
+                var deleteResponse1 = await httpClient.DeleteAsync("https://vctr-dev.cit.byui.edu/api/session");
 
                 foreach (OldFolder folder in folderResponse.value)
                 {
@@ -210,6 +212,7 @@ namespace vmProjectBFF.Controllers
 
                 return Ok(folders);
             }
+            var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.cit.byui.edu/api/session");
             return StatusCode(550);
         }
 
@@ -285,6 +288,7 @@ namespace vmProjectBFF.Controllers
                     Template template = JsonConvert.DeserializeObject<Template>(response2String);
                     templates.Add(template);
                 }
+                var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.cit.byui.edu/api/session");
                 return Ok(templates);
             }
             return StatusCode(550);
