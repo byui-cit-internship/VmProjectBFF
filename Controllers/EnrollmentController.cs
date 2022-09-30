@@ -49,7 +49,7 @@ namespace vmProjectBFF.Controllers
 
         /****************************************
         Allows professor to create a course in the database using a canvas course id, a course name,
-        a description, a canavs api token, a section number, a semester, and vm template id
+        a course code, a canavs api token, a section number, a semester, and vm template id
         ****************************************/
         [HttpPost("professor/register/course")]
         public async Task<ActionResult<CourseCreate>> CreateCourseEnrollment([FromBody] CourseCreate courseDetails)
