@@ -99,7 +99,7 @@ namespace vmProjectBFF.Controllers
                         Template template = JsonConvert.DeserializeObject<Template>(response2String);
                         templates.Add(template);
                     }
-
+                    var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.cit.byui.edu/api/session");
 
                     if (templates != null)
                     {
