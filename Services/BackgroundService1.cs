@@ -114,7 +114,7 @@ namespace vmProjectBFF.Services
 
                                 // looping thorough the list of students
                                 foreach (var canvasStudent in students)
-                                {
+                                {   
                                     // grab the student Id and the email and name to create the student if they don't exits
                                     // and enroll them in that class
                                     string studentEmail = canvasStudent["email"];
@@ -125,32 +125,36 @@ namespace vmProjectBFF.Services
                                     string studentFirstName = splitName.First();
                                     string studentLastName = splitName.Last();
 
-
-                                    _lastResponse = _backend.Get("api/v2/User", new { email = studentEmail });
-                                    User student = JsonConvert.DeserializeObject<User>(_lastResponse.Response);
-                                    // check if the student is already created, if not then create and enroll in that class
-
-                                    if (student == null)
+                                    if (studentEmail != null)
                                     {
-                                        student = new User();
-                                        student.Email = studentEmail;
-                                        student.FirstName = studentFirstName;
-                                        student.LastName = studentLastName;
-                                        student.IsAdmin = false;
+                                        _lastResponse = _backend.Get("api/v2/User", new { email = studentEmail });
+                                        User student = JsonConvert.DeserializeObject<User>(_lastResponse.Response);
+                                        // check if the student is already created, if not then create and enroll in that class
 
-                                        _lastResponse = _backend.Post("api/v2/User", student);
-                                        student = JsonConvert.DeserializeObject<User>(_lastResponse.Response);
-                                    }
-                                    _lastResponse = _backend.Get("api/v2/UserSectioRole", new { userId = student.UserId, sectionId = section.SectionId });
-                                    UserSectionRole enrollment = JsonConvert.DeserializeObject<UserSectionRole>(_lastResponse.Response);
+                                        if (student == null)
+                                        {
+                                            student = new User();
+                                            student.Email = studentEmail;
+                                            student.FirstName = studentFirstName;
+                                            student.LastName = studentLastName;
+                                            student.IsAdmin = false;
 
-                                    if (enrollment == null)//student enrollment hasn't been imported from canvas to database yet
-                                    {
-                                        enrollment.UserId = student.UserId;
-                                        enrollment.RoleId = studentRole.RoleId;
-                                        enrollment.SectionId = section.SectionId;
+                                            _lastResponse = _backend.Post("api/v2/User", student);
+                                            student = JsonConvert.DeserializeObject<User>(_lastResponse.Response);
+                                        }
+                                        _lastResponse = _backend.Get("api/v2/UserSectionRole", new { userId = student.UserId, sectionId = section.SectionId, RoleId = studentRole.RoleId });
+                                        UserSectionRole enrollment = JsonConvert.DeserializeObject<UserSectionRole>(_lastResponse.Response);
 
-                                        _lastResponse = _backend.Post("api/v2/UserSectionRole", enrollment);
+                                        if (enrollment != null)//student enrollment hasn't been imported from canvas to database yet
+                                        {
+                                            enrollment = new UserSectionRole();
+
+                                            enrollment.UserId = student.UserId;
+                                            enrollment.RoleId = studentRole.RoleId;
+                                            enrollment.SectionId = section.SectionId;
+
+                                            _lastResponse = _backend.Post("api/v2/UserSectionRole", enrollment);
+                                        }
                                     }
                                 }
                             }

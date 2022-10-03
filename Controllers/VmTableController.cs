@@ -46,7 +46,7 @@ namespace vmProjectBFF.Controllers
 
                     // Creating the client request and setting headers
                     var httpClient = HttpClientFactory.CreateClient();
-                    string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
+                    string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11xMQ==";
                     Console.WriteLine(base64);
 
                     httpClient.DefaultRequestHeaders.Add("Authorization", base64);
@@ -90,7 +90,7 @@ namespace vmProjectBFF.Controllers
                         Template template = JsonConvert.DeserializeObject<Template>(response2String);
                         templates.Add(template);
                     }
-
+                    var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.cit.byui.edu/api/session");
 
                     if (templates != null)
                     {
