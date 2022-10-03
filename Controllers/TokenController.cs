@@ -99,7 +99,11 @@ namespace vmProjectBFF.Controllers
                 _httpContextAccessor.HttpContext.Response.Cookies.Append(
                     "vima-cookie",
                     vimaCookie,
-                    new CookieOptions() { SameSite = SameSiteMode.Strict });
+                    new CookieOptions() { 
+                        SameSite = SameSiteMode.Strict, 
+                        HttpOnly = true, 
+                        IsEssential = true, 
+                        Secure = true});
 
                 return Ok(authenticatedUser);
             }

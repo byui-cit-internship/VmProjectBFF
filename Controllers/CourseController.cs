@@ -111,7 +111,7 @@ namespace vmProjectBFF.Controllers
 
                 if (professor != null)
                 {
-                    BackendResponse courseListResponse = _backend.Get($"api/v2/course/getCourse");
+                    BffResponse courseListResponse = _backend.Get($"api/v2/course/getCourse");
                     List<Course> courseList = JsonConvert.DeserializeObject<List<Course>>(courseListResponse.Response);
                     return Ok(courseList);
                 }
@@ -120,7 +120,7 @@ namespace vmProjectBFF.Controllers
                     return Forbid("You are not Authorized and not a Professor");
                 }
             }
-            catch (BackendException be)
+            catch (BffHttpException be)
             {
                 return StatusCode((int)be.StatusCode, be.Message);
             }
@@ -139,7 +139,7 @@ namespace vmProjectBFF.Controllers
 
                 if (professor != null)
                 {
-                    BackendResponse sectionListResponse = _backend.Get($"api/v2/section/sectionList");
+                    BffResponse sectionListResponse = _backend.Get($"api/v2/section/sectionList");
                     List<SectionDTO> sectionList = JsonConvert.DeserializeObject<List<SectionDTO>>(sectionListResponse.Response);
                     return Ok(sectionList);
                 }
@@ -148,7 +148,7 @@ namespace vmProjectBFF.Controllers
                     return Forbid("You are not Authorized and not a Professor");
                 }
             }
-            catch (BackendException be)
+            catch (BffHttpException be)
             {
                 return StatusCode((int)be.StatusCode, be.Message);
             }
