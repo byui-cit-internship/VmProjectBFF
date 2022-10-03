@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
 using vmProjectBFF.DTO;
+using vmProjectBFF.Exceptions;
 using vmProjectBFF.Models;
 using vmProjectBFF.Services;
 
@@ -14,26 +15,22 @@ namespace vmProjectBFF.Controllers
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class UserController : BffController
     {
-        private readonly Authorization _auth;
-        private readonly BackendHttpClient _backend;
-        private readonly IConfiguration _configuration;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ILogger<UserController> _logger;
-        private BackendResponse _lastResponse;
 
         public UserController(
             IConfiguration configuration,
+            IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
             ILogger<UserController> logger)
+            : base(
+                  configuration: configuration,
+                  httpClientFactory: httpClientFactory,
+                  httpContextAccessor: httpContextAccessor,
+                  logger: logger)
         {
-            _logger = logger;
-            _configuration = configuration;
-            _httpContextAccessor = httpContextAccessor;
-            _backend = new(_httpContextAccessor, _logger, _configuration);
-            _auth = new(_backend, _logger);
         }
+
         /***********************************************
          * This is for updating a user
          * If you are updating your self. 

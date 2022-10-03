@@ -18,26 +18,20 @@ namespace vmProjectBFF.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class CreateVmController : ControllerBase
+    public class CreateVmController : BffController
     {
-        private readonly Authorization _auth;
-        private readonly BackendHttpClient _backend;
-        private readonly IConfiguration _configuration;
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ILogger<CreateVmController> _logger;
 
         public CreateVmController(
             IConfiguration configuration,
             IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
             ILogger<CreateVmController> logger)
+            : base(
+                  configuration: configuration,
+                  httpClientFactory: httpClientFactory,
+                  httpContextAccessor: httpContextAccessor,
+                  logger: logger)
         {
-            _logger = logger; _configuration = configuration;
-            _httpContextAccessor = httpContextAccessor;
-            _backend = new(_httpContextAccessor, _logger, _configuration);
-            _auth = new(_backend, _logger);
-            _httpClientFactory = httpClientFactory;
         }
 
 
@@ -80,7 +74,7 @@ namespace vmProjectBFF.Controllers
         public async Task<ActionResult<IEnumerable<Library>>> GetLibraries()
         {
             //Open uri communication
-            var httpClient = _httpClientFactory.CreateClient();
+            var httpClient = HttpClientFactory.CreateClient();
             // Basic authentication in base64
             string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
             //Adding headers
@@ -167,7 +161,7 @@ namespace vmProjectBFF.Controllers
         public async Task<ActionResult<IEnumerable<OldFolder>>> GetFolders()
         {
             //Open uri communication
-            var httpClient = _httpClientFactory.CreateClient();
+            var httpClient = HttpClientFactory.CreateClient();
             // Basic authentication in base64
             string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
             //Adding headers
@@ -257,7 +251,7 @@ namespace vmProjectBFF.Controllers
             if (professorUser != null)
             {
                 // Creating the client request and setting headers to the request
-                var httpClient = _httpClientFactory.CreateClient();
+                var httpClient = HttpClientFactory.CreateClient();
                 string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
                 //Adding headers
                 httpClient.DefaultRequestHeaders.Add("Authorization", base64);

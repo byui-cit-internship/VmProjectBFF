@@ -13,37 +13,27 @@ using Microsoft.AspNetCore.Http;
 using vmProjectBFF.DTO;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using vmProjectBFF.Exceptions;
 
 namespace vmProjectBFF.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class EnrollmentController : ControllerBase
+    public class EnrollmentController : BffController
     {
-        private readonly Authorization _auth;
-        private readonly Backend _backend;
-        private readonly IConfiguration _configuration;
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ILogger<EnrollmentController> _logger;
-        private readonly BackgroundService1 _bs1;
-        private readonly IServiceScope _scope;
-        private BackendResponse _lastResponse;
 
         public EnrollmentController(
             IConfiguration configuration,
             IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
-            ILogger<EnrollmentController> logger,
-            IServiceProvider serviceProvider)
+            ILogger<EnrollmentController> logger)
+            : base(
+                  configuration: configuration,
+                  httpClientFactory: httpClientFactory,
+                  httpContextAccessor: httpContextAccessor,
+                  logger: logger)
         {
-            _logger = logger;
-            _configuration = configuration;
-            _httpContextAccessor = httpContextAccessor;
-            _backend = new(_httpContextAccessor, _logger, _configuration);
-            _auth = new(_backend, _logger);
-            _httpClientFactory = httpClientFactory;
         }
 
 
@@ -241,7 +231,7 @@ namespace vmProjectBFF.Controllers
                 }
                 return Unauthorized();
             }
-            catch (BackendException be)
+            catch (BffHttpException be)
             {
                 return StatusCode((int)be.StatusCode, be.Message);
             }

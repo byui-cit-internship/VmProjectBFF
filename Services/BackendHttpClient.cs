@@ -31,75 +31,91 @@ namespace vmProjectBFF.Services
             return configuration.GetConnectionString("BackendRootUri");
         }
 
+        protected static object GetVimaCookie(string vimaCookieValue)
+        {
+            return vimaCookieValue != null ? new { Cookie = $"vima-cookie={vimaCookieValue}" } : null;
+        }
+
         public BackendHttpClient(
             IConfiguration configuration,
             ILogger logger,
             string vimaCookieValue)
-            : base(GetBaseUrl(configuration),
-                  new { cookie = $"vima-cookie={vimaCookieValue}" },
+            : base(
+                  GetBaseUrl(configuration),
+                  GetVimaCookie(vimaCookieValue),
                   logger)
         {
         }
 
-        new public BackendResponse Delete(
+        public override BffResponse Delete(
             string path,
             dynamic content)
         {
             try
             {
-                return base.Delete(
-                    path,
-                    (object)content);
+                return base.Delete(path,
+                                   (object)content);
             } catch (BffHttpException ex)
             {
-                throw new BackendHttpException(ex.StatusCode, ex.Message);
+                throw (BackendHttpException)ex;
             }
         }
 
-        public BackendResponse Get(string path)
+        public override BffResponse Get(string path)
         {
-            HttpResponseMessage getResponse = Send(path, HttpMethod.Get, null);
-            return new BackendResponse(getResponse.StatusCode, getResponse.Content.ReadAsStringAsync().Result, getResponse);
+            try
+            {
+                return base.Get(path);
+            }
+            catch (BffHttpException ex)
+            {
+                throw (BackendHttpException)ex;
+            }
         }
 
-        public BackendResponse Get(
+        public override BffResponse Get(
             string path,
             object queryParams)
         {
-            List<string> stringParams = new();
-            foreach (PropertyInfo param in queryParams.GetType().GetProperties())
+            try
             {
-                stringParams.Add($"{param.Name}={HttpUtility.UrlEncode(param.GetValue(queryParams).ToString())}");
+                return base.Get(path,
+                                queryParams);
             }
-            path = string.Concat(path, "?", string.Join('&', stringParams));
-            return Get(path);
+            catch (BffHttpException ex)
+            {
+                throw (BackendHttpException)ex;
+            }
         }
 
-        public BackendResponse Post(
+        public override BffResponse Post(
             string path,
             dynamic content)
         {
-            HttpResponseMessage postResponse = Send(path, HttpMethod.Post, content);
-            return new BackendResponse(postResponse.StatusCode, postResponse.Content.ReadAsStringAsync().Result, postResponse);
+            try
+            {
+                return base.Post(path,
+                                 (object)content);
+            }
+            catch (BffHttpException ex)
+            {
+                throw (BackendHttpException)ex;
+            }
         }
 
-        public BackendResponse Put(
+        public override BffResponse Put(
             string path,
             dynamic content)
         {
-            HttpResponseMessage postResponse = Send(path, HttpMethod.Put, content);
-            return new(postResponse.StatusCode, postResponse.Content.ReadAsStringAsync().Result, postResponse);
-        }
-
-        public string LogError(
-            string path,
-            HttpResponseMessage httpResponse,
-            string message)
-        {
-            string errorMessage = $"Error has occurred in \"{httpResponse.RequestMessage.Method}\" request to \"{_baseUrl}{path}\" "
-                                + $"with status code \"{(int)httpResponse.StatusCode}\" and message \"{message}\"";
-            _logger.LogError(errorMessage);
-            return errorMessage;
+            try
+            {
+                return base.Put(path,
+                                 (object)content);
+            }
+            catch (BffHttpException ex)
+            {
+                throw (BackendHttpException)ex;
+            }
         }
     }
 }

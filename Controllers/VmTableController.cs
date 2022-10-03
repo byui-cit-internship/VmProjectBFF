@@ -17,29 +17,20 @@ namespace vmProjectBFF.Controllers
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class VmTableController : ControllerBase
-
+    public class VmTableController : BffController
     {
-
-        private readonly Authorization _auth;
-        private readonly BackendHttpClient _backend;
-        private readonly IConfiguration _configuration;
-        private readonly ILogger<VmTableController> _logger;
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public VmTableController(
             IConfiguration configuration,
             IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
             ILogger<VmTableController> logger)
+            : base(
+                  configuration: configuration,
+                  httpClientFactory: httpClientFactory,
+                  httpContextAccessor: httpContextAccessor,
+                  logger: logger)
         {
-            _logger = logger;
-            _configuration = configuration;
-            _httpContextAccessor = httpContextAccessor;
-            _backend = new(_httpContextAccessor, _logger, _configuration);
-            _auth = new(_backend, _logger);
-            _httpClientFactory = httpClientFactory;
         }
 
         //GET: api/vmtable/templates
@@ -54,7 +45,7 @@ namespace vmProjectBFF.Controllers
                 {
 
                     // Creating the client request and setting headers
-                    var httpClient = _httpClientFactory.CreateClient();
+                    var httpClient = HttpClientFactory.CreateClient();
                     string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
                     Console.WriteLine(base64);
 

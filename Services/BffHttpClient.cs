@@ -14,8 +14,8 @@ namespace vmProjectBFF.Services
         protected Dictionary<string, string> _headers = new();
         protected readonly string _baseUrl;
 
-        public string Headers
-        { get; set; }
+        public Dictionary<string, string> Headers
+        { get => _headers; set => _headers = value; }
 
         private static HttpClientHandler GetHttpClientHandler()
         {
@@ -32,23 +32,44 @@ namespace vmProjectBFF.Services
             return handler;
         }
 
+        private static Dictionary<string, string> GetHeadersFromObject(object headers)
+        {
+            Dictionary<string, string> headersDict = new();
+            if (headers != null)
+            {
+                foreach (PropertyInfo headerInfo in headers.GetType().GetProperties())
+                {
+                    headersDict.Add(headerInfo.Name, headerInfo.GetValue(headers).ToString());
+                }
+            }
+            return headersDict;
+        }
+
         public BffHttpClient(
-            string baseUrl, 
-            object headers, 
+            string baseUrl,
+            object headers,
             ILogger logger) 
+            : this(
+                  baseUrl,
+                  GetHeadersFromObject(headers),
+                  logger)
+        {
+        }
+        
+        public BffHttpClient(
+            string baseUrl,
+            Dictionary<string, string> headers,
+            ILogger logger)
             : base(GetHttpClientHandler())
         {
             _baseUrl = baseUrl;
-            foreach (PropertyInfo headerInfo in headers.GetType().GetProperties())
-            {
-                _headers.Add(headerInfo.Name, headerInfo.GetValue(headerInfo).ToString());
-            }
+            _headers = headers;
             _logger = logger;
         }
 
         public HttpResponseMessage Send(
-            string path, 
-            HttpMethod method, 
+            string path,
+            HttpMethod method,
             dynamic content)
         {
             HttpRequestMessage toSend = new();
@@ -61,7 +82,7 @@ namespace vmProjectBFF.Services
             toSend.Content = new StringContent(JsonConvert.SerializeObject(content), Encoding.UTF8, "application/json");
             
             _logger.LogInformation($"Sending request to URL: {toSend.RequestUri}");
-            HttpResponseMessage response = base.Send(toSend);
+            HttpResponseMessage response = Send(toSend);
             if (!response.IsSuccessStatusCode)
             {
                 string responseErrorContent = response.Content.ReadAsStringAsync().Result;
@@ -71,22 +92,26 @@ namespace vmProjectBFF.Services
             return response;
         }
 
-        public BackendResponse Delete(
-            string path, 
+        public virtual BffResponse Delete(
+            string path,
             dynamic content)
         {
-            HttpResponseMessage deleteResponse = Send(path, HttpMethod.Delete, content);
-            return new BackendResponse(deleteResponse.StatusCode, deleteResponse.Content.ReadAsStringAsync().Result, deleteResponse);
+            HttpResponseMessage deleteResponse = Send(path,
+                                                      HttpMethod.Delete,
+                                                      content);
+            return new(deleteResponse);
         }
 
-        public BackendResponse Get(string path)
+        public virtual BffResponse Get(string path)
         {
-            HttpResponseMessage getResponse = Send(path, HttpMethod.Get, null);
-            return new BackendResponse(getResponse.StatusCode, getResponse.Content.ReadAsStringAsync().Result, getResponse);
+            HttpResponseMessage getResponse = Send(path,
+                                                   HttpMethod.Get,
+                                                   null);
+            return new(getResponse);
         }
 
-        public BackendResponse Get(
-            string path, 
+        public virtual BffResponse Get(
+            string path,
             object queryParams)
         {
             List<string> stringParams = new();
@@ -98,20 +123,24 @@ namespace vmProjectBFF.Services
             return Get(path);
         }
 
-        public BackendResponse Post(
-            string path, 
+        public virtual BffResponse Post(
+            string path,
             dynamic content)
         {
-            HttpResponseMessage postResponse = Send(path, HttpMethod.Post, content);
-            return new BackendResponse(postResponse.StatusCode, postResponse.Content.ReadAsStringAsync().Result, postResponse);
+            HttpResponseMessage postResponse = Send(path,
+                                                    HttpMethod.Post,
+                                                    content);
+            return new(postResponse);
         }
 
-        public BackendResponse Put(
+        public virtual BffResponse Put(
             string path, 
             dynamic content)
         {
-            HttpResponseMessage postResponse = Send(path, HttpMethod.Put, content);
-            return new(postResponse.StatusCode, postResponse.Content.ReadAsStringAsync().Result, postResponse);
+            HttpResponseMessage postResponse = Send(path,
+                                                    HttpMethod.Put,
+                                                    content);
+            return new(postResponse);
         }
 
         public string LogError(

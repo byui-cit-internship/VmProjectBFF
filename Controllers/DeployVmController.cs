@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using vmProjectBFF.Services;
 using Microsoft.AspNetCore.Authorization;
+using vmProjectBFF.Exceptions;
 
 namespace vmProjectBFF.Controllers
 {
@@ -20,28 +21,20 @@ namespace vmProjectBFF.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class DeployVmController : ControllerBase
+    public class DeployVmController : BffController
     {
-        private readonly Authorization _auth;
-        private readonly BackendHttpClient _backend;
-        private readonly IConfiguration _configuration;
-        private readonly ILogger<DeployVmController> _logger;
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private BackendResponse _lastResponse;
 
         public DeployVmController(
             IConfiguration configuration,
             IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
             ILogger<DeployVmController> logger)
+            : base(
+                  configuration: configuration,
+                  httpClientFactory: httpClientFactory,
+                  httpContextAccessor: httpContextAccessor,
+                  logger: logger)
         {
-            _logger = logger;
-            _configuration = configuration;
-            _httpContextAccessor = httpContextAccessor;
-            _backend = new(_httpContextAccessor, _logger, _configuration);
-            _auth = new(_backend, _logger);
-            _httpClientFactory = httpClientFactory;
         }
 
         //Connect our API to a second API that creates our vms 
@@ -60,7 +53,7 @@ namespace vmProjectBFF.Controllers
                     string template_id = createVm.Template_id;
 
                     // Create a session token
-                    var httpClient = _httpClientFactory.CreateClient();
+                    var httpClient = HttpClientFactory.CreateClient();
                     string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
                     //Adding headers
                     httpClient.DefaultRequestHeaders.Add("Authorization", base64);
@@ -133,7 +126,7 @@ namespace vmProjectBFF.Controllers
         public async Task<ActionResult<IEnumerable<Pool>>> GetPools()
         {
             //Open uri communication
-            var httpClient = _httpClientFactory.CreateClient();
+            var httpClient = HttpClientFactory.CreateClient();
             // Basic authentication in base64
             string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
             //Adding headers
@@ -169,7 +162,7 @@ namespace vmProjectBFF.Controllers
         public async Task<IActionResult> DeleteSession()
         {
             // Create a session token
-            var httpClient = _httpClientFactory.CreateClient();
+            var httpClient = HttpClientFactory.CreateClient();
             string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
             //Adding headers
             httpClient.DefaultRequestHeaders.Add("Authorization", base64);

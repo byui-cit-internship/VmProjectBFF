@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using vmProjectBFF.DTO;
+using vmProjectBFF.Exceptions;
 using vmProjectBFF.Models;
 using vmProjectBFF.Services;
 
@@ -17,28 +18,20 @@ namespace vmProjectBFF.Controllers
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class CourseController : ControllerBase
+    public class CourseController : BffController
     {
-        private readonly Authorization _auth;
-        private readonly BackendHttpClient _backend;
-        private readonly IConfiguration _configuration;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ILogger<CourseController> _logger;
-
-        public IHttpClientFactory _httpClientFactory { get; }
 
         public CourseController(
             IConfiguration configuration,
             IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
             ILogger<CourseController> logger)
+            :base(
+                  configuration: configuration,
+                  httpClientFactory: httpClientFactory,
+                  httpContextAccessor: httpContextAccessor,
+                  logger: logger)
         {
-            _logger = logger;
-            _configuration = configuration;
-            _httpContextAccessor = httpContextAccessor;
-            _backend = new(_httpContextAccessor, _logger, _configuration);
-            _auth = new(_backend, _logger);
-            _httpClientFactory = httpClientFactory;
         }
 
         /****************************************
@@ -92,7 +85,7 @@ namespace vmProjectBFF.Controllers
 
                 if (professor != null)
                 {
-                    BackendResponse sectionListResponse = _backend.Get($"api/v1/section/sectionList/{semester}");
+                    BffResponse sectionListResponse = _backend.Get($"api/v1/section/sectionList/{semester}");
                     List<OldSectionDTO> sectionList = JsonConvert.DeserializeObject<List<OldSectionDTO>>(sectionListResponse.Response);
                     return Ok(sectionList);
                 }
@@ -155,7 +148,7 @@ namespace vmProjectBFF.Controllers
 
             if (professor != null)
             {
-                var httpClient = _httpClientFactory.CreateClient();
+                var httpClient = HttpClientFactory.CreateClient();
                 httpClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + canvasCredentials.canvas_token);
                 // contains our base Url where individula course_id is added
                 // This URL enpoint gives a list of all the Student in that class : role_id= 3 list all the student for that Professor

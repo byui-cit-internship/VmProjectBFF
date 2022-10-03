@@ -2,9 +2,9 @@
 
 namespace vmProjectBFF.Exceptions
 {
-    public class VsphereHttpException : BffHttpException
+    public class VCenterHttpException : BffHttpException
     {
-        public VsphereHttpException(
+        public VCenterHttpException(
             HttpStatusCode statusCode, 
             string message) 
             : base(statusCode, message)

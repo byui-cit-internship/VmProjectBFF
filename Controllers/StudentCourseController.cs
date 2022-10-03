@@ -10,34 +10,27 @@ using Microsoft.Extensions.Configuration;
 using System.Net.Http;
 using vmProjectBFF.DTO;
 using Newtonsoft.Json;
+using vmProjectBFF.Exceptions;
 
 namespace vmProjectBFF.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class StudentCourseController : ControllerBase
+    public class StudentCourseController : BffController
     {
-        private readonly Authorization _auth;
-        private readonly BackendHttpClient _backend;
-        private readonly IConfiguration _configuration;
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ILogger<StudentCourseController> _logger;
-        private BackendResponse _lastResponse;
 
         public StudentCourseController(
             IConfiguration configuration,
             IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
             ILogger<StudentCourseController> logger)
+            : base(
+                  configuration: configuration,
+                  httpClientFactory: httpClientFactory,
+                  httpContextAccessor: httpContextAccessor,
+                  logger: logger)
         {
-            _logger = logger;
-            _configuration = configuration;
-            _httpContextAccessor = httpContextAccessor;
-            _backend = new(_httpContextAccessor, _logger, _configuration);
-            _auth = new(_backend, _logger);
-            _httpClientFactory = httpClientFactory;
         }
 
         //Student get to see all their classes that they are enrolled in

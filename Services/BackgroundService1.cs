@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using vmProjectBFF.Models;
 using vmProjectBFF.DTO;
+using vmProjectBFF.Exceptions;
 
 namespace vmProjectBFF.Services
 {
@@ -22,7 +23,7 @@ namespace vmProjectBFF.Services
         private readonly ILogger<BackgroundService1> _logger;
         private readonly int canvasStudentRoleId;
         private readonly IHttpContextAccessor _contextAccessor;
-        private BackendResponse _lastResponse;
+        private BffResponse _lastResponse;
 
         public IServiceProvider Services;
 
@@ -39,7 +40,7 @@ namespace vmProjectBFF.Services
             _logger = logger;
             _configuration = configuration;
             _contextAccessor = contextAccessor;
-            _backend = new(_contextAccessor, _logger, _configuration);
+            _backend = new(_configuration, _logger, _configuration.GetConnectionString("BackendConnectionPassword"));
             _httpClientFactory = httpClientFactory;
             canvasStudentRoleId = Int32.Parse(_configuration["Canvas:StudentRoleId"]);
         }
@@ -48,11 +49,9 @@ namespace vmProjectBFF.Services
         {
             try
             {
-                _backend.Cookie = "temp";
-                _lastResponse = _backend.Get("");
                 _lastResponse = _backend.Post("api/v1/token", new DTO.AccessTokenDTO(_configuration.GetConnectionString("BackendConnectionPassword")));
 
-                if (!_lastResponse.HttpResponse.IsSuccessStatusCode && !_lastResponse.HttpResponse.Headers.Contains("Set-Cookie"))
+                if (!_lastResponse.HttpResponse.IsSuccessStatusCode)
                 {
                     _logger.LogCritical("Could not authenticate to backend server in service \"BackendService1\". Unsuccessful response code or no cookie set.");
                     return;
@@ -170,7 +169,7 @@ namespace vmProjectBFF.Services
                 }
 
 
-                BackendResponse deleteResponse = _backend.Delete("api/v1/token", null);
+                BffResponse deleteResponse = _backend.Delete("api/v1/token", null);
             } catch (BffHttpException be)
             {
                 return;

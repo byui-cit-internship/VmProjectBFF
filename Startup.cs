@@ -57,17 +57,6 @@ namespace vmProjectBFF
                 options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
             });
 
-
-            services.AddSession(options =>
-            {
-                options.Cookie.Name = ".VMProjectBFF.Session";
-                options.Cookie.HttpOnly = true;
-                options.Cookie.IsEssential = true;
-                options.Cookie.SameSite = SameSiteMode.Strict;
-                options.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest;
-                options.IdleTimeout = TimeSpan.FromDays(5);
-            });
-
             // This is needed to register my Background service
             // UNCOMMENT LATER services.AddHostedService<BackgroundService1>();
             // Allow to use client Factory
@@ -120,7 +109,6 @@ namespace vmProjectBFF
 
             app.UseCors(MyAllowSpecificOrigins);
 
-            app.UseSession();
             // This tell app that it will use authentication
             app.UseAuthentication();
             app.UseAuthorization();
