@@ -18,7 +18,7 @@ namespace vmProjectBFF.Controllers
     public class TokenController : ControllerBase
     {
         private readonly ILogger<TokenController> _logger;
-        private readonly Backend _backend;
+        private readonly BackendHttpClient _backend;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IConfiguration _configuration;
         private readonly HttpClient _httpClient;
@@ -119,7 +119,7 @@ namespace vmProjectBFF.Controllers
                 _httpContextAccessor.HttpContext.Session.SetString("sessionTokenValue", authResult.sessionToken);
                 return Ok(authResult.authenticatedUser);
             }
-            catch (BackendException be)
+            catch (BffHttpException be)
             {
                 return StatusCode((int)be.StatusCode, be.Message);
             }
@@ -159,7 +159,7 @@ namespace vmProjectBFF.Controllers
                 _httpContextAccessor.HttpContext.Response.Cookies.Delete(".VMProject.Session");
                 return Ok();
             }
-            catch (BackendException be)
+            catch (BffHttpException be)
             {
                 return StatusCode((int)be.StatusCode, be.Message);
             }

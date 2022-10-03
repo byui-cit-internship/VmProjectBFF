@@ -16,7 +16,7 @@ namespace vmProjectBFF.Services
 {
     public class BackgroundService1 : BackgroundService
     {
-        private readonly Backend _backend;
+        private readonly BackendHttpClient _backend;
         private readonly IConfiguration _configuration;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<BackgroundService1> _logger;
@@ -171,7 +171,7 @@ namespace vmProjectBFF.Services
 
 
                 BackendResponse deleteResponse = _backend.Delete("api/v1/token", null);
-            } catch (BackendException be)
+            } catch (BffHttpException be)
             {
                 return;
             }

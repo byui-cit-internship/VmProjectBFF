@@ -8,12 +8,12 @@ namespace vmProjectBFF.Services
 {
     public class Authorization
     {
-        private readonly Backend _backend;
+        private readonly BackendHttpClient _backend;
         private readonly ILogger _logger;
 
         private readonly List<string> authTypes = new() { "professor", "admin", "user" };
         public Authorization(
-            Backend backend,
+            BackendHttpClient backend,
             ILogger logger)
         {
             _backend = backend;
@@ -45,7 +45,7 @@ namespace vmProjectBFF.Services
                     return null;
                 }
             }
-            catch (BackendException be)
+            catch (BffHttpException be)
             {
                 return null;
             }

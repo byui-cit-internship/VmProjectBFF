@@ -17,7 +17,7 @@ namespace vmProjectBFF.Controllers
     public class UserController : ControllerBase
     {
         private readonly Authorization _auth;
-        private readonly Backend _backend;
+        private readonly BackendHttpClient _backend;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<UserController> _logger;
@@ -118,7 +118,7 @@ namespace vmProjectBFF.Controllers
                 }
                 return Unauthorized();
             }
-            catch (BackendException be)
+            catch (BffHttpException be)
             {
                 return StatusCode((int)be.StatusCode, be.Message);
             }

@@ -20,7 +20,7 @@ namespace vmProjectBFF.Controllers
     public class CourseController : ControllerBase
     {
         private readonly Authorization _auth;
-        private readonly Backend _backend;
+        private readonly BackendHttpClient _backend;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<CourseController> _logger;
@@ -101,7 +101,7 @@ namespace vmProjectBFF.Controllers
                     return Forbid("You are not Authorized and not a Professor");
                 }
             }
-            catch (BackendException be)
+            catch (BffHttpException be)
             {
                 return StatusCode((int)be.StatusCode, be.Message);
             }

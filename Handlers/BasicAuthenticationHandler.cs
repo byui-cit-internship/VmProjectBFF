@@ -17,7 +17,7 @@ namespace vmProjectBFF.Handlers
     public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {
         // Inject the DBcontext into the handler so that we can compare te credentials
-        private readonly Backend _backend;
+        private readonly BackendHttpClient _backend;
         private readonly ILogger<BasicAuthenticationHandler> _logger;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -109,7 +109,7 @@ namespace vmProjectBFF.Handlers
 
                 return AuthenticateResult.Fail("No session token");
             }
-            catch (BackendException be)
+            catch (BffHttpException be)
             {
                 return AuthenticateResult.Fail($"Failure to contact backend, returned message \"{be.Message}\"");
             } 

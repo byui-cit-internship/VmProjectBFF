@@ -1,86 +1,79 @@
-﻿using Microsoft.Net.Http.Headers;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System.Reflection;
 using System.Text;
 using System.Web;
 using vmProjectBFF.DTO;
+using vmProjectBFF.Exceptions;
 
 namespace vmProjectBFF.Services
 {
     public class BffHttpClient : HttpClient
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ILogger _logger;
-        private readonly IConfiguration _configuration;
-        private readonly HttpClient _httpClient;
-        private string _cookie;
+        protected readonly ILogger _logger;
+        protected readonly IConfiguration _configuration;
+        protected Dictionary<string, string> _headers = new();
+        protected readonly string _baseUrl;
 
-        public string Cookie
+        public string Headers
+        { get; set; }
+
+        private static HttpClientHandler GetHttpClientHandler()
         {
-            get { return _cookie; }
-            set { _cookie = value; }
-        }
-
-        public BffHttpClient(IHttpContextAccessor httpContextAccessor, ILogger logger, IConfiguration configuration)
-            : this(logger, configuration)
-        {
-            _httpContextAccessor = httpContextAccessor;
-        }
-
-        public BffHttpClient(string cookie, ILogger logger, IConfiguration configuration)
-            : this(logger, configuration)
-        {
-            _cookie = cookie;
-        }
-
-        public BffHttpClient(ILogger logger, IConfiguration configuration)
-        {
-
-
-            var handler = new HttpClientHandler();
+            HttpClientHandler handler = new();
             handler.ClientCertificateOptions = ClientCertificateOption.Manual;
-            handler.ServerCertificateCustomValidationCallback = (httpRequestMessage, cert, cetChain, policyErrors) =>
-            {
-                return true;
-            };
-            _logger = logger;
-            _configuration = configuration;
-            _httpClient = new HttpClient(handler);
-            _cookie = "";
+            handler.ServerCertificateCustomValidationCallback = (
+                httpRequestMessage, 
+                cert, 
+                cetChain, 
+                policyErrors) =>
+                {
+                    return true;
+                };
+            return handler;
         }
 
-        public HttpResponseMessage Send(string path, HttpMethod method, dynamic content)
+        public BffHttpClient(
+            string baseUrl, 
+            object headers, 
+            ILogger logger) 
+            : base(GetHttpClientHandler())
+        {
+            _baseUrl = baseUrl;
+            foreach (PropertyInfo headerInfo in headers.GetType().GetProperties())
+            {
+                _headers.Add(headerInfo.Name, headerInfo.GetValue(headerInfo).ToString());
+            }
+            _logger = logger;
+        }
+
+        public HttpResponseMessage Send(
+            string path, 
+            HttpMethod method, 
+            dynamic content)
         {
             HttpRequestMessage toSend = new();
-            toSend.RequestUri = new Uri($"{_configuration.GetConnectionString("BackendRootUri")}{path}");
+            toSend.RequestUri = new($"{_baseUrl}{path}");
             toSend.Method = method;
-            toSend.Headers.Add(HeaderNames.Cookie,
-                _cookie != null && _cookie != "" ? _cookie : _httpContextAccessor.HttpContext.Session.GetString("BESessionCookie"));
+            foreach (KeyValuePair<string, string> headers in _headers)
+            {
+                toSend.Headers.Add(headers.Key, headers.Value);
+            }
             toSend.Content = new StringContent(JsonConvert.SerializeObject(content), Encoding.UTF8, "application/json");
-            _logger.LogInformation("Sending request to URL: " + toSend.RequestUri.ToString());
-            HttpResponseMessage response = _httpClient.Send(toSend);
+            
+            _logger.LogInformation($"Sending request to URL: {toSend.RequestUri}");
+            HttpResponseMessage response = base.Send(toSend);
             if (!response.IsSuccessStatusCode)
             {
                 string responseErrorContent = response.Content.ReadAsStringAsync().Result;
                 string responseErrorMessage = LogError(path, response, responseErrorContent);
-                throw new BackendException(response.StatusCode, responseErrorMessage);
-            }
-            if (response.Headers.Contains("Set-Cookie"))
-            {
-                string cookieHeader = response.Headers.GetValues("Set-Cookie")?.ToArray()[0];
-                if (_httpContextAccessor.HttpContext == null)
-                {
-                    _cookie = cookieHeader.Split(';', 2)[0];
-                }
-                else
-                {
-                    _httpContextAccessor.HttpContext.Session.SetString("BESessionCookie", cookieHeader.Split(';', 2)[0]);
-                }
+                throw new BffHttpException(response.StatusCode, responseErrorMessage);
             }
             return response;
         }
 
-        public BackendResponse Delete(string path, dynamic content)
+        public BackendResponse Delete(
+            string path, 
+            dynamic content)
         {
             HttpResponseMessage deleteResponse = Send(path, HttpMethod.Delete, content);
             return new BackendResponse(deleteResponse.StatusCode, deleteResponse.Content.ReadAsStringAsync().Result, deleteResponse);
@@ -92,7 +85,9 @@ namespace vmProjectBFF.Services
             return new BackendResponse(getResponse.StatusCode, getResponse.Content.ReadAsStringAsync().Result, getResponse);
         }
 
-        public BackendResponse Get(string path, object queryParams)
+        public BackendResponse Get(
+            string path, 
+            object queryParams)
         {
             List<string> stringParams = new();
             foreach (PropertyInfo param in queryParams.GetType().GetProperties())
@@ -103,21 +98,28 @@ namespace vmProjectBFF.Services
             return Get(path);
         }
 
-        public BackendResponse Post(string path, dynamic content)
+        public BackendResponse Post(
+            string path, 
+            dynamic content)
         {
             HttpResponseMessage postResponse = Send(path, HttpMethod.Post, content);
             return new BackendResponse(postResponse.StatusCode, postResponse.Content.ReadAsStringAsync().Result, postResponse);
         }
 
-        public BackendResponse Put(string path, dynamic content)
+        public BackendResponse Put(
+            string path, 
+            dynamic content)
         {
             HttpResponseMessage postResponse = Send(path, HttpMethod.Put, content);
-            return new BackendResponse(postResponse.StatusCode, postResponse.Content.ReadAsStringAsync().Result, postResponse);
+            return new(postResponse.StatusCode, postResponse.Content.ReadAsStringAsync().Result, postResponse);
         }
 
-        public string LogError(string path, HttpResponseMessage httpResponse, string message)
+        public string LogError(
+            string path, 
+            HttpResponseMessage httpResponse, 
+            string message)
         {
-            string errorMessage = $"Error has occurred in \"{httpResponse.RequestMessage.Method}\" request to \"{_configuration.GetConnectionString("BackendRootUri")}{path}\" "
+            string errorMessage = $"Error has occurred in \"{httpResponse.RequestMessage.Method}\" request to \"{_baseUrl}{path}\" "
                                 + $"with status code \"{(int)httpResponse.StatusCode}\" and message \"{message}\"";
             _logger.LogError(errorMessage);
             return errorMessage;

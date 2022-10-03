@@ -22,7 +22,7 @@ namespace vmProjectBFF.Controllers
     {
 
         private readonly Authorization _auth;
-        private readonly Backend _backend;
+        private readonly BackendHttpClient _backend;
         private readonly IConfiguration _configuration;
         private readonly ILogger<VmTableController> _logger;
         private readonly IHttpClientFactory _httpClientFactory;

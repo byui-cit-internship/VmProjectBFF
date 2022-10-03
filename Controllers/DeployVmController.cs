@@ -23,7 +23,7 @@ namespace vmProjectBFF.Controllers
     public class DeployVmController : ControllerBase
     {
         private readonly Authorization _auth;
-        private readonly Backend _backend;
+        private readonly BackendHttpClient _backend;
         private readonly IConfiguration _configuration;
         private readonly ILogger<DeployVmController> _logger;
         private readonly IHttpClientFactory _httpClientFactory;
@@ -123,7 +123,7 @@ namespace vmProjectBFF.Controllers
                 }
                 return Unauthorized("You are not Authorized and this is not a student");
             }
-            catch (BackendException be)
+            catch (BffHttpException be)
             {
                 return StatusCode((int)be.StatusCode, be.Message);
             }
