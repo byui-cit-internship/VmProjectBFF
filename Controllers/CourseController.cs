@@ -160,6 +160,36 @@ namespace vmProjectBFF.Controllers
                 return StatusCode((int)be.StatusCode, be.Message);
             }
         }
+
+
+        [HttpGet("professor/canvasDropdown")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult> canvasDropdown()
+        {
+            try {
+                User professor = _auth.getAuth("admin");
+                if (professor!= null) {
+                    //Open uri communication
+                    //Adding headers
+                    Canvas thing = new(_logger,
+                    _httpClientFactory);
+                    dynamic  courses = await thing.GetCourses(professor.CanvasToken);
+                
+                    return Ok(courses);
+                } else {
+                    return Forbid();
+                }
+                
+            } 
+            catch (Exception e)
+            {
+                _logger.LogWarning(e.Message);
+                return StatusCode(500, e.Message);
+            }
+            
+
+        }
         /****************************************
         Checks canvas section id and canvas api key
         ****************************************/
