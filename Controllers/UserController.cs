@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using vmProjectBFF.DTO;
 using vmProjectBFF.Models;
 using vmProjectBFF.Services;
+using System.Linq;
 
 namespace vmProjectBFF.Controllers
 {
@@ -61,7 +62,7 @@ namespace vmProjectBFF.Controllers
             User authUser = _auth.getAuth("user");
             if (authUser != null)
             {
-                if(user.UserId == authUser.UserId && user.IsAdmin == authUser.IsAdmin)
+                if (user.UserId == authUser.UserId && user.IsAdmin == authUser.IsAdmin)
                 {
                     _lastResponse = _backend.Put("api/v2/User", user);
                     User changedUser = JsonConvert.DeserializeObject<User>(_lastResponse.Response);
@@ -117,6 +118,30 @@ namespace vmProjectBFF.Controllers
                     }
                 }
                 return Unauthorized();
+            }
+            catch (BackendException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
+        }
+        [HttpGet("professors")]
+        public async Task<ActionResult> GetProfessors()
+        {
+            try
+            {
+                User professor = _auth.getAuth("admin");
+
+                if (professor != null)
+                {
+                    BackendResponse userListResponse = _backend.Get($"api/v2/user");
+                    List<User> userList = JsonConvert.DeserializeObject<List<User>>(userListResponse.Response);
+                    List<User> professorList = userList.FindAll(p=>p.IsAdmin == true);
+                    return Ok(professorList);
+                }
+                else
+                {
+                    return Unauthorized("You are not a professor");
+                }
             }
             catch (BackendException be)
             {
