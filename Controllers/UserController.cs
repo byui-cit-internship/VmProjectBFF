@@ -114,5 +114,29 @@ namespace vmProjectBFF.Controllers
                 return StatusCode((int)be.StatusCode, be.Message);
             }
         }
+        [HttpGet("professors")]
+        public async Task<ActionResult> GetProfessors()
+        {
+            try
+            {
+                User professor = _auth.getAuth("admin");
+
+                if (professor != null)
+                {
+                    BackendResponse userListResponse = _backend.Get($"api/v2/user");
+                    List<User> userList = JsonConvert.DeserializeObject<List<User>>(userListResponse.Response);
+                    List<User> professorList = userList.FindAll(p => p.IsAdmin == true);
+                    return Ok(professorList);
+                }
+                else
+                {
+                    return Unauthorized("You are not a professor");
+                }
+            }
+            catch (BackendException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
+        }
     }
 }
