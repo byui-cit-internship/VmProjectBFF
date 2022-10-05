@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using vmProjectBFF.DTO;
 using vmProjectBFF.Exceptions;
 using vmProjectBFF.Models;
 
@@ -123,7 +124,7 @@ namespace vmProjectBFF.Controllers
 
                 if (professor != null)
                 {
-                    BackendResponse userListResponse = _backend.Get($"api/v2/user");
+                    BffResponse userListResponse = _backend.Get($"api/v2/user");
                     List<User> userList = JsonConvert.DeserializeObject<List<User>>(userListResponse.Response);
                     List<User> professorList = userList.FindAll(p => p.IsAdmin == true);
                     return Ok(professorList);
@@ -133,7 +134,7 @@ namespace vmProjectBFF.Controllers
                     return Unauthorized("You are not a professor");
                 }
             }
-            catch (BackendException be)
+            catch (BffHttpException be)
             {
                 return StatusCode((int)be.StatusCode, be.Message);
             }
