@@ -8,6 +8,8 @@ namespace vmProjectBFF.Controllers
     {
         protected readonly Authorization _auth;
         protected readonly BackendHttpClient _backend;
+        protected readonly CanvasHttpClient _canvas;
+        protected readonly VCenterHttpClient _vCenter;
         protected readonly IConfiguration _configuration;
         protected readonly IHttpContextAccessor _httpContextAccessor;
         protected readonly ILogger _logger;
@@ -23,14 +25,23 @@ namespace vmProjectBFF.Controllers
         {
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
+            _logger = logger;
             _backend = new(
                 _configuration,
-                logger,
+                _logger,
                 GetVimaCookie(_httpContextAccessor));
+            _canvas = new(
+                _configuration,
+                _logger);
+            _vCenter = new(
+                _configuration,
+                _logger);
             _auth = new(
                 _backend,
                 logger);
             HttpClientFactory = httpClientFactory;
+
+            _httpContextAccessor.HttpContext.Response.RegisterForDispose(_vCenter);
         }
 
         protected static string GetVimaCookie(IHttpContextAccessor httpContextAccessor)

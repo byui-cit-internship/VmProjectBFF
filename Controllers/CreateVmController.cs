@@ -1,16 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using vmProjectBFF.Models;
-using vmProjectBFF.DTO;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System;
-using System.Net.Http;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using vmProjectBFF.Services;
-using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Logging;
+using vmProjectBFF.DTO;
+using vmProjectBFF.Models;
 
 namespace vmProjectBFF.Controllers
 {

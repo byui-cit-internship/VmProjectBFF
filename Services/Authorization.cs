@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using Newtonsoft.Json;
 using vmProjectBFF.DTO;
 using vmProjectBFF.Exceptions;
 using vmProjectBFF.Models;
@@ -31,12 +29,14 @@ namespace vmProjectBFF.Services
             {
                 if (authTypes.Contains(authType))
                 {
-                    if (authType == "professor") {
+                    if (authType == "professor")
+                    {
                         BffResponse professorResponse = _backend.Get($"api/v2/authorization", new { authType = "professor", sectionId = sectionId });
                         return JsonConvert.DeserializeObject<User>(professorResponse.Response);
-                    } else
+                    }
+                    else
                     {
-                        BffResponse otherResponse = _backend.Get($"api/v2/authorization", new {authType=authType});
+                        BffResponse otherResponse = _backend.Get($"api/v2/authorization", new { authType = authType });
                         return JsonConvert.DeserializeObject<User>(otherResponse.Response);
                     }
                 }

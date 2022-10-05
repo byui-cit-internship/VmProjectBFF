@@ -16,8 +16,8 @@ namespace vmProjectBFF.Services
 
         protected static string GetVCenterLoginBase64(IConfiguration configuration)
         {
-            string vCenterLoginUsername = configuration.GetConnectionString("vCenterLoginUsername");
-            string vCenterLoginPassword = configuration.GetConnectionString("vCenterLoginPassword");
+            string vCenterLoginUsername = configuration.GetConnectionString("VCenterLoginUsername");
+            string vCenterLoginPassword = configuration.GetConnectionString("VCenterLoginPassword");
 
             return Convert.ToBase64String(Encoding.UTF8.GetBytes($"{vCenterLoginUsername}:{vCenterLoginPassword}"));
         }
@@ -37,25 +37,21 @@ namespace vmProjectBFF.Services
             ILogger logger)
             : base(
                   GetBaseUrl(configuration),
-                  new { Authorization = GetVCenterLoginBase64(configuration) },
+                  new { Authorization = $"Basic {GetVCenterLoginBase64(configuration)}" },
+                  configuration,
                   logger)
         {
             Login();
-            _timer = new(LogoutLogin, new WeakReference<VCenterHttpClient>(this), 0, 60 * 1000);
+            _timer = new(LogoutLogin, new WeakReference<VCenterHttpClient>(this), 60 * 1000, 60 * 1000);
 
         }
 
-        ~VCenterHttpClient()
-        {
-            Logout();
-            Dispose();
-        }
-
-        new protected virtual void Dispose()
+        public void Dispose()
         {
             if (!_disposed)
             {
                 _timer.Dispose();
+                Logout();
                 _disposed = true;
             }
         }
@@ -64,13 +60,17 @@ namespace vmProjectBFF.Services
         {
             try
             {
+                if (!Headers.ContainsKey("Authorization"))
+                {
+                    Headers = new() { { "Authorization", $"Basic {GetVCenterLoginBase64(_configuration)}" } };
+                }
                 BffResponse loginResponse = base.Post("api/session",
                                                       null);
-                Headers = new() { { "vmware-api-session-id", loginResponse.Response } };
+                Headers = new() { { "Cookie", $"vmware-api-session-id={loginResponse.Response}" } };
             }
             catch (BffHttpException ex)
             {
-                throw (VCenterHttpException)ex;
+                throw new VCenterHttpException(ex);
             }
         }
 
@@ -83,7 +83,7 @@ namespace vmProjectBFF.Services
             }
             catch (BffHttpException ex)
             {
-                throw (VCenterHttpException)ex;
+                throw new VCenterHttpException(ex);
             }
         }
 
@@ -98,7 +98,7 @@ namespace vmProjectBFF.Services
             }
             catch (BffHttpException ex)
             {
-                throw (VCenterHttpException)ex;
+                throw new VCenterHttpException(ex);
             }
         }
 
@@ -110,7 +110,7 @@ namespace vmProjectBFF.Services
             }
             catch (BffHttpException ex)
             {
-                throw (VCenterHttpException)ex;
+                throw new VCenterHttpException(ex);
             }
         }
 
@@ -125,7 +125,7 @@ namespace vmProjectBFF.Services
             }
             catch (BffHttpException ex)
             {
-                throw (VCenterHttpException)ex;
+                throw new VCenterHttpException(ex);
             }
         }
 
@@ -140,7 +140,7 @@ namespace vmProjectBFF.Services
             }
             catch (BffHttpException ex)
             {
-                throw (VCenterHttpException)ex;
+                throw new VCenterHttpException(ex);
             }
         }
 
@@ -155,7 +155,7 @@ namespace vmProjectBFF.Services
             }
             catch (BffHttpException ex)
             {
-                throw (VCenterHttpException)ex;
+                throw new VCenterHttpException(ex);
             }
         }
     }

@@ -1,19 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
-using vmProjectBFF.Models;
-using vmProjectBFF.Services;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Http;
-using vmProjectBFF.DTO;
 using Newtonsoft.Json;
-using System.Collections.Generic;
+using vmProjectBFF.DTO;
 using vmProjectBFF.Exceptions;
+using vmProjectBFF.Models;
 
 namespace vmProjectBFF.Controllers
 {
@@ -35,7 +25,6 @@ namespace vmProjectBFF.Controllers
                   logger: logger)
         {
         }
-
 
         /****************************************
         Allows professor to create a course in the database using a canvas course id, a course name,

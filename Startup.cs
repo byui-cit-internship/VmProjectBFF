@@ -1,16 +1,7 @@
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Serialization;
-using System;
-using System.Linq;
-using vmProjectBFF.Handlers;
 using System.Reflection;
-using System.IO;
+using vmProjectBFF.Handlers;
 using vmProjectBFF.Services;
 
 namespace vmProjectBFF
@@ -95,7 +86,7 @@ namespace vmProjectBFF
             app.UseSwagger();
             app.UseSwaggerUI();
             // *******************CHNAGE SOON******************************
-            
+
 
             // ***************CHNAGE SOON**************************
             if (env.IsDevelopment())
@@ -113,7 +104,7 @@ namespace vmProjectBFF
             app.UseAuthentication();
             app.UseAuthorization();
 
-            
+
 
             app.UseEndpoints(endpoints =>
             {

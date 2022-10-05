@@ -1,19 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using vmProjectBFF.Models;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System;
 using System.Text;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using vmProjectBFF.DTO;
-using Microsoft.Extensions.Configuration;
-using System.Collections.Generic;
-using vmProjectBFF.Services;
-using Microsoft.AspNetCore.Authorization;
 using vmProjectBFF.Exceptions;
+using vmProjectBFF.Models;
 
 namespace vmProjectBFF.Controllers
 {
@@ -39,7 +30,7 @@ namespace vmProjectBFF.Controllers
 
         //Connect our API to a second API that creates our vms 
         [HttpPost()]
-        public async Task<ActionResult> PostVmTable([FromBody]string enrollment_id)
+        public async Task<ActionResult> PostVmTable([FromBody] string enrollment_id)
         {
             try
             {
@@ -132,7 +123,7 @@ namespace vmProjectBFF.Controllers
             string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11xMQ==";
             //Adding headers
 
-            
+
             httpClient.DefaultRequestHeaders.Add("Authorization", base64);
             var tokenResponse = await httpClient.PostAsync("https://vctr-dev.cit.byui.edu/api/session", null);
             if (tokenResponse.IsSuccessStatusCode)

@@ -22,9 +22,9 @@ namespace vmProjectBFF.Services
             HttpClientHandler handler = new();
             handler.ClientCertificateOptions = ClientCertificateOption.Manual;
             handler.ServerCertificateCustomValidationCallback = (
-                httpRequestMessage, 
-                cert, 
-                cetChain, 
+                httpRequestMessage,
+                cert,
+                cetChain,
                 policyErrors) =>
                 {
                     return true;
@@ -48,14 +48,40 @@ namespace vmProjectBFF.Services
         public BffHttpClient(
             string baseUrl,
             object headers,
-            ILogger logger) 
+            IConfiguration configuration,
+            ILogger logger)
+            : this(
+                  baseUrl,
+                  GetHeadersFromObject(headers),
+                  configuration,
+                  logger)
+        {
+        }
+
+        public BffHttpClient(
+            string baseUrl,
+            Dictionary<string, string> headers,
+            IConfiguration configuration,
+            ILogger logger)
+            : this(
+                  baseUrl,
+                  headers,
+                  logger)
+        {
+            _configuration = configuration;
+        }
+
+        public BffHttpClient(
+            string baseUrl,
+            object headers,
+            ILogger logger)
             : this(
                   baseUrl,
                   GetHeadersFromObject(headers),
                   logger)
         {
         }
-        
+
         public BffHttpClient(
             string baseUrl,
             Dictionary<string, string> headers,
@@ -80,8 +106,8 @@ namespace vmProjectBFF.Services
                 toSend.Headers.Add(headers.Key, headers.Value);
             }
             toSend.Content = new StringContent(JsonConvert.SerializeObject(content), Encoding.UTF8, "application/json");
-            
-            _logger.LogInformation($"Sending request to URL: {toSend.RequestUri}");
+
+            _logger.LogInformation($"Sending '{method}' request to URL: {toSend.RequestUri}");
             HttpResponseMessage response = Send(toSend);
             if (!response.IsSuccessStatusCode)
             {
@@ -134,7 +160,7 @@ namespace vmProjectBFF.Services
         }
 
         public virtual BffResponse Put(
-            string path, 
+            string path,
             dynamic content)
         {
             HttpResponseMessage postResponse = Send(path,
@@ -144,8 +170,8 @@ namespace vmProjectBFF.Services
         }
 
         public string LogError(
-            string path, 
-            HttpResponseMessage httpResponse, 
+            string path,
+            HttpResponseMessage httpResponse,
             string message)
         {
             string errorMessage = $"Error has occurred in \"{httpResponse.RequestMessage.Method}\" request to \"{_baseUrl}{path}\" "

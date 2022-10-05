@@ -6,9 +6,18 @@ namespace vmProjectBFF.Exceptions
     {
 
         public BackendHttpException(
-            HttpStatusCode statusCode, 
-            string message) 
-            : base(statusCode, message)
+            HttpStatusCode statusCode,
+            string message)
+            : base(
+                  statusCode,
+                  message)
+        {
+        }
+
+        public BackendHttpException(BffHttpException be)
+        : this(
+              be.StatusCode,
+              be.Message)
         {
         }
     }

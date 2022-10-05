@@ -1,17 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Threading.Tasks;
 using vmProjectBFF.DTO;
 using vmProjectBFF.Exceptions;
 using vmProjectBFF.Models;
-using vmProjectBFF.Services;
 
 namespace vmProjectBFF.Controllers
 {
@@ -26,7 +18,7 @@ namespace vmProjectBFF.Controllers
             IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
             ILogger<CourseController> logger)
-            :base(
+            : base(
                   configuration: configuration,
                   httpClientFactory: httpClientFactory,
                   httpContextAccessor: httpContextAccessor,
@@ -153,6 +145,7 @@ namespace vmProjectBFF.Controllers
                 return StatusCode((int)be.StatusCode, be.Message);
             }
         }
+
         /****************************************
         Checks canvas section id and canvas api key
         ****************************************/
@@ -195,26 +188,27 @@ namespace vmProjectBFF.Controllers
         [ProducesResponseType(413)]
         public async Task<ActionResult> CallCanvas([FromBody] CanvasCredentials canvasCredentials)
         {
-            // Returns a professor user or null if email is not associated with a professor
-            User professor = _auth.getAuth("admin");
-
-            if (professor != null)
+            try
             {
-                var httpClient = HttpClientFactory.CreateClient();
-                httpClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + canvasCredentials.canvas_token);
-                // contains our base Url where individula course_id is added
-                // This URL enpoint gives a list of all the Student in that class : role_id= 3 list all the student for that Professor
-                var response = await httpClient.GetAsync($"https://byui.test.instructure.com/api/v1/courses/{canvasCredentials.canvas_course_id}/enrollments?per_page=1000");
+                // Returns a professor user or null if email is not associated with a professor
+                User professor = _auth.getAuth("admin");
 
-                if (response.IsSuccessStatusCode)
+                if (professor != null)
                 {
+                    // contains our base Url where individula course_id is added
+                    // This URL enpoint gives a list of all the Student in that class : role_id= 3 list all the student for that Professor
+                    _canvas.SetCanvasToken(canvasCredentials.canvas_token);
+                    _lastResponse = _canvas.Get($"api/v1/courses/{canvasCredentials.canvas_course_id}/enrollments?per_page=1000");
                     return Ok(canvasCredentials);
-                }
-                return StatusCode(413, "Invalid token");
-                // return Ok(canvasCredentials);
-            }
-            return Forbid();
 
+                    // return Ok(canvasCredentials);
+                }
+                return Forbid("You are not Authorized and is not a Professor");
+            }
+            catch (BffHttpException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
         }
     }
 }

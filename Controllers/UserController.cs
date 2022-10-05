@@ -1,14 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System.Threading.Tasks;
-using vmProjectBFF.DTO;
 using vmProjectBFF.Exceptions;
 using vmProjectBFF.Models;
-using vmProjectBFF.Services;
 
 namespace vmProjectBFF.Controllers
 {
@@ -58,7 +52,7 @@ namespace vmProjectBFF.Controllers
             User authUser = _auth.getAuth("user");
             if (authUser != null)
             {
-                if(user.UserId == authUser.UserId && user.IsAdmin == authUser.IsAdmin)
+                if (user.UserId == authUser.UserId && user.IsAdmin == authUser.IsAdmin)
                 {
                     _lastResponse = _backend.Put("api/v2/User", user);
                     User changedUser = JsonConvert.DeserializeObject<User>(_lastResponse.Response);

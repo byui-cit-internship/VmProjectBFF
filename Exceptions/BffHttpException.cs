@@ -9,8 +9,8 @@ namespace vmProjectBFF.Exceptions
         public HttpStatusCode StatusCode { get { return _statusCode; } }
 
         public BffHttpException(
-            HttpStatusCode statusCode, 
-            string message) 
+            HttpStatusCode statusCode,
+            string message)
             : base(message)
         {
             _statusCode = statusCode;

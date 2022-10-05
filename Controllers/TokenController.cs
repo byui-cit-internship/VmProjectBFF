@@ -1,16 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System;
-using System.Net.Http;
-using System.Threading.Tasks;
 using vmProjectBFF.DTO;
 using vmProjectBFF.Exceptions;
 using vmProjectBFF.Models;
-using vmProjectBFF.Services;
 
 namespace vmProjectBFF.Controllers
 {
@@ -99,11 +92,13 @@ namespace vmProjectBFF.Controllers
                 _httpContextAccessor.HttpContext.Response.Cookies.Append(
                     "vima-cookie",
                     vimaCookie,
-                    new CookieOptions() { 
-                        SameSite = SameSiteMode.Strict, 
-                        HttpOnly = true, 
-                        IsEssential = true, 
-                        Secure = true});
+                    new CookieOptions()
+                    {
+                        SameSite = SameSiteMode.Strict,
+                        HttpOnly = true,
+                        IsEssential = true,
+                        Secure = true
+                    });
 
                 return Ok(authenticatedUser);
             }

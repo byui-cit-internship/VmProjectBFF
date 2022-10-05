@@ -1,17 +1,8 @@
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
-using vmProjectBFF.Models;
 using vmProjectBFF.DTO;
 using vmProjectBFF.Exceptions;
+using vmProjectBFF.Models;
 
 namespace vmProjectBFF.Services
 {
@@ -114,7 +105,7 @@ namespace vmProjectBFF.Services
 
                                 // looping thorough the list of students
                                 foreach (var canvasStudent in students)
-                                {   
+                                {
                                     // grab the student Id and the email and name to create the student if they don't exits
                                     // and enroll them in that class
                                     string studentEmail = canvasStudent["email"];
@@ -174,7 +165,8 @@ namespace vmProjectBFF.Services
 
 
                 BffResponse deleteResponse = _backend.Delete("api/v1/token", null);
-            } catch (BffHttpException be)
+            }
+            catch (BffHttpException be)
             {
                 return;
             }

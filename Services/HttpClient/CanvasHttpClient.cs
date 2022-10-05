@@ -1,50 +1,28 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Microsoft.Net.Http.Headers;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
-using vmProjectBFF.DTO;
+﻿using vmProjectBFF.DTO;
 using vmProjectBFF.Exceptions;
 
 namespace vmProjectBFF.Services
 {
-    public class BackendHttpClient : BffHttpClient
+    public class CanvasHttpClient : BffHttpClient
     {
-        private string _cookie;
-
-        public string Cookie
-        {
-            get { return _cookie; }
-            set { _cookie = value; }
-        }
-
         protected static string GetBaseUrl(IConfiguration configuration)
         {
-            return configuration.GetConnectionString("BackendRootUri");
+            return configuration.GetConnectionString("CanvasRootUri");
         }
 
-        protected static object GetVimaCookie(string vimaCookieValue)
-        {
-            return vimaCookieValue != null ? new { Cookie = $"vima-cookie={vimaCookieValue}" } : null;
-        }
-
-        public BackendHttpClient(
+        public CanvasHttpClient(
             IConfiguration configuration,
-            ILogger logger,
-            string vimaCookieValue)
+            ILogger logger)
             : base(
                   GetBaseUrl(configuration),
-                  GetVimaCookie(vimaCookieValue),
+                  null,
                   logger)
         {
+        }
+
+        public void SetCanvasToken(string canvasToken)
+        {
+            Headers = new() { { "Authorization", $"Bearer {canvasToken}" } };
         }
 
         public override BffResponse Delete(
@@ -55,9 +33,10 @@ namespace vmProjectBFF.Services
             {
                 return base.Delete(path,
                                    (object)content);
-            } catch (BffHttpException ex)
+            }
+            catch (BffHttpException ex)
             {
-                throw (BackendHttpException)ex;
+                throw new CanvasHttpException(ex);
             }
         }
 
@@ -69,7 +48,7 @@ namespace vmProjectBFF.Services
             }
             catch (BffHttpException ex)
             {
-                throw (BackendHttpException)ex;
+                throw new CanvasHttpException(ex);
             }
         }
 
@@ -84,7 +63,7 @@ namespace vmProjectBFF.Services
             }
             catch (BffHttpException ex)
             {
-                throw (BackendHttpException)ex;
+                throw new CanvasHttpException(ex);
             }
         }
 
@@ -99,7 +78,7 @@ namespace vmProjectBFF.Services
             }
             catch (BffHttpException ex)
             {
-                throw (BackendHttpException)ex;
+                throw new CanvasHttpException(ex);
             }
         }
 
@@ -110,11 +89,11 @@ namespace vmProjectBFF.Services
             try
             {
                 return base.Put(path,
-                                 (object)content);
+                                (object)content);
             }
             catch (BffHttpException ex)
             {
-                throw (BackendHttpException)ex;
+                throw new CanvasHttpException(ex);
             }
         }
     }
