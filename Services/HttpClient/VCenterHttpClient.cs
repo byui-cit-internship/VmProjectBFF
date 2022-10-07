@@ -8,6 +8,7 @@ namespace vmProjectBFF.Services
     {
         protected Timer _timer;
         protected bool _disposed = false;
+        protected bool _initialized = false;
 
         protected static string GetBaseUrl(IConfiguration configuration)
         {
@@ -41,14 +42,18 @@ namespace vmProjectBFF.Services
                   configuration,
                   logger)
         {
+        }
+
+        public void Initialize()
+        {
+            _initialized = true;
             Login();
             _timer = new(LogoutLogin, new WeakReference<VCenterHttpClient>(this), 60 * 1000, 60 * 1000);
-
         }
 
         public void Dispose()
         {
-            if (!_disposed)
+            if (!_disposed && _initialized)
             {
                 _timer.Dispose();
                 Logout();
@@ -91,6 +96,10 @@ namespace vmProjectBFF.Services
             string path,
             dynamic content)
         {
+            if (!_initialized)
+            {
+                Initialize();
+            }
             try
             {
                 return base.Delete(path,
@@ -104,6 +113,10 @@ namespace vmProjectBFF.Services
 
         public override BffResponse Get(string path)
         {
+            if (!_initialized)
+            {
+                Initialize();
+            }
             try
             {
                 return base.Get(path);
@@ -118,6 +131,10 @@ namespace vmProjectBFF.Services
             string path,
             object queryParams)
         {
+            if (!_initialized)
+            {
+                Initialize();
+            }
             try
             {
                 return base.Get(path,
@@ -133,6 +150,10 @@ namespace vmProjectBFF.Services
             string path,
             dynamic content)
         {
+            if (!_initialized)
+            {
+                Initialize();
+            }
             try
             {
                 return base.Post(path,
@@ -148,6 +169,10 @@ namespace vmProjectBFF.Services
             string path,
             dynamic content)
         {
+            if (!_initialized)
+            {
+                Initialize();
+            }
             try
             {
                 return base.Put(path,
