@@ -1,43 +1,29 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using vmProjectBFF.Models;
-using Microsoft.AspNetCore.Authorization;
-using vmProjectBFF.Services;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Configuration;
-using System.Net.Http;
-using vmProjectBFF.DTO;
 using Newtonsoft.Json;
+using vmProjectBFF.DTO;
+using vmProjectBFF.Exceptions;
+using vmProjectBFF.Models;
 
 namespace vmProjectBFF.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class StudentCourseController : ControllerBase
+    public class StudentCourseController : BffController
     {
-        private readonly Authorization _auth;
-        private readonly Backend _backend;
-        private readonly IConfiguration _configuration;
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ILogger<StudentCourseController> _logger;
-        private BackendResponse _lastResponse;
 
         public StudentCourseController(
             IConfiguration configuration,
             IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
             ILogger<StudentCourseController> logger)
+            : base(
+                  configuration: configuration,
+                  httpClientFactory: httpClientFactory,
+                  httpContextAccessor: httpContextAccessor,
+                  logger: logger)
         {
-            _logger = logger;
-            _configuration = configuration;
-            _httpContextAccessor = httpContextAccessor;
-            _backend = new(_httpContextAccessor, _logger, _configuration);
-            _auth = new(_backend, _logger);
-            _httpClientFactory = httpClientFactory;
         }
 
         //Student get to see all their classes that they are enrolled in
@@ -57,7 +43,7 @@ namespace vmProjectBFF.Controllers
                 }
                 return Unauthorized("You are not an Authorized User");
             }
-            catch (BackendException be)
+            catch (BffHttpException be)
             {
                 return StatusCode((int)be.StatusCode, be.Message);
             }

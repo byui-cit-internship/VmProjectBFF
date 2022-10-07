@@ -1,51 +1,30 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
-using vmProjectBFF.Models;
-using vmProjectBFF.Services;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Http;
-using vmProjectBFF.DTO;
 using Newtonsoft.Json;
-using System.Collections.Generic;
+using vmProjectBFF.DTO;
+using vmProjectBFF.Exceptions;
+using vmProjectBFF.Models;
 
 namespace vmProjectBFF.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class EnrollmentController : ControllerBase
+    public class EnrollmentController : BffController
     {
-        private readonly Authorization _auth;
-        private readonly Backend _backend;
-        private readonly IConfiguration _configuration;
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ILogger<EnrollmentController> _logger;
-        private readonly BackgroundService1 _bs1;
-        private readonly IServiceScope _scope;
-        private BackendResponse _lastResponse;
 
         public EnrollmentController(
             IConfiguration configuration,
             IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
-            ILogger<EnrollmentController> logger,
-            IServiceProvider serviceProvider)
+            ILogger<EnrollmentController> logger)
+            : base(
+                  configuration: configuration,
+                  httpClientFactory: httpClientFactory,
+                  httpContextAccessor: httpContextAccessor,
+                  logger: logger)
         {
-            _logger = logger;
-            _configuration = configuration;
-            _httpContextAccessor = httpContextAccessor;
-            _backend = new(_httpContextAccessor, _logger, _configuration);
-            _auth = new(_backend, _logger);
-            _httpClientFactory = httpClientFactory;
         }
-
 
         /****************************************
         Allows professor to create a course in the database using a canvas course id, a course name,
@@ -241,7 +220,7 @@ namespace vmProjectBFF.Controllers
                 }
                 return Unauthorized();
             }
-            catch (BackendException be)
+            catch (BffHttpException be)
             {
                 return StatusCode((int)be.StatusCode, be.Message);
             }

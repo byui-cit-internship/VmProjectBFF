@@ -1,40 +1,31 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System.Threading.Tasks;
 using vmProjectBFF.DTO;
+using vmProjectBFF.Exceptions;
 using vmProjectBFF.Models;
-using vmProjectBFF.Services;
-using System.Linq;
 
 namespace vmProjectBFF.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class UserController : BffController
     {
-        private readonly Authorization _auth;
-        private readonly Backend _backend;
-        private readonly IConfiguration _configuration;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ILogger<UserController> _logger;
-        private BackendResponse _lastResponse;
 
         public UserController(
             IConfiguration configuration,
+            IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
             ILogger<UserController> logger)
+            : base(
+                  configuration: configuration,
+                  httpClientFactory: httpClientFactory,
+                  httpContextAccessor: httpContextAccessor,
+                  logger: logger)
         {
-            _logger = logger;
-            _configuration = configuration;
-            _httpContextAccessor = httpContextAccessor;
-            _backend = new(_httpContextAccessor, _logger, _configuration);
-            _auth = new(_backend, _logger);
         }
+
         /***********************************************
          * This is for updating a user
          * If you are updating your self. 
@@ -119,7 +110,7 @@ namespace vmProjectBFF.Controllers
                 }
                 return Unauthorized();
             }
-            catch (BackendException be)
+            catch (BffHttpException be)
             {
                 return StatusCode((int)be.StatusCode, be.Message);
             }
@@ -133,6 +124,7 @@ namespace vmProjectBFF.Controllers
 
                 if (professor != null)
                 {
+
                     _lastResponse = _backend.Get($"api/v2/user", new { isAdmin = true });
                     List<User> professorList = JsonConvert.DeserializeObject<List<User>>(_lastResponse.Response);
                     return Ok(professorList);
@@ -142,7 +134,7 @@ namespace vmProjectBFF.Controllers
                     return Unauthorized("You are not a professor");
                 }
             }
-            catch (BackendException be)
+            catch (BffHttpException be)
             {
                 return StatusCode((int)be.StatusCode, be.Message);
             }

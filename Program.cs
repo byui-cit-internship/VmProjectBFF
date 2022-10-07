@@ -1,9 +1,3 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System;
 using vmProjectBFF.Services;
 
 namespace vmProjectBFF
@@ -23,7 +17,7 @@ namespace vmProjectBFF
             ILoggerFactory LoggerFactory = services.GetRequiredService<ILoggerFactory>();
             AppLogger.LoggerFactory = LoggerFactory;
             BackgroundService1 bs1 = services.GetRequiredService<BackgroundService1>();
-            await bs1.ReadAndUpdateDB();
+            //await bs1.ReadAndUpdateDB();
 
             host.Run();
         }

@@ -1,24 +1,22 @@
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Serialization;
-using System;
-using System.Linq;
-using vmProjectBFF.Handlers;
 using System.Reflection;
-using System.IO;
+using vmProjectBFF.Handlers;
+using vmProjectBFF.Services;
 
 namespace vmProjectBFF
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration, IWebHostEnvironment env)
+        public Startup(IWebHostEnvironment env)
         {
-            Configuration = configuration;
+            IConfigurationBuilder builder = new ConfigurationBuilder()
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+                .AddEnvironmentVariables();
+
+            Configuration = builder.Build();
             Environment = env;
             MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
         }
@@ -46,17 +44,6 @@ namespace vmProjectBFF
             {
                 string xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
-            });
-
-
-            services.AddSession(options =>
-            {
-                options.Cookie.Name = ".VMProjectBFF.Session";
-                options.Cookie.HttpOnly = true;
-                options.Cookie.IsEssential = true;
-                options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict;
-                options.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest;
-                options.IdleTimeout = TimeSpan.FromDays(5);
             });
 
             // This is needed to register my Background service
@@ -97,7 +84,7 @@ namespace vmProjectBFF
             app.UseSwagger();
             app.UseSwaggerUI();
             // *******************CHNAGE SOON******************************
-            
+
 
             // ***************CHNAGE SOON**************************
             if (env.IsDevelopment())
@@ -111,12 +98,11 @@ namespace vmProjectBFF
 
             app.UseCors(MyAllowSpecificOrigins);
 
-            app.UseSession();
             // This tell app that it will use authentication
             app.UseAuthentication();
             app.UseAuthorization();
 
-            
+
 
             app.UseEndpoints(endpoints =>
             {

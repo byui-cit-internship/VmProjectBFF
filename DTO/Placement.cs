@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace vmProjectBFF.DTO
+﻿namespace vmProjectBFF.DTO
 {
     public class Placement
     {
