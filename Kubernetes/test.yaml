@@ -68,10 +68,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - rancher-test-vm-api.citwdd.net
+    - rancher-test-vm-api.cit.byui.edu
     secretName: test-vm-api-tls
   rules:
-  - host: rancher-test-vm-api.citwdd.net
+  - host: rancher-test-vm-api.cit.byui.edu
     http:
       paths:
       - backend:

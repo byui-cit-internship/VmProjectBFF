@@ -95,5 +95,5 @@ metadata:
   name: vmproject-api-prod-certificate
 spec:
   domains:
-    - dev-vm-prod.citwdd.net
+    - dev-vm-prod.cit.byui.edu
     

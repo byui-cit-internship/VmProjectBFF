@@ -18,7 +18,7 @@ spec:
         env:
         - name: APSNETCORE_ENVIRONMENT
           value: Test
-        image: rcr.citwdd.net/backend-repository/backend-vima:latest
+        image: gcr.io/cubs-consulting/backend-repository/backend-vima:latest
         ports:
         - containerPort: 80        
         resources:
@@ -75,10 +75,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - rancher-test-vm-api.citwdd.net
+    - rancher-test-vm-api.cit.byui.edu
     secretName: test-vm-api-local-tls
   rules:
-  - host: rancher-test-vm-api.citwdd.net
+  - host: rancher-test-vm-api.cit.byui.edu
     http:
       paths:
       - backend:
