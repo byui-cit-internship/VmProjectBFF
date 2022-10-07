@@ -17,7 +17,7 @@ spec:
         env:
         - name: ASPNETCORE_ENVIRONMENT
           value: Production
-        image: gcr.io/constellation-275522/vmproject
+        image: gcr.io/cubs-consulting/vmproject
         ports:
         - containerPort: 80        
         resources:
