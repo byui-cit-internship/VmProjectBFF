@@ -118,7 +118,7 @@ namespace vmProjectBFF.Controllers
 
                 if (professor != null)
                 {
-                    BackendResponse courseListResponse = _backend.Get($"api/v2/course/getCourse");
+                    BackendResponse courseListResponse = _backend.Get($"api/v2/course");
                     List<Course> courseList = JsonConvert.DeserializeObject<List<Course>>(courseListResponse.Response);
                     return Ok(courseList);
                 }
@@ -146,7 +146,7 @@ namespace vmProjectBFF.Controllers
 
                 if (professor != null)
                 {
-                    BackendResponse sectionListResponse = _backend.Get($"api/v2/section/sectionList");
+                    BackendResponse sectionListResponse = _backend.Get($"api/v2/section");
                     List<SectionDTO> sectionList = JsonConvert.DeserializeObject<List<SectionDTO>>(sectionListResponse.Response);
                     return Ok(sectionList);
                 }
@@ -159,6 +159,36 @@ namespace vmProjectBFF.Controllers
             {
                 return StatusCode((int)be.StatusCode, be.Message);
             }
+        }
+
+
+        [HttpGet("professor/canvasDropdown")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult> canvasDropdown()
+        {
+            try {
+                User professor = _auth.getAuth("admin");
+                if (professor!= null) {
+                    //Open uri communication
+                    //Adding headers
+                    Canvas thing = new(_logger,
+                    _httpClientFactory);
+                    dynamic  courses = await thing.GetCourses(professor.CanvasToken);
+                
+                    return Ok(courses);
+                } else {
+                    return Forbid();
+                }
+                
+            } 
+            catch (Exception e)
+            {
+                _logger.LogWarning(e.Message);
+                return StatusCode(500, e.Message);
+            }
+            
+
         }
         /****************************************
         Checks canvas section id and canvas api key
