@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using vmProjectBFF.DTO;
 using vmProjectBFF.Exceptions;
 using vmProjectBFF.Models;
+using vmProjectBFF.Services;
 
 namespace vmProjectBFF.Controllers
 {
@@ -104,7 +105,7 @@ namespace vmProjectBFF.Controllers
                 if (professor != null)
                 {
 
-                    BackendResponse courseListResponse = _backend.Get($"api/v2/course");
+                    BffResponse courseListResponse = _backend.Get($"api/v2/course");
                     List<Course> courseList = JsonConvert.DeserializeObject<List<Course>>(courseListResponse.Response);
                     return Ok(courseList);
                 }
@@ -132,7 +133,7 @@ namespace vmProjectBFF.Controllers
 
                 if (professor != null)
                 {
-                    BackendResponse sectionListResponse = _backend.Get($"api/v2/section");
+                    BffResponse sectionListResponse = _backend.Get($"api/v2/section");
                     List<SectionDTO> sectionList = JsonConvert.DeserializeObject<List<SectionDTO>>(sectionListResponse.Response);
                     return Ok(sectionList);
                 }
@@ -157,8 +158,7 @@ namespace vmProjectBFF.Controllers
                 if (professor!= null) {
                     //Open uri communication
                     //Adding headers
-                    Canvas thing = new(_logger,
-                    _httpClientFactory);
+                    Canvas thing = new(_logger, HttpClientFactory);
                     dynamic  courses = await thing.GetCourses(professor.CanvasToken);
                 
                     return Ok(courses);
