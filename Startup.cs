@@ -10,8 +10,6 @@ namespace vmProjectBFF
     {
         public Startup(IWebHostEnvironment env)
         {
-            DotEnv.Load(Path.Combine(Directory.GetCurrentDirectory(), ".env"));
-
             IConfigurationBuilder builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
