@@ -124,9 +124,9 @@ namespace vmProjectBFF.Controllers
 
                 if (professor != null)
                 {
-                    BffResponse userListResponse = _backend.Get($"api/v2/user");
-                    List<User> userList = JsonConvert.DeserializeObject<List<User>>(userListResponse.Response);
-                    List<User> professorList = userList.FindAll(p => p.IsAdmin == true);
+
+                    _lastResponse = _backend.Get($"api/v2/user", new { isAdmin = true });
+                    List<User> professorList = JsonConvert.DeserializeObject<List<User>>(_lastResponse.Response);
                     return Ok(professorList);
                 }
                 else
