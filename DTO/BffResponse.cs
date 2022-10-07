@@ -1,9 +1,8 @@
 ﻿using System.Net;
-using System.Net.Http;
 
 namespace vmProjectBFF.DTO
 {
-    public class BackendResponse
+    public class BffResponse
     {
         private readonly HttpStatusCode _statusCode;
         private readonly string _response;
@@ -13,10 +12,10 @@ namespace vmProjectBFF.DTO
         public string Response { get { return _response; } }
         public HttpResponseMessage HttpResponse { get { return _httpResponse; } }
 
-        public BackendResponse(HttpStatusCode statusCode, string response, HttpResponseMessage httpResponse)
+        public BffResponse(HttpResponseMessage httpResponse)
         {
-            _statusCode = statusCode;
-            _response = response;
+            _statusCode = httpResponse.StatusCode;
+            _response = httpResponse.Content.ReadAsStringAsync().Result;
             _httpResponse = httpResponse;
         }
     }

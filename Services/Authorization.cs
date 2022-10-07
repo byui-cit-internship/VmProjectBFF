@@ -1,19 +1,18 @@
-﻿using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using Newtonsoft.Json;
 using vmProjectBFF.DTO;
+using vmProjectBFF.Exceptions;
 using vmProjectBFF.Models;
 
 namespace vmProjectBFF.Services
 {
     public class Authorization
     {
-        private readonly Backend _backend;
+        private readonly BackendHttpClient _backend;
         private readonly ILogger _logger;
 
         private readonly List<string> authTypes = new() { "professor", "admin", "user" };
         public Authorization(
-            Backend backend,
+            BackendHttpClient backend,
             ILogger logger)
         {
             _backend = backend;
@@ -30,12 +29,14 @@ namespace vmProjectBFF.Services
             {
                 if (authTypes.Contains(authType))
                 {
-                    if (authType == "professor") {
-                        BackendResponse professorResponse = _backend.Get($"api/v2/authorization", new { authType = "professor", sectionId = sectionId });
-                        return JsonConvert.DeserializeObject<User>(professorResponse.Response);
-                    } else
+                    if (authType == "professor")
                     {
-                        BackendResponse otherResponse = _backend.Get($"api/v2/authorization", new {authType=authType});
+                        BffResponse professorResponse = _backend.Get($"api/v2/authorization", new { authType = "professor", sectionId = sectionId });
+                        return JsonConvert.DeserializeObject<User>(professorResponse.Response);
+                    }
+                    else
+                    {
+                        BffResponse otherResponse = _backend.Get($"api/v2/authorization", new { authType = authType });
                         return JsonConvert.DeserializeObject<User>(otherResponse.Response);
                     }
                 }
@@ -45,7 +46,7 @@ namespace vmProjectBFF.Services
                     return null;
                 }
             }
-            catch (BackendException be)
+            catch (BffHttpException be)
             {
                 return null;
             }

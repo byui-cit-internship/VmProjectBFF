@@ -1,5 +1,3 @@
-using System;
-
 namespace vmProjectBFF.Models
 {
     public class Semester

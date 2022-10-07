@@ -1,44 +1,29 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Threading.Tasks;
 using vmProjectBFF.DTO;
+using vmProjectBFF.Exceptions;
 using vmProjectBFF.Models;
-using vmProjectBFF.Services;
 
 namespace vmProjectBFF.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class CourseController : ControllerBase
+    public class CourseController : BffController
     {
-        private readonly Authorization _auth;
-        private readonly Backend _backend;
-        private readonly IConfiguration _configuration;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ILogger<CourseController> _logger;
-
-        public IHttpClientFactory _httpClientFactory { get; }
 
         public CourseController(
             IConfiguration configuration,
             IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
             ILogger<CourseController> logger)
+            : base(
+                  configuration: configuration,
+                  httpClientFactory: httpClientFactory,
+                  httpContextAccessor: httpContextAccessor,
+                  logger: logger)
         {
-            _logger = logger;
-            _configuration = configuration;
-            _httpContextAccessor = httpContextAccessor;
-            _backend = new(_httpContextAccessor, _logger, _configuration);
-            _auth = new(_backend, _logger);
-            _httpClientFactory = httpClientFactory;
         }
 
         /****************************************
@@ -92,7 +77,7 @@ namespace vmProjectBFF.Controllers
 
                 if (professor != null)
                 {
-                    BackendResponse sectionListResponse = _backend.Get($"api/v1/section/sectionList/{semester}");
+                    BffResponse sectionListResponse = _backend.Get($"api/v1/section/sectionList/{semester}");
                     List<OldSectionDTO> sectionList = JsonConvert.DeserializeObject<List<OldSectionDTO>>(sectionListResponse.Response);
                     return Ok(sectionList);
                 }
@@ -101,7 +86,7 @@ namespace vmProjectBFF.Controllers
                     return Forbid("You are not Authorized and not a Professor");
                 }
             }
-            catch (BackendException be)
+            catch (BffHttpException be)
             {
                 return StatusCode((int)be.StatusCode, be.Message);
             }
@@ -118,6 +103,7 @@ namespace vmProjectBFF.Controllers
 
                 if (professor != null)
                 {
+
                     BackendResponse courseListResponse = _backend.Get($"api/v2/course");
                     List<Course> courseList = JsonConvert.DeserializeObject<List<Course>>(courseListResponse.Response);
                     return Ok(courseList);
@@ -127,7 +113,7 @@ namespace vmProjectBFF.Controllers
                     return Forbid("You are not Authorized and not a Professor");
                 }
             }
-            catch (BackendException be)
+            catch (BffHttpException be)
             {
                 return StatusCode((int)be.StatusCode, be.Message);
             }
@@ -155,12 +141,11 @@ namespace vmProjectBFF.Controllers
                     return Forbid("You are not Authorized and not a Professor");
                 }
             }
-            catch (BackendException be)
+            catch (BffHttpException be)
             {
                 return StatusCode((int)be.StatusCode, be.Message);
             }
         }
-
 
         [HttpGet("professor/canvasDropdown")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -180,16 +165,14 @@ namespace vmProjectBFF.Controllers
                 } else {
                     return Forbid();
                 }
-                
             } 
             catch (Exception e)
             {
                 _logger.LogWarning(e.Message);
                 return StatusCode(500, e.Message);
             }
-            
-
         }
+        
         /****************************************
         Checks canvas section id and canvas api key
         ****************************************/
@@ -232,26 +215,27 @@ namespace vmProjectBFF.Controllers
         [ProducesResponseType(413)]
         public async Task<ActionResult> CallCanvas([FromBody] CanvasCredentials canvasCredentials)
         {
-            // Returns a professor user or null if email is not associated with a professor
-            User professor = _auth.getAuth("admin");
-
-            if (professor != null)
+            try
             {
-                var httpClient = _httpClientFactory.CreateClient();
-                httpClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + canvasCredentials.canvas_token);
-                // contains our base Url where individula course_id is added
-                // This URL enpoint gives a list of all the Student in that class : role_id= 3 list all the student for that Professor
-                var response = await httpClient.GetAsync($"https://byui.test.instructure.com/api/v1/courses/{canvasCredentials.canvas_course_id}/enrollments?per_page=1000");
+                // Returns a professor user or null if email is not associated with a professor
+                User professor = _auth.getAuth("admin");
 
-                if (response.IsSuccessStatusCode)
+                if (professor != null)
                 {
+                    // contains our base Url where individula course_id is added
+                    // This URL enpoint gives a list of all the Student in that class : role_id= 3 list all the student for that Professor
+                    _canvas.SetCanvasToken(canvasCredentials.canvas_token);
+                    _lastResponse = _canvas.Get($"api/v1/courses/{canvasCredentials.canvas_course_id}/enrollments?per_page=1000");
                     return Ok(canvasCredentials);
-                }
-                return StatusCode(413, "Invalid token");
-                // return Ok(canvasCredentials);
-            }
-            return Forbid();
 
+                    // return Ok(canvasCredentials);
+                }
+                return Forbid("You are not Authorized and is not a Professor");
+            }
+            catch (BffHttpException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
         }
     }
 }
