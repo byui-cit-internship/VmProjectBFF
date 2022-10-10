@@ -230,7 +230,7 @@ namespace vmProjectBFF.Controllers
 
                     // return Ok(canvasCredentials);
                 }
-                return Forbid("You are not Authorized and is not a Professor");
+                return Forbid("You are not Authorized and are not a Professor");
             }
             catch (BffHttpException be)
             {
