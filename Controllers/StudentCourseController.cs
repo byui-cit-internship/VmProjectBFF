@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using vmProjectBFF.DTO;
 using vmProjectBFF.Exceptions;
 using vmProjectBFF.Models;
+using vmProjectBFF.Services;
 
 namespace vmProjectBFF.Controllers
 {
@@ -14,15 +15,23 @@ namespace vmProjectBFF.Controllers
     {
 
         public StudentCourseController(
+            IAuthorization authorization,
+            IBackendRepository backend,
+            ICanvasRepository canvas,
             IConfiguration configuration,
             IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
-            ILogger<StudentCourseController> logger)
+            ILogger<StudentCourseController> logger,
+            IVCenterRepository vCenter)
             : base(
+                  authorization: authorization,
+                  backend: backend,
+                  canvas: canvas,
                   configuration: configuration,
                   httpClientFactory: httpClientFactory,
                   httpContextAccessor: httpContextAccessor,
-                  logger: logger)
+                  logger: logger,
+                  vCenter: vCenter)
         {
         }
 
@@ -33,10 +42,10 @@ namespace vmProjectBFF.Controllers
         {
             try
             {
-                User student = _auth.getAuth("user");
+                User student = _authorization.GetAuth("user");
                 if (student != null)
                 {
-                    _lastResponse = _backend.Get($"api/v1/StudentCourse", new { queryUserId = student.UserId });
+                    _lastResponse = _backendHttpClient.Get($"api/v1/StudentCourse", new { queryUserId = student.UserId });
                     List<CourseListByUserDTO> courseList = JsonConvert.DeserializeObject<List<CourseListByUserDTO>>(_lastResponse.Response);
 
                     return Ok(courseList);

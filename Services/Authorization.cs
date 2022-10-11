@@ -5,17 +5,17 @@ using vmProjectBFF.Models;
 
 namespace vmProjectBFF.Services
 {
-    public class Authorization
+    public class Authorization : IAuthorization
     {
-        private readonly BackendHttpClient _backend;
-        private readonly ILogger _logger;
+        private readonly IBackendHttpClient _backendHttpClient;
+        private readonly ILogger<Authorization> _logger;
 
         private readonly List<string> authTypes = new() { "professor", "admin", "user" };
         public Authorization(
-            BackendHttpClient backend,
-            ILogger logger)
+            IBackendHttpClient backendHttpClient,
+            ILogger<Authorization> logger)
         {
-            _backend = backend;
+            _backendHttpClient = backendHttpClient;
             _logger = logger;
         }
 
@@ -23,7 +23,9 @@ namespace vmProjectBFF.Services
         /****************************************
         Given an email returns either a professor user or null if the email doesn't belong to a professor
         ****************************************/
-        public User getAuth(string authType, int? sectionId = null)
+        public User GetAuth(
+            string authType,
+            int? sectionId = null)
         {
             try
             {
@@ -31,12 +33,12 @@ namespace vmProjectBFF.Services
                 {
                     if (authType == "professor")
                     {
-                        BffResponse professorResponse = _backend.Get($"api/v2/authorization", new { authType = "professor", sectionId = sectionId });
+                        BffResponse professorResponse = _backendHttpClient.Get($"api/v2/authorization", new { authType = "professor", sectionId = sectionId });
                         return JsonConvert.DeserializeObject<User>(professorResponse.Response);
                     }
                     else
                     {
-                        BffResponse otherResponse = _backend.Get($"api/v2/authorization", new { authType = authType });
+                        BffResponse otherResponse = _backendHttpClient.Get($"api/v2/authorization", new { authType = authType });
                         return JsonConvert.DeserializeObject<User>(otherResponse.Response);
                     }
                 }

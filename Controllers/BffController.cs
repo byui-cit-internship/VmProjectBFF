@@ -6,48 +6,46 @@ namespace vmProjectBFF.Controllers
 {
     public class BffController : ControllerBase
     {
-        protected readonly Authorization _auth;
-        protected readonly BackendHttpClient _backend;
-        protected readonly CanvasHttpClient _canvas;
-        protected readonly VCenterHttpClient _vCenter;
+        protected readonly IAuthorization _authorization;
+        protected readonly IBackendRepository _backend;
+        protected readonly ICanvasRepository _canvas;
         protected readonly IConfiguration _configuration;
         protected readonly IHttpContextAccessor _httpContextAccessor;
         protected readonly ILogger _logger;
+        protected readonly IVCenterRepository _vCenter;
+
+        protected readonly IBackendHttpClient _backendHttpClient;
+        protected readonly ICanvasHttpClient _canvasHttpClient;
+        protected readonly IVCenterHttpClient _vCenterHttpClient;
+        
         protected BffResponse _lastResponse;
 
         public IHttpClientFactory HttpClientFactory { get; }
 
         public BffController(
+            IAuthorization authorization,
+            IBackendRepository backend,
+            ICanvasRepository canvas,
             IConfiguration configuration,
             IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
-            ILogger logger)
+            ILogger logger,
+            IVCenterRepository vCenter)
         {
+            _authorization = authorization;
+            _backend = backend;
+            _canvas = canvas;
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
             _logger = logger;
-            _backend = new(
-                _configuration,
-                _logger,
-                GetVimaCookie(_httpContextAccessor));
-            _canvas = new(
-                _configuration,
-                _logger);
-            _vCenter = new(
-                _configuration,
-                _logger);
-            _auth = new(
-                _backend,
-                logger);
+            _vCenter = vCenter;
+
+            _backendHttpClient = _backend.BackendHttpClient;
+            _vCenterHttpClient = _vCenter.VCenterHttpClient;
+
             HttpClientFactory = httpClientFactory;
 
-            _httpContextAccessor.HttpContext.Response.RegisterForDispose(_vCenter);
-        }
-
-        protected static string GetVimaCookie(IHttpContextAccessor httpContextAccessor)
-        {
-            httpContextAccessor.HttpContext.Request.Cookies.TryGetValue("vima-cookie", out string vimaCookie);
-            return vimaCookie;
+            _httpContextAccessor.HttpContext.Response.RegisterForDispose(_vCenterHttpClient);
         }
     }
 }

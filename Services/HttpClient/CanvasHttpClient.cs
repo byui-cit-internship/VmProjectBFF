@@ -3,7 +3,7 @@ using vmProjectBFF.Exceptions;
 
 namespace vmProjectBFF.Services
 {
-    public class CanvasHttpClient : BffHttpClient
+    public class CanvasHttpClient : BffHttpClient, ICanvasHttpClient
     {
         protected static string GetBaseUrl(IConfiguration configuration)
         {
@@ -12,7 +12,7 @@ namespace vmProjectBFF.Services
 
         public CanvasHttpClient(
             IConfiguration configuration,
-            ILogger logger)
+            ILogger<CanvasHttpClient> logger)
             : base(
                   GetBaseUrl(configuration),
                   null,

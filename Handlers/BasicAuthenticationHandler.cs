@@ -13,28 +13,23 @@ namespace vmProjectBFF.Handlers
     public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {
         // Inject the DBcontext into the handler so that we can compare te credentials
-        private readonly BackendHttpClient _backend;
-        private readonly ILogger<BasicAuthenticationHandler> _logger;
+        private readonly IBackendHttpClient _backendHttpClient;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ILogger<BasicAuthenticationHandler> _logger;
 
         private BffResponse _lastResponse;
 
-        protected static string GetVimaCookie(IHttpContextAccessor httpContextAccessor)
-        {
-            httpContextAccessor.HttpContext.Request.Cookies.TryGetValue("vima-cookie", out string vimaCookie);
-            return vimaCookie;
-        }
-
         // BAsic Authentication needs contructor and this is it below
         public BasicAuthenticationHandler(
+            IBackendHttpClient backendHttpClient,
+            IConfiguration configuration,
+            IHttpContextAccessor httpContextAccessor,
+            ILogger<BasicAuthenticationHandler> logger,
             IOptionsMonitor<AuthenticationSchemeOptions> options,
             ILoggerFactory loggerFactory,
             UrlEncoder encoder,
-            ILogger<BasicAuthenticationHandler> logger,
-            ISystemClock clock,
-            IHttpContextAccessor httpContextAccessor,
-            IConfiguration configuration
+            ISystemClock clock
             )
             : base(
                   options,
@@ -43,13 +38,10 @@ namespace vmProjectBFF.Handlers
                   clock)
         {
             // intialize the context
-            _logger = logger;
-            _httpContextAccessor = httpContextAccessor;
+            _backendHttpClient = backendHttpClient;
             _configuration = configuration;
-            _backend = new(
-                _configuration,
-                _logger,
-                GetVimaCookie(_httpContextAccessor));
+            _httpContextAccessor = httpContextAccessor;
+            _logger = logger;
         }
 
 
@@ -63,7 +55,7 @@ namespace vmProjectBFF.Handlers
 
                 if (vimaCookie != null)
                 {
-                    _lastResponse = _backend.Get($"api/v1/Token", new { sessionToken = vimaCookie });
+                    _lastResponse = _backendHttpClient.Get($"api/v1/Token", new { sessionToken = vimaCookie });
                     User user = JsonConvert.DeserializeObject<User>(_lastResponse.Response);
 
                     if (user != null)
