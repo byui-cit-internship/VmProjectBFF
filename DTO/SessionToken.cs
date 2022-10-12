@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace vmProjectBFF.Models
+﻿namespace vmProjectBFF.Models
 {
     public class SessionToken
     {

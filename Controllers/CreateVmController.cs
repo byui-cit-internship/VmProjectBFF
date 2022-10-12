@@ -1,16 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using vmProjectBFF.Models;
-using vmProjectBFF.DTO;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System;
-using System.Net.Http;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+using vmProjectBFF.DTO;
+using vmProjectBFF.Models;
 using vmProjectBFF.Services;
-using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Logging;
 
 namespace vmProjectBFF.Controllers
 {
@@ -18,26 +11,28 @@ namespace vmProjectBFF.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class CreateVmController : ControllerBase
+    public class CreateVmController : BffController
     {
-        private readonly Authorization _auth;
-        private readonly Backend _backend;
-        private readonly IConfiguration _configuration;
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ILogger<CreateVmController> _logger;
 
         public CreateVmController(
+            IAuthorization authorization,
+            IBackendRepository backend,
+            ICanvasRepository canvas,
             IConfiguration configuration,
             IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
-            ILogger<CreateVmController> logger)
+            ILogger<CreateVmController> logger,
+            IVCenterRepository vCenter)
+            : base(
+                  authorization: authorization,
+                  backend: backend,
+                  canvas: canvas,
+                  configuration: configuration,
+                  httpClientFactory: httpClientFactory,
+                  httpContextAccessor: httpContextAccessor,
+                  logger: logger,
+                  vCenter: vCenter)
         {
-            _logger = logger; _configuration = configuration;
-            _httpContextAccessor = httpContextAccessor;
-            _backend = new(_httpContextAccessor, _logger, _configuration);
-            _auth = new(_backend, _logger);
-            _httpClientFactory = httpClientFactory;
         }
 
 
@@ -80,7 +75,7 @@ namespace vmProjectBFF.Controllers
         public async Task<ActionResult<IEnumerable<Library>>> GetLibraries()
         {
             //Open uri communication
-            var httpClient = _httpClientFactory.CreateClient();
+            var httpClient = HttpClientFactory.CreateClient();
             // Basic authentication in base64
             string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11xMQ==";
             //Adding headers
@@ -115,6 +110,7 @@ namespace vmProjectBFF.Controllers
                     Library library = JsonConvert.DeserializeObject<Library>(response2String);
                     libraries.Add(library);
                 }
+                var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.cit.byui.edu/api/session");
                 return Ok(libraries);
                 // if (libraries != null)
                 // {
@@ -167,7 +163,7 @@ namespace vmProjectBFF.Controllers
         public async Task<ActionResult<IEnumerable<OldFolder>>> GetFolders()
         {
             //Open uri communication
-            var httpClient = _httpClientFactory.CreateClient();
+            var httpClient = HttpClientFactory.CreateClient();
             // Basic authentication in base64
             string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11xMQ==";
             //Adding headers
@@ -199,6 +195,7 @@ namespace vmProjectBFF.Controllers
                 //declare variable from configuration (appsettings.json)
                 string ignoreFolder = _configuration["IgnoreFolder"];
 
+                var deleteResponse1 = await httpClient.DeleteAsync("https://vctr-dev.cit.byui.edu/api/session");
 
                 foreach (OldFolder folder in folderResponse.value)
                 {
@@ -210,6 +207,7 @@ namespace vmProjectBFF.Controllers
 
                 return Ok(folders);
             }
+            var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.cit.byui.edu/api/session");
             return StatusCode(550);
         }
 
@@ -252,12 +250,12 @@ namespace vmProjectBFF.Controllers
         {
             string userEmail = HttpContext.User.Identity.Name;
             //check if it is a professor
-            User professorUser = _auth.getAuth("admin");
+            User professorUser = _authorization.GetAuth("admin");
 
             if (professorUser != null)
             {
                 // Creating the client request and setting headers to the request
-                var httpClient = _httpClientFactory.CreateClient();
+                var httpClient = HttpClientFactory.CreateClient();
                 string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11x";
                 //Adding headers
                 httpClient.DefaultRequestHeaders.Add("Authorization", base64);
@@ -285,6 +283,7 @@ namespace vmProjectBFF.Controllers
                     Template template = JsonConvert.DeserializeObject<Template>(response2String);
                     templates.Add(template);
                 }
+                var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.cit.byui.edu/api/session");
                 return Ok(templates);
             }
             return StatusCode(550);

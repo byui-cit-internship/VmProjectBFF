@@ -18,7 +18,7 @@ spec:
         env:
         - name: APSNETCORE_ENVIRONMENT
           value: Test
-        image: rcr.citwdd.net/backend-repository/backend-vima:latest
+        image: gcr.io/cubs-consulting/backend-repository/backend-vima:latest
         ports:
         - containerPort: 80        
         resources:
@@ -63,7 +63,7 @@ spec:
     - port: 80
       targetPort: 80      
 ---
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: vmproject-api-test-ingress
@@ -75,12 +75,16 @@ metadata:
 spec:
   tls:
   - hosts:
-    - rancher-test-vm-api.citwdd.net
+    - rancher-test-vm-api.cit.byui.edu
     secretName: test-vm-api-local-tls
   rules:
-  - host: rancher-test-vm-api.citwdd.net
+  - host: rancher-test-vm-api.cit.byui.edu
     http:
       paths:
-      - backend:
-          serviceName: vmproject-api-test-loadbalancer
-          servicePort: 80
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: vmproject-api-test-loadbalancer
+            port:
+              number: 80

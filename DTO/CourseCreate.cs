@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace vmProjectBFF.Models
 {
     public class CourseCreate
@@ -23,6 +20,6 @@ namespace vmProjectBFF.Models
         public string userId { get; set; }
         public string teacherId { get; set; }
         public string vmTableID { get; set; }
-        public string canvasCourseId {get; set;}
+        public string canvasCourseId { get; set; }
     }
 }

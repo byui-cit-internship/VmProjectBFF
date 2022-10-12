@@ -1,22 +1,21 @@
-﻿using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using Newtonsoft.Json;
 using vmProjectBFF.DTO;
+using vmProjectBFF.Exceptions;
 using vmProjectBFF.Models;
 
 namespace vmProjectBFF.Services
 {
-    public class Authorization
+    public class Authorization : IAuthorization
     {
-        private readonly Backend _backend;
-        private readonly ILogger _logger;
+        private readonly IBackendHttpClient _backendHttpClient;
+        private readonly ILogger<Authorization> _logger;
 
         private readonly List<string> authTypes = new() { "professor", "admin", "user" };
         public Authorization(
-            Backend backend,
-            ILogger logger)
+            IBackendHttpClient backendHttpClient,
+            ILogger<Authorization> logger)
         {
-            _backend = backend;
+            _backendHttpClient = backendHttpClient;
             _logger = logger;
         }
 
@@ -24,18 +23,22 @@ namespace vmProjectBFF.Services
         /****************************************
         Given an email returns either a professor user or null if the email doesn't belong to a professor
         ****************************************/
-        public User getAuth(string authType, int? sectionId = null)
+        public User GetAuth(
+            string authType,
+            int? sectionId = null)
         {
             try
             {
                 if (authTypes.Contains(authType))
                 {
-                    if (authType == "professor") {
-                        BackendResponse professorResponse = _backend.Get($"api/v2/authorization", new { authType = "professor", sectionId = sectionId });
-                        return JsonConvert.DeserializeObject<User>(professorResponse.Response);
-                    } else
+                    if (authType == "professor")
                     {
-                        BackendResponse otherResponse = _backend.Get($"api/v2/authorization", new {authType=authType});
+                        BffResponse professorResponse = _backendHttpClient.Get($"api/v2/authorization", new { authType = "professor", sectionId = sectionId });
+                        return JsonConvert.DeserializeObject<User>(professorResponse.Response);
+                    }
+                    else
+                    {
+                        BffResponse otherResponse = _backendHttpClient.Get($"api/v2/authorization", new { authType = authType });
                         return JsonConvert.DeserializeObject<User>(otherResponse.Response);
                     }
                 }
@@ -45,7 +48,7 @@ namespace vmProjectBFF.Services
                     return null;
                 }
             }
-            catch (BackendException be)
+            catch (BffHttpException be)
             {
                 return null;
             }

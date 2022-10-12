@@ -1,18 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using vmProjectBFF.Models;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System;
 using System.Text;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using vmProjectBFF.DTO;
-using Microsoft.Extensions.Configuration;
-using System.Collections.Generic;
+using vmProjectBFF.Exceptions;
+using vmProjectBFF.Models;
 using vmProjectBFF.Services;
-using Microsoft.AspNetCore.Authorization;
 
 namespace vmProjectBFF.Controllers
 {
@@ -20,47 +13,48 @@ namespace vmProjectBFF.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class DeployVmController : ControllerBase
+    public class DeployVmController : BffController
     {
-        private readonly Authorization _auth;
-        private readonly Backend _backend;
-        private readonly IConfiguration _configuration;
-        private readonly ILogger<DeployVmController> _logger;
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private BackendResponse _lastResponse;
 
         public DeployVmController(
+            IAuthorization authorization,
+            IBackendRepository backend,
+            ICanvasRepository canvas,
             IConfiguration configuration,
             IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
-            ILogger<DeployVmController> logger)
+            ILogger<DeployVmController> logger,
+            IVCenterRepository vCenter)
+            : base(
+                  authorization: authorization,
+                  backend: backend,
+                  canvas: canvas,
+                  configuration: configuration,
+                  httpClientFactory: httpClientFactory,
+                  httpContextAccessor: httpContextAccessor,
+                  logger: logger,
+                  vCenter: vCenter)
         {
-            _logger = logger;
-            _configuration = configuration;
-            _httpContextAccessor = httpContextAccessor;
-            _backend = new(_httpContextAccessor, _logger, _configuration);
-            _auth = new(_backend, _logger);
-            _httpClientFactory = httpClientFactory;
         }
 
         //Connect our API to a second API that creates our vms 
         [HttpPost()]
-        public async Task<ActionResult> PostVmTable([FromBody]string enrollment_id)
+        public async Task<ActionResult> PostVmTable([FromBody] string enrollment_id)
         {
             try
             {
-                User studentUser = _auth.getAuth("user");
+                User studentUser = _authorization.GetAuth("user");
 
                 if (studentUser != null)
                 {
-                    _lastResponse = _backend.Get("api/v1/CreateVm", new { enrollmentId = enrollment_id });
-                    CreateVmDTO createVm = JsonConvert.DeserializeObject<List<CreateVmDTO>>(_lastResponse.Response).FirstOrDefault();
+                    // "[{\"student_name\":\"Trevor Wayman\",\"course_name\":\"CIT 270\",\"course_id\":1,\"template_id\":\"cit270-empty-vm-template\",\"course_semester\":\"Spring\",\"enrollment_id\":33,\"folder\":\"CIT270\"}]"
+                    _lastResponse = _backendHttpClient.Get("api/v1/CreateVm", new { enrollmentId = enrollment_id });
+                    CreateVmDTO createVm = JsonConvert.DeserializeObject<List<CreateVmDTO>>(_lastResponse.Response).FirstOrDefault(); // Should validation be added so createVm is not made by any student on behalf of another student??
 
                     string template_id = createVm.Template_id;
 
                     // Create a session token
-                    var httpClient = _httpClientFactory.CreateClient();
+                    var httpClient = HttpClientFactory.CreateClient();
                     string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11xMQ==";
                     //Adding headers
                     httpClient.DefaultRequestHeaders.Add("Authorization", base64);
@@ -84,7 +78,7 @@ namespace vmProjectBFF.Controllers
                             name = HttpContext.User.Identity.Name,
                             placement = new Placement
                             {
-                                folder = createVm.Folder,
+                                folder = createVm.Folder, // Check CIT270 error 
 
                                 resource_pool = resourcePool
 
@@ -100,21 +94,21 @@ namespace vmProjectBFF.Controllers
 
                         // return Ok(content2);
 
-                        var postResponse = await httpClient.PostAsync($"https://vctr-dev.cit.byui.edu/api/vcenter/vm-template/library-items/{template_id}?action=deploy", deployContent);
+                        var postResponse = await httpClient.PostAsync($"https://vctr-dev.cit.byui.edu/api/vcenter/vm-template/library-items/{template_id}?action=deploy", deployContent); // Here I get a 404
 
                         var deleteResponse = await httpClient.DeleteAsync("https://vctr-dev.cit.byui.edu/api/session");
                         //  var content2 = await postResponse.Content.ReadAsStringAsync();
 
                         //  var createdCompany = JsonSerializer.Deserialize<DeployDto>(content, _options);
-                        _lastResponse = _backend.Get("api/v2/VmTemplate", new { vmTeampleVcenterId = template_id });
-                        VmTemplate template = JsonConvert.DeserializeObject<List<VmTemplate>>(_lastResponse.Response).FirstOrDefault();
+                        _lastResponse = _backendHttpClient.Get("api/v2/VmTemplate", new { vmTemplateVcenterId = template_id });
+                        VmTemplate template = JsonConvert.DeserializeObject<VmTemplate>(_lastResponse.Response);
 
                         VmInstance vmInstance = new();
                         vmInstance.VmInstanceVcenterId = postResponse.Content.ReadAsStringAsync().Result;
                         vmInstance.VmTemplateId = template.VmTemplateId;
                         vmInstance.VmInstanceExpireDate = DateTime.MaxValue;
 
-                        _lastResponse = _backend.Post("api/v1/CreateVm", vmInstance);
+                        _lastResponse = _backendHttpClient.Post("api/v1/CreateVm", vmInstance);
                         vmInstance = JsonConvert.DeserializeObject<VmInstance>(_lastResponse.Response);
 
                         return Ok(vmInstance);
@@ -123,7 +117,7 @@ namespace vmProjectBFF.Controllers
                 }
                 return Unauthorized("You are not Authorized and this is not a student");
             }
-            catch (BackendException be)
+            catch (BffHttpException be)
             {
                 return StatusCode((int)be.StatusCode, be.Message);
             }
@@ -133,12 +127,12 @@ namespace vmProjectBFF.Controllers
         public async Task<ActionResult<IEnumerable<Pool>>> GetPools()
         {
             //Open uri communication
-            var httpClient = _httpClientFactory.CreateClient();
+            var httpClient = HttpClientFactory.CreateClient();
             // Basic authentication in base64
             string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11xMQ==";
             //Adding headers
 
-            
+
             httpClient.DefaultRequestHeaders.Add("Authorization", base64);
             var tokenResponse = await httpClient.PostAsync("https://vctr-dev.cit.byui.edu/api/session", null);
             if (tokenResponse.IsSuccessStatusCode)
@@ -169,7 +163,7 @@ namespace vmProjectBFF.Controllers
         public async Task<IActionResult> DeleteSession()
         {
             // Create a session token
-            var httpClient = _httpClientFactory.CreateClient();
+            var httpClient = HttpClientFactory.CreateClient();
             string base64 = "Basic YXBpLXRlc3RAdnNwaGVyZS5sb2NhbDp3bkQ8RHpbSFpXQDI1e11xMQ==";
             //Adding headers
             httpClient.DefaultRequestHeaders.Add("Authorization", base64);

@@ -18,7 +18,7 @@ spec:
         env:
         - name: APSNETCORE_ENVIRONMENT
           value: Development
-        image: rcr.citwdd.net/bff-repository/bff-vima:latest
+        image: gcr.io/cubs-consulting/bff-repository/bff-vima:latest
         ports:
         - containerPort: 80        
         resources:
@@ -63,7 +63,7 @@ spec:
     - port: 80
       targetPort: 80      
 ---
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: vm-project-bff-dev-ingress
@@ -75,12 +75,16 @@ metadata:
 spec:
   tls:
   - hosts:
-    - rancher-dev-bff.citwdd.net
+    - rancher-dev-bff.cit.byui.edu
     secretName: vm-project-bff-dev-tls
   rules:
-  - host: rancher-dev-bff.citwdd.net
+  - host: rancher-dev-bff.cit.byui.edu
     http:
       paths:
-      - backend:
-          serviceName: vm-project-bff-dev-loadbalancer
-          servicePort: 80
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: vm-project-bff-dev-loadbalancer
+            port:
+              number: 80

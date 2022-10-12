@@ -1,11 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System.Threading.Tasks;
 using vmProjectBFF.DTO;
+using vmProjectBFF.Exceptions;
 using vmProjectBFF.Models;
 using vmProjectBFF.Services;
 
@@ -14,26 +11,30 @@ namespace vmProjectBFF.Controllers
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class UserController : BffController
     {
-        private readonly Authorization _auth;
-        private readonly Backend _backend;
-        private readonly IConfiguration _configuration;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ILogger<UserController> _logger;
-        private BackendResponse _lastResponse;
 
         public UserController(
+            IAuthorization authorization,
+            IBackendRepository backend,
+            ICanvasRepository canvas,
             IConfiguration configuration,
+            IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
-            ILogger<UserController> logger)
+            ILogger<UserController> logger,
+            IVCenterRepository vCenter)
+            : base(
+                  authorization: authorization,
+                  backend: backend,
+                  canvas: canvas,
+                  configuration: configuration,
+                  httpClientFactory: httpClientFactory,
+                  httpContextAccessor: httpContextAccessor,
+                  logger: logger,
+                  vCenter: vCenter)
         {
-            _logger = logger;
-            _configuration = configuration;
-            _httpContextAccessor = httpContextAccessor;
-            _backend = new(_httpContextAccessor, _logger, _configuration);
-            _auth = new(_backend, _logger);
         }
+
         /***********************************************
          * This is for updating a user
          * If you are updating your self. 
@@ -42,10 +43,10 @@ namespace vmProjectBFF.Controllers
         [HttpPut("")]
         public async Task<ActionResult> PutUser(User user)
         {
-            User admin = _auth.getAuth("admin");
+            User admin = _authorization.GetAuth("admin");
             if (admin != null)
             {
-                _lastResponse = _backend.Put("api/v2/User", user);
+                _lastResponse = _backendHttpClient.Put("api/v2/User", user);
                 User changedUser = JsonConvert.DeserializeObject<User>(_lastResponse.Response);
 
                 if (admin.UserId == changedUser.UserId)
@@ -58,12 +59,12 @@ namespace vmProjectBFF.Controllers
                 }
 
             }
-            User authUser = _auth.getAuth("user");
+            User authUser = _authorization.GetAuth("user");
             if (authUser != null)
             {
-                if(user.UserId == authUser.UserId && user.IsAdmin == authUser.IsAdmin)
+                if (user.UserId == authUser.UserId && user.IsAdmin == authUser.IsAdmin)
                 {
-                    _lastResponse = _backend.Put("api/v2/User", user);
+                    _lastResponse = _backendHttpClient.Put("api/v2/User", user);
                     User changedUser = JsonConvert.DeserializeObject<User>(_lastResponse.Response);
 
                     return Ok(changedUser);
@@ -88,11 +89,11 @@ namespace vmProjectBFF.Controllers
         {
             try
             {
-                User admin = _auth.getAuth("admin");
+                User admin = _authorization.GetAuth("admin");
 
                 if (admin != null)
                 {
-                    _lastResponse = _backend.Get("api/v2/User", new { email = postUser.email });
+                    _lastResponse = _backendHttpClient.Get("api/v2/User", new { email = postUser.email });
                     User user = JsonConvert.DeserializeObject<User>(_lastResponse.Response);
 
                     if (user == null)
@@ -103,7 +104,7 @@ namespace vmProjectBFF.Controllers
                         user.LastName = postUser.lastName;
                         user.IsAdmin = true;
 
-                        _lastResponse = _backend.Post("api/v2/User", user);
+                        _lastResponse = _backendHttpClient.Post("api/v2/User", user);
 
                         return Ok("created user as admin");
                     }
@@ -111,14 +112,38 @@ namespace vmProjectBFF.Controllers
                     {
                         user.IsAdmin = true;
 
-                        _lastResponse = _backend.Put("api/v2/User", user);
+                        _lastResponse = _backendHttpClient.Put("api/v2/User", user);
 
                         return Ok("modified user to be admin");
                     }
                 }
                 return Unauthorized();
             }
-            catch (BackendException be)
+            catch (BffHttpException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
+        }
+        [HttpGet("professors")]
+        public async Task<ActionResult> GetProfessors()
+        {
+            try
+            {
+                User professor = _authorization.GetAuth("admin");
+
+                if (professor != null)
+                {
+
+                    _lastResponse = _backendHttpClient.Get($"api/v2/user", new { isAdmin = true });
+                    List<User> professorList = JsonConvert.DeserializeObject<List<User>>(_lastResponse.Response);
+                    return Ok(professorList);
+                }
+                else
+                {
+                    return Unauthorized("You are not a professor");
+                }
+            }
+            catch (BffHttpException be)
             {
                 return StatusCode((int)be.StatusCode, be.Message);
             }

@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-namespace vmProjectBFF
+﻿namespace vmProjectBFF
 {
     public class AppLogger
     {
