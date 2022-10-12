@@ -43,13 +43,13 @@ namespace vmProjectBFF.Services
         {
             try
             {
-                _lastResponse = _backendHttpClient.Post("api/v1/token", new DTO.AccessTokenDTO(_configuration.GetConnectionString("BackendConnectionPassword")));
+                //_lastResponse = _backendHttpClient.Post("api/v1/token", new DTO.AccessTokenDTO(_configuration.GetConnectionString("BackendConnectionPassword")));
 
-                if (!_lastResponse.HttpResponse.IsSuccessStatusCode)
-                {
-                    _logger.LogCritical("Could not authenticate to backend server in service \"BackendService1\". Unsuccessful response code or no cookie set.");
-                    return;
-                }
+                // if (!_lastResponse.HttpResponse.IsSuccessStatusCode)
+                // {
+                //     _logger.LogCritical("Could not authenticate to backend server in service \"BackendService1\". Unsuccessful response code or no cookie set.");
+                //     return;
+                // }
 
                 _lastResponse = _backendHttpClient.Get("api/v1/User/canvasUsers");
                 List<User> canvasUsers = JsonConvert.DeserializeObject<List<User>>(_lastResponse.Response);
