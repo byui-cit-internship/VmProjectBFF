@@ -4,7 +4,7 @@ using vmProjectBFF.Exceptions;
 
 namespace vmProjectBFF.Services
 {
-    public class VCenterHttpClient : BffHttpClient, IDisposable
+    public class VCenterHttpClient : BffHttpClient, IDisposable, IVCenterHttpClient
     {
         protected Timer _timer;
         protected bool _disposed = false;
@@ -35,7 +35,7 @@ namespace vmProjectBFF.Services
 
         public VCenterHttpClient(
             IConfiguration configuration,
-            ILogger logger)
+            ILogger<VCenterHttpClient> logger)
             : base(
                   GetBaseUrl(configuration),
                   new { Authorization = $"Basic {GetVCenterLoginBase64(configuration)}" },

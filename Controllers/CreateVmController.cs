@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using vmProjectBFF.DTO;
 using vmProjectBFF.Models;
+using vmProjectBFF.Services;
 
 namespace vmProjectBFF.Controllers
 {
@@ -14,15 +15,23 @@ namespace vmProjectBFF.Controllers
     {
 
         public CreateVmController(
+            IAuthorization authorization,
+            IBackendRepository backend,
+            ICanvasRepository canvas,
             IConfiguration configuration,
             IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
-            ILogger<CreateVmController> logger)
+            ILogger<CreateVmController> logger,
+            IVCenterRepository vCenter)
             : base(
+                  authorization: authorization,
+                  backend: backend,
+                  canvas: canvas,
                   configuration: configuration,
                   httpClientFactory: httpClientFactory,
                   httpContextAccessor: httpContextAccessor,
-                  logger: logger)
+                  logger: logger,
+                  vCenter: vCenter)
         {
         }
 
@@ -241,7 +250,7 @@ namespace vmProjectBFF.Controllers
         {
             string userEmail = HttpContext.User.Identity.Name;
             //check if it is a professor
-            User professorUser = _auth.getAuth("admin");
+            User professorUser = _authorization.GetAuth("admin");
 
             if (professorUser != null)
             {

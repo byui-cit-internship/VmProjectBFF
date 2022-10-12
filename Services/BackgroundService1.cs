@@ -8,7 +8,7 @@ namespace vmProjectBFF.Services
 {
     public class BackgroundService1 : BackgroundService
     {
-        private readonly BackendHttpClient _backend;
+        private readonly IBackendHttpClient _backendHttpClient;
         private readonly IConfiguration _configuration;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<BackgroundService1> _logger;
@@ -23,6 +23,7 @@ namespace vmProjectBFF.Services
 
 
         public BackgroundService1(
+            IBackendHttpClient backendHttpClient,
             ILogger<BackgroundService1> logger,
             IHttpClientFactory httpClientFactory,
             IConfiguration configuration,
@@ -31,16 +32,18 @@ namespace vmProjectBFF.Services
             _logger = logger;
             _configuration = configuration;
             _contextAccessor = contextAccessor;
-            _backend = new(_configuration, _logger, _configuration.GetConnectionString("BackendConnectionPassword"));
+            _backendHttpClient = backendHttpClient;
             _httpClientFactory = httpClientFactory;
             canvasStudentRoleId = Int32.Parse(_configuration["Canvas:StudentRoleId"]);
+
+            _backendHttpClient.Cookie = _configuration.GetConnectionString("BackendConnectionPassword");
         }
 
         public async Task ReadAndUpdateDB()
         {
             try
             {
-                _lastResponse = _backend.Post("api/v1/token", new DTO.AccessTokenDTO(_configuration.GetConnectionString("BackendConnectionPassword")));
+                _lastResponse = _backendHttpClient.Post("api/v1/token", new DTO.AccessTokenDTO(_configuration.GetConnectionString("BackendConnectionPassword")));
 
                 if (!_lastResponse.HttpResponse.IsSuccessStatusCode)
                 {
@@ -48,11 +51,11 @@ namespace vmProjectBFF.Services
                     return;
                 }
 
-                _lastResponse = _backend.Get("api/v1/User/canvasUsers");
+                _lastResponse = _backendHttpClient.Get("api/v1/User/canvasUsers");
                 List<User> canvasUsers = JsonConvert.DeserializeObject<List<User>>(_lastResponse.Response);
 
 
-                _lastResponse = _backend.Get($"api/v2/Role", new { canvasRoleId = canvasStudentRoleId });
+                _lastResponse = _backendHttpClient.Get($"api/v2/Role", new { canvasRoleId = canvasStudentRoleId });
                 Role studentRole = JsonConvert.DeserializeObject<List<Role>>(_lastResponse.Response).FirstOrDefault();
 
                 if (studentRole == null)
@@ -61,7 +64,7 @@ namespace vmProjectBFF.Services
                     studentRole.CanvasRoleId = canvasStudentRoleId;
                     studentRole.RoleName = "StudentEnrollment";
 
-                    _lastResponse = _backend.Post($"api/v2/Role", studentRole);
+                    _lastResponse = _backendHttpClient.Post($"api/v2/Role", studentRole);
                     studentRole = JsonConvert.DeserializeObject<Role>(_lastResponse.Response);
                 }
 
@@ -69,7 +72,7 @@ namespace vmProjectBFF.Services
                 {
                     foreach (User professor in canvasUsers)
                     {
-                        _lastResponse = _backend.Get($"api/v2/Section", new { userId = professor.UserId });
+                        _lastResponse = _backendHttpClient.Get($"api/v2/Section", new { userId = professor.UserId });
                         List<Section> sections = JsonConvert.DeserializeObject<List<Section>>(_lastResponse.Response);
 
                         foreach (Section section in sections)
@@ -118,7 +121,7 @@ namespace vmProjectBFF.Services
 
                                     if (studentEmail != null)
                                     {
-                                        _lastResponse = _backend.Get("api/v2/User", new { email = studentEmail });
+                                        _lastResponse = _backendHttpClient.Get("api/v2/User", new { email = studentEmail });
                                         User student = JsonConvert.DeserializeObject<User>(_lastResponse.Response);
                                         // check if the student is already created, if not then create and enroll in that class
 
@@ -130,10 +133,10 @@ namespace vmProjectBFF.Services
                                             student.LastName = studentLastName;
                                             student.IsAdmin = false;
 
-                                            _lastResponse = _backend.Post("api/v2/User", student);
+                                            _lastResponse = _backendHttpClient.Post("api/v2/User", student);
                                             student = JsonConvert.DeserializeObject<User>(_lastResponse.Response);
                                         }
-                                        _lastResponse = _backend.Get("api/v2/UserSectionRole", new { userId = student.UserId, sectionId = section.SectionId, RoleId = studentRole.RoleId });
+                                        _lastResponse = _backendHttpClient.Get("api/v2/UserSectionRole", new { userId = student.UserId, sectionId = section.SectionId, RoleId = studentRole.RoleId });
                                         UserSectionRole enrollment = JsonConvert.DeserializeObject<UserSectionRole>(_lastResponse.Response);
 
                                         if (enrollment != null)//student enrollment hasn't been imported from canvas to database yet
@@ -144,7 +147,7 @@ namespace vmProjectBFF.Services
                                             enrollment.RoleId = studentRole.RoleId;
                                             enrollment.SectionId = section.SectionId;
 
-                                            _lastResponse = _backend.Post("api/v2/UserSectionRole", enrollment);
+                                            _lastResponse = _backendHttpClient.Post("api/v2/UserSectionRole", enrollment);
                                         }
                                     }
                                 }
@@ -164,7 +167,7 @@ namespace vmProjectBFF.Services
                 }
 
 
-                BffResponse deleteResponse = _backend.Delete("api/v1/token", null);
+                BffResponse deleteResponse = _backendHttpClient.Delete("api/v1/token", null);
             }
             catch (BffHttpException be)
             {
