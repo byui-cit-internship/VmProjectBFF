@@ -17,7 +17,7 @@ namespace vmProjectBFF
             ILoggerFactory LoggerFactory = services.GetRequiredService<ILoggerFactory>();
             AppLogger.LoggerFactory = LoggerFactory;
             BackgroundService1 bs1 = services.GetRequiredService<BackgroundService1>();
-            //await bs1.ReadAndUpdateDB();
+            await bs1.ReadAndUpdateDB();
 
             host.Run();
         }
