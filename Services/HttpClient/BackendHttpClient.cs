@@ -10,7 +10,9 @@ namespace vmProjectBFF.Services
         public string Cookie
         {
             get { return _cookie; }
-            set { _cookie = $"vima-cookie={value}"; }
+            set { _cookie = $"vima-cookie={value}"; 
+            _headers.Add("Cookie", _cookie);  
+            }
         }
 
         protected static string GetBaseUrl(IConfiguration configuration)
