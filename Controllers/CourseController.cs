@@ -15,15 +15,23 @@ namespace vmProjectBFF.Controllers
     {
 
         public CourseController(
+            IAuthorization authorization,
+            IBackendRepository backend,
+            ICanvasRepository canvas,
             IConfiguration configuration,
             IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
-            ILogger<CourseController> logger)
+            ILogger<CourseController> logger,
+            IVCenterRepository vCenter)
             : base(
+                  authorization: authorization,
+                  backend: backend,
+                  canvas: canvas,
                   configuration: configuration,
                   httpClientFactory: httpClientFactory,
                   httpContextAccessor: httpContextAccessor,
-                  logger: logger)
+                  logger: logger,
+                  vCenter: vCenter)
         {
         }
 
@@ -74,11 +82,11 @@ namespace vmProjectBFF.Controllers
         {
             try
             {
-                User professor = _auth.getAuth("admin");
+                User professor = _authorization.GetAuth("admin");
 
                 if (professor != null)
                 {
-                    BffResponse sectionListResponse = _backend.Get($"api/v1/section/sectionList/{semester}");
+                    BffResponse sectionListResponse = _backendHttpClient.Get($"api/v1/section/sectionList/{semester}");
                     List<OldSectionDTO> sectionList = JsonConvert.DeserializeObject<List<OldSectionDTO>>(sectionListResponse.Response);
                     return Ok(sectionList);
                 }
@@ -100,12 +108,12 @@ namespace vmProjectBFF.Controllers
         {
             try
             {
-                User professor = _auth.getAuth("admin");
+                User professor = _authorization.GetAuth("admin");
 
                 if (professor != null)
                 {
 
-                    BffResponse courseListResponse = _backend.Get($"api/v2/course");
+                    BffResponse courseListResponse = _backendHttpClient.Get($"api/v2/course");
                     List<Course> courseList = JsonConvert.DeserializeObject<List<Course>>(courseListResponse.Response);
                     return Ok(courseList);
                 }
@@ -129,11 +137,11 @@ namespace vmProjectBFF.Controllers
         {
             try
             {
-                User professor = _auth.getAuth("admin");
+                User professor = _authorization.GetAuth("admin");
 
                 if (professor != null)
                 {
-                    BffResponse sectionListResponse = _backend.Get($"api/v2/section");
+                    BffResponse sectionListResponse = _backendHttpClient.Get($"api/v2/section");
                     List<SectionDTO> sectionList = JsonConvert.DeserializeObject<List<SectionDTO>>(sectionListResponse.Response);
                     return Ok(sectionList);
                 }
@@ -148,18 +156,18 @@ namespace vmProjectBFF.Controllers
             }
         }
 
+        
         [HttpGet("professor/canvasDropdown")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult> canvasDropdown()
         {
             try {
-                User professor = _auth.getAuth("admin");
+                User professor = _authorization.GetAuth("admin");
                 if (professor!= null) {
                     //Open uri communication
                     //Adding headers
-                    Canvas thing = new(_logger, HttpClientFactory);
-                    dynamic  courses = await thing.GetCourses(professor.CanvasToken);
+                    dynamic  courses = _canvas.GetCourses(professor.CanvasToken);
                 
                     return Ok(courses);
                 } else {
@@ -218,14 +226,13 @@ namespace vmProjectBFF.Controllers
             try
             {
                 // Returns a professor user or null if email is not associated with a professor
-                User professor = _auth.getAuth("admin");
+                User professor = _authorization.GetAuth("admin");
 
                 if (professor != null)
                 {
                     // contains our base Url where individula course_id is added
                     // This URL enpoint gives a list of all the Student in that class : role_id= 3 list all the student for that Professor
-                    _canvas.SetCanvasToken(canvasCredentials.canvas_token);
-                    _lastResponse = _canvas.Get($"api/v1/courses/{canvasCredentials.canvas_course_id}/enrollments?per_page=1000");
+                    _canvas.GetCourses(canvasCredentials.canvas_token);
                     return Ok(canvasCredentials);
 
                     // return Ok(canvasCredentials);

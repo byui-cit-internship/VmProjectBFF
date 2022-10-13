@@ -60,6 +60,14 @@ namespace vmProjectBFF
                 s.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
             });
 
+            services.AddScoped<IBackendHttpClient, BackendHttpClient>();
+            services.AddScoped<ICanvasHttpClient, CanvasHttpClient>();
+            services.AddScoped<IVCenterHttpClient, VCenterHttpClient>();
+            services.AddScoped<IBackendRepository, BackendRepository>();
+            services.AddScoped<ICanvasRepository, CanvasRepository>();
+            services.AddScoped<IVCenterRepository, VCenterRepository>();
+            services.AddScoped<IAuthorization, Authorization>();
+
             // This allows for Cross-origin request Read more: https://docs.microsoft.com/en-us/aspnet/core/security/cors?view=aspnetcore-6.0 
             services.AddCors(options =>
             {

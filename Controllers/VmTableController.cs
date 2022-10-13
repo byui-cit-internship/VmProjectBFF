@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using vmProjectBFF.DTO;
 using vmProjectBFF.Models;
+using vmProjectBFF.Services;
 
 namespace vmProjectBFF.Controllers
 {
@@ -13,15 +14,23 @@ namespace vmProjectBFF.Controllers
     {
 
         public VmTableController(
+            IAuthorization authorization,
+            IBackendRepository backend,
+            ICanvasRepository canvas,
             IConfiguration configuration,
             IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
-            ILogger<VmTableController> logger)
+            ILogger<VmTableController> logger,
+            IVCenterRepository vCenter)
             : base(
+                  authorization: authorization,
+                  backend: backend,
+                  canvas: canvas,
                   configuration: configuration,
                   httpClientFactory: httpClientFactory,
                   httpContextAccessor: httpContextAccessor,
-                  logger: logger)
+                  logger: logger,
+                  vCenter: vCenter)
         {
         }
 
@@ -29,7 +38,7 @@ namespace vmProjectBFF.Controllers
         [HttpGet("templates/all")]
         public async Task<ActionResult<IEnumerable<string>>> GetTemplates(string libraryId)
         {
-            User professorUser = _auth.getAuth("admin");
+            User professorUser = _authorization.GetAuth("admin");
 
             if (professorUser != null)
             {
@@ -39,14 +48,14 @@ namespace vmProjectBFF.Controllers
                     // This URL enpoint gives a list of all the Templates we have in our vcenter 
                     List<Template> templates = new List<Template>();
 
-                    _lastResponse = _vCenter.Get($"api/content/library/item?library_id={libraryId}");
+                    _lastResponse = _vCenterHttpClient.Get($"api/content/library/item?library_id={libraryId}");
                     List<string> templateIds = templateIds = JsonConvert.DeserializeObject<List<String>>(_lastResponse.Response);
 
 
                     //call Api, convert it to templates, and get the list of templates
                     foreach (string templateId in templateIds)
                     {
-                        _lastResponse = _vCenter.Get($"api/content/library/item/{templateId}");
+                        _lastResponse = _vCenterHttpClient.Get($"api/content/library/item/{templateId}");
                         Template template = JsonConvert.DeserializeObject<Template>(_lastResponse.Response);
                         templates.Add(template);
                     }
