@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using vmProjectBFF.DTO;
 using vmProjectBFF.Exceptions;
 using vmProjectBFF.Models;
+using vmProjectBFF.Services;
 
 namespace vmProjectBFF.Controllers
 {
@@ -12,15 +13,23 @@ namespace vmProjectBFF.Controllers
     public class TokenController : BffController
     {
         public TokenController(
-            ILogger<TokenController> logger,
+            IAuthorization authorization,
+            IBackendRepository backend,
+            ICanvasRepository canvas,
+            IConfiguration configuration,
             IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
-            IConfiguration configuration)
+            ILogger<TokenController> logger,
+            IVCenterRepository vCenter)
             : base(
+                  authorization: authorization,
+                  backend: backend,
+                  canvas: canvas,
                   configuration: configuration,
                   httpClientFactory: httpClientFactory,
                   httpContextAccessor: httpContextAccessor,
-                  logger: logger)
+                  logger: logger,
+                  vCenter: vCenter)
         {
         }
 
@@ -86,7 +95,7 @@ namespace vmProjectBFF.Controllers
         {
             try
             {
-                _lastResponse = _backend.Post("api/v1/token", accessTokenObj);
+                _lastResponse = _backendHttpClient.Post("api/v1/token", accessTokenObj);
                 (User authenticatedUser, string vimaCookie) = JsonConvert.DeserializeObject<(User, string)>(_lastResponse.Response);
 
                 _httpContextAccessor.HttpContext.Response.Cookies.Append(
@@ -135,7 +144,7 @@ namespace vmProjectBFF.Controllers
         {
             try
             {
-                BffResponse deleteResponse = _backend.Delete("api/v1/token", null);
+                BffResponse deleteResponse = _backendHttpClient.Delete("api/v1/token", null);
                 _httpContextAccessor.HttpContext.Response.Cookies.Delete("vima-cookie");
                 return Ok();
             }

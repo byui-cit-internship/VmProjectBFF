@@ -3,14 +3,16 @@ using vmProjectBFF.Exceptions;
 
 namespace vmProjectBFF.Services
 {
-    public class BackendHttpClient : BffHttpClient
+    public class BackendHttpClient : BffHttpClient, IBackendHttpClient
     {
         private string _cookie;
 
         public string Cookie
         {
             get { return _cookie; }
-            set { _cookie = value; }
+            set { _cookie = $"vima-cookie={value}"; 
+            _headers.Add("Cookie", _cookie);  
+            }
         }
 
         protected static string GetBaseUrl(IConfiguration configuration)
@@ -18,18 +20,20 @@ namespace vmProjectBFF.Services
             return configuration.GetConnectionString("BackendRootUri");
         }
 
-        protected static object GetVimaCookie(string vimaCookieValue)
+        protected static object GetVimaCookie(IHttpContextAccessor httpContextAccessor)
         {
-            return vimaCookieValue != null ? new { Cookie = $"vima-cookie={vimaCookieValue}" } : null;
+            string vimaCookie = null;
+            httpContextAccessor.HttpContext?.Request.Cookies.TryGetValue("vima-cookie", out vimaCookie);
+            return vimaCookie != null ? new { Cookie = $"vima-cookie={vimaCookie}" } : null;
         }
 
         public BackendHttpClient(
             IConfiguration configuration,
-            ILogger logger,
-            string vimaCookieValue)
+            ILogger<BackendHttpClient> logger,
+            IHttpContextAccessor httpContextAccessor)
             : base(
                   GetBaseUrl(configuration),
-                  GetVimaCookie(vimaCookieValue),
+                  GetVimaCookie(httpContextAccessor),
                   logger)
         {
         }

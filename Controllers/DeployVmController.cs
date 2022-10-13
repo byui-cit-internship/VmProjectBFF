@@ -5,6 +5,7 @@ using System.Text;
 using vmProjectBFF.DTO;
 using vmProjectBFF.Exceptions;
 using vmProjectBFF.Models;
+using vmProjectBFF.Services;
 
 namespace vmProjectBFF.Controllers
 {
@@ -16,15 +17,23 @@ namespace vmProjectBFF.Controllers
     {
 
         public DeployVmController(
+            IAuthorization authorization,
+            IBackendRepository backend,
+            ICanvasRepository canvas,
             IConfiguration configuration,
             IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
-            ILogger<DeployVmController> logger)
+            ILogger<DeployVmController> logger,
+            IVCenterRepository vCenter)
             : base(
+                  authorization: authorization,
+                  backend: backend,
+                  canvas: canvas,
                   configuration: configuration,
                   httpClientFactory: httpClientFactory,
                   httpContextAccessor: httpContextAccessor,
-                  logger: logger)
+                  logger: logger,
+                  vCenter: vCenter)
         {
         }
 
@@ -34,12 +43,12 @@ namespace vmProjectBFF.Controllers
         {
             try
             {
-                User studentUser = _auth.getAuth("user");
+                User studentUser = _authorization.GetAuth("user");
 
                 if (studentUser != null)
                 {
                     // "[{\"student_name\":\"Trevor Wayman\",\"course_name\":\"CIT 270\",\"course_id\":1,\"template_id\":\"cit270-empty-vm-template\",\"course_semester\":\"Spring\",\"enrollment_id\":33,\"folder\":\"CIT270\"}]"
-                    _lastResponse = _backend.Get("api/v1/CreateVm", new { enrollmentId = enrollment_id });
+                    _lastResponse = _backendHttpClient.Get("api/v1/CreateVm", new { enrollmentId = enrollment_id });
                     CreateVmDTO createVm = JsonConvert.DeserializeObject<List<CreateVmDTO>>(_lastResponse.Response).FirstOrDefault(); // Should validation be added so createVm is not made by any student on behalf of another student??
 
                     string template_id = createVm.Template_id;
@@ -91,7 +100,7 @@ namespace vmProjectBFF.Controllers
                         //  var content2 = await postResponse.Content.ReadAsStringAsync();
 
                         //  var createdCompany = JsonSerializer.Deserialize<DeployDto>(content, _options);
-                        _lastResponse = _backend.Get("api/v2/VmTemplate", new { vmTemplateVcenterId = template_id });
+                        _lastResponse = _backendHttpClient.Get("api/v2/VmTemplate", new { vmTemplateVcenterId = template_id });
                         VmTemplate template = JsonConvert.DeserializeObject<VmTemplate>(_lastResponse.Response);
 
                         VmInstance vmInstance = new();
@@ -99,7 +108,7 @@ namespace vmProjectBFF.Controllers
                         vmInstance.VmTemplateId = template.VmTemplateId;
                         vmInstance.VmInstanceExpireDate = DateTime.MaxValue;
 
-                        _lastResponse = _backend.Post("api/v1/CreateVm", vmInstance);
+                        _lastResponse = _backendHttpClient.Post("api/v1/CreateVm", vmInstance);
                         vmInstance = JsonConvert.DeserializeObject<VmInstance>(_lastResponse.Response);
 
                         return Ok(vmInstance);
