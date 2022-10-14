@@ -33,6 +33,21 @@ namespace vmProjectBFF.Controllers
                   vCenter: vCenter)
         {
         }
+        [HttpGet("instances")]
+        public async Task<ActionResult<IEnumerable<string>>> GetInstances()
+        {
+            User user = _auth.getAuth("user");
+            if (user != null){
+                try
+                {
+                    return _backend.getInstancesByUser(user.UserId);
+                }
+                catch (BffHttpException be)
+                {
+                return StatusCode((int)be.StatusCode, be.Message);
+                }
+            }
+        }
 
         //GET: api/vmtable/templates
         [HttpGet("templates/all")]
