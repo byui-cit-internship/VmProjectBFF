@@ -2,12 +2,8 @@
 {
     public interface IVCenterHttpClient : IBffHttpClient, IDisposable
     {
-        public void Initialize()
-        {
-        }
+        public void Initialize();
 
-        public void Dispose()
-        {
-        }
+        public void Dispose();
     }
 }
