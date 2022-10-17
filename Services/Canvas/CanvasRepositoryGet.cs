@@ -7,7 +7,7 @@ namespace vmProjectBFF.Services
         /****************************************
         Given an email returns either a professor user or null if the email doesn't belong to a professor
         ****************************************/
-        public dynamic GetCourses(string canvasToken)
+        public dynamic GetCoursesByCanvasToken(string canvasToken)
         {
             _canvasHttpClient.SetCanvasToken(canvasToken);
             _lastResponse = _canvasHttpClient.Get("api/v1/courses");

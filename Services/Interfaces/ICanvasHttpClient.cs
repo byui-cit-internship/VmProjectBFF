@@ -4,8 +4,6 @@ namespace vmProjectBFF.Services
 {
     public interface ICanvasHttpClient : IBffHttpClient
     {
-        public void SetCanvasToken(string canvasToken)
-        {
-        }
+        public void SetCanvasToken(string canvasToken);
     }
 }
