@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using vmProjectBFF.DTO;
 using vmProjectBFF.Models;
 using vmProjectBFF.Services;
+using vmProjectBFF.Exceptions;
 
 namespace vmProjectBFF.Controllers
 {
@@ -34,19 +35,20 @@ namespace vmProjectBFF.Controllers
         {
         }
         [HttpGet("instances")]
-        public async Task<ActionResult<IEnumerable<string>>> GetInstances()
+        public async Task<ActionResult<dynamic>> GetInstances()
         {
-            User user = _auth.getAuth("user");
+            User user = _authorization.GetAuth("user");
             if (user != null){
                 try
                 {
-                    return _backend.getInstancesByUser(user.UserId);
+                    return _backend.getInstancesByUser(1017);
                 }
                 catch (BffHttpException be)
                 {
                 return StatusCode((int)be.StatusCode, be.Message);
                 }
             }
+            return Forbid();
         }
 
         //GET: api/vmtable/templates
