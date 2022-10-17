@@ -3,8 +3,6 @@
     public interface IBackendRepository
     {
         public IBackendHttpClient BackendHttpClient { get; }
-        public dynamic getInstancesByUser(int userId){
-            return null;       
-        }
+        public dynamic getInstancesByUser(int userId);
     }
 }
