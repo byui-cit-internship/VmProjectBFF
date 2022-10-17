@@ -139,7 +139,7 @@ namespace vmProjectBFF.Services
                                         _lastResponse = _backendHttpClient.Get("api/v2/UserSectionRole", new { userId = student.UserId, sectionId = section.SectionId, RoleId = studentRole.RoleId });
                                         UserSectionRole enrollment = JsonConvert.DeserializeObject<UserSectionRole>(_lastResponse.Response);
 
-                                        if (enrollment != null)//student enrollment hasn't been imported from canvas to database yet
+                                        if (enrollment is null)//student enrollment hasn't been imported from canvas to database yet
                                         {
                                             enrollment = new UserSectionRole();
 
