@@ -6,9 +6,6 @@ namespace vmProjectBFF.Services
     {
         public User GetAuth(
             string authType,
-            int? sectionId = null)
-        {
-            return null;
-        }
+            int? sectionId = null);
     }
 }
