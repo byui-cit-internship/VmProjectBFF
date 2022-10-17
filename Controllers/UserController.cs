@@ -148,5 +148,28 @@ namespace vmProjectBFF.Controllers
                 return StatusCode((int)be.StatusCode, be.Message);
             }
         }
+        [HttpGet("bySection")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult> GetUsersByCourse(int sectionId)
+        {
+            try
+            {
+                User professor = _authorization.GetAuth("admin");
+
+                if (professor is not null)
+                {
+                    return Ok(_backend.GetUsersBySection(sectionId));
+                }
+                else
+                {
+                    return Forbid();
+                }
+            }
+            catch (BffHttpException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
+        }
     }
 }
