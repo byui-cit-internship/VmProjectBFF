@@ -4,9 +4,6 @@
     {
         public ICanvasHttpClient CanvasHttpClient { get; }
 
-        public dynamic GetCourses(string canvasToken)
-        {
-            return null;
-        }
+        public dynamic GetCoursesByCanvasToken(string canvasToken);
     }
 }

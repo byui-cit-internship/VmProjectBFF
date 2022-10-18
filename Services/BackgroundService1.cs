@@ -43,13 +43,13 @@ namespace vmProjectBFF.Services
         {
             try
             {
-                _lastResponse = _backendHttpClient.Post("api/v1/token", new DTO.AccessTokenDTO(_configuration.GetConnectionString("BackendConnectionPassword")));
+                //_lastResponse = _backendHttpClient.Post("api/v1/token", new DTO.AccessTokenDTO(_configuration.GetConnectionString("BackendConnectionPassword")));
 
-                if (!_lastResponse.HttpResponse.IsSuccessStatusCode)
-                {
-                    _logger.LogCritical("Could not authenticate to backend server in service \"BackendService1\". Unsuccessful response code or no cookie set.");
-                    return;
-                }
+                // if (!_lastResponse.HttpResponse.IsSuccessStatusCode)
+                // {
+                //     _logger.LogCritical("Could not authenticate to backend server in service \"BackendService1\". Unsuccessful response code or no cookie set.");
+                //     return;
+                // }
 
                 _lastResponse = _backendHttpClient.Get("api/v1/User/canvasUsers");
                 List<User> canvasUsers = JsonConvert.DeserializeObject<List<User>>(_lastResponse.Response);
@@ -139,7 +139,7 @@ namespace vmProjectBFF.Services
                                         _lastResponse = _backendHttpClient.Get("api/v2/UserSectionRole", new { userId = student.UserId, sectionId = section.SectionId, RoleId = studentRole.RoleId });
                                         UserSectionRole enrollment = JsonConvert.DeserializeObject<UserSectionRole>(_lastResponse.Response);
 
-                                        if (enrollment != null)//student enrollment hasn't been imported from canvas to database yet
+                                        if (enrollment is null)//student enrollment hasn't been imported from canvas to database yet
                                         {
                                             enrollment = new UserSectionRole();
 

@@ -6,35 +6,20 @@ namespace vmProjectBFF.Services
     {
         public BffResponse Delete(
             string path,
-            dynamic content)
-        {
-            return null;
-        }
+            dynamic content);
 
-        public BffResponse Get(string path)
-        {
-            return null;
-        }
+        public BffResponse Get(string path);
 
         public BffResponse Get(
             string path,
-            object queryParams)
-        {
-            return null;
-        }
+            object queryParams);
 
         public BffResponse Post(
             string path,
-            dynamic content)
-        {
-            return null;
-        }
+            dynamic content);
 
         public BffResponse Put(
             string path,
-            dynamic content)
-        {
-            return null;
-        }
+            dynamic content);
     }
 }
