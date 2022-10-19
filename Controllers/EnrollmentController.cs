@@ -54,27 +54,26 @@ namespace vmProjectBFF.Controllers
 
                     if (courseExist == null)
                     {
-                        _lastResponse = _backendHttpClient.Get($"api/v2/Course", new { courseName = courseDetails.courseName });
+                        _lastResponse = _backendHttpClient.Get($"api/v2/Course", new { courseId = courseDetails.course_id });
                         Course course = JsonConvert.DeserializeObject<Course>(_lastResponse.Response);
 
                         if (course == null)
                         {
 
-                            _lastResponse = _backendHttpClient.Get($"api/v2/ResourceGroup", new { memory = 0, cpu = 0, resourceGroupName = courseDetails.courseName });
+                            _lastResponse = _backendHttpClient.Get($"api/v2/ResourceGroup", new { memory = 0, cpu = 0, resourceGroupName = courseDetails.resource_group });
                             ResourceGroup resourceGroupCourse = JsonConvert.DeserializeObject<ResourceGroup>(_lastResponse.Response);
                             if (resourceGroupCourse == null)
                             {
                                 resourceGroupCourse = new();
                                 resourceGroupCourse.Cpu = 0;
                                 resourceGroupCourse.Memory = 0;
-                                resourceGroupCourse.ResourceGroupName = courseDetails.courseName;
+                                resourceGroupCourse.ResourceGroupName = courseDetails.resource_group;
                                 _lastResponse = _backendHttpClient.Post("api/v2/ResourceGroup", resourceGroupCourse);
                                 resourceGroupCourse = JsonConvert.DeserializeObject<ResourceGroup>(_lastResponse.Response);
                             }
 
                             course = new();
-                            course.CourseName = courseDetails.courseName;
-                            course.CourseCode = courseDetails.courseName;
+                            course.CourseCode = courseDetails.courseCode;
                             course.ResourceGroupId = resourceGroupCourse.ResourceGroupId;
 
                             _lastResponse = _backendHttpClient.Post("api/v2/Course", course);
@@ -117,7 +116,7 @@ namespace vmProjectBFF.Controllers
                         ResourceGroup resourceGroupSection = new();
                         resourceGroupSection.Cpu = resourceGroupTemplate.Cpu;
                         resourceGroupSection.Memory = resourceGroupTemplate.Memory;
-                        resourceGroupSection.ResourceGroupName = $"{resourceGroupTemplate.ResourceGroupName}-{courseDetails.courseName}";
+                        resourceGroupSection.ResourceGroupName = $"{resourceGroupTemplate.ResourceGroupName}-{courseDetails.resource_group}";
 
                         _lastResponse = _backendHttpClient.Post($"api/v2/ResourceGroup", resourceGroupSection);
                         resourceGroupSection = JsonConvert.DeserializeObject<ResourceGroup>(_lastResponse.Response);
@@ -149,6 +148,8 @@ namespace vmProjectBFF.Controllers
                         newSection.SectionNumber = courseDetails.section_num;
                         newSection.FolderId = folder.FolderId;
                         newSection.ResourceGroupId = resourceGroupSection.ResourceGroupId;
+                        newSection.SectionName = courseDetails.sectionName;
+                        newSection.LibraryId = courseDetails.libraryId;
 
                         _lastResponse = _backendHttpClient.Post($"api/v2/Section", newSection);
                         newSection = JsonConvert.DeserializeObject<SectionDTO>(_lastResponse.Response);
