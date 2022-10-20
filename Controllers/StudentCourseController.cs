@@ -45,7 +45,7 @@ namespace vmProjectBFF.Controllers
                 User student = _authorization.GetAuth("user");
                 if (student != null)
                 {
-                    _lastResponse = _backendHttpClient.Get($"api/v1/StudentCourse", new { queryUserId = student.UserId });
+                    _lastResponse = _backendHttpClient.Get($"api/v1/StudentCourse", new() { { "queryUserId", student.UserId } });
                     List<CourseListByUserDTO> courseList = JsonConvert.DeserializeObject<List<CourseListByUserDTO>>(_lastResponse.Response);
 
                     return Ok(courseList);

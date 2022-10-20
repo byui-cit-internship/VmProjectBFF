@@ -138,12 +138,12 @@ namespace vmProjectBFF.Services
 
         public virtual BffResponse Get(
             string path,
-            object queryParams)
+            Dictionary<string, dynamic> queryParams)
         {
             List<string> stringParams = new();
-            foreach (PropertyInfo param in queryParams.GetType().GetProperties())
+            foreach (KeyValuePair<string, dynamic> param in queryParams)
             {
-                stringParams.Add($"{param.Name}={HttpUtility.UrlEncode(param.GetValue(queryParams).ToString())}");
+                stringParams.Add($"{param.Key}={HttpUtility.UrlEncode(param.Value.ToString())}");
             }
             path = string.Concat(path, "?", string.Join('&', stringParams));
             return Get(path);

@@ -129,7 +129,7 @@ namespace vmProjectBFF.Services
 
         public override BffResponse Get(
             string path,
-            object queryParams)
+            Dictionary<string, dynamic> queryParams)
         {
             if (!_initialized)
             {

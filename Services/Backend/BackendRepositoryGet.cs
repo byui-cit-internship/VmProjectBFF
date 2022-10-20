@@ -14,13 +14,13 @@ namespace vmProjectBFF.Services
 
         public List<Course> GetCoursesByUserId(int userId)
         {
-            _lastResponse = _backendHttpClient.Get($"api/v2/Course", new { userId = userId });
+            _lastResponse = _backendHttpClient.Get($"api/v2/Course", new() { { "userId", userId } });
             return JsonSerializer.Deserialize<List<Course>>(_lastResponse.Response);
         }
 
         public List<SectionDTO> GetSectionsByUserId(int userId)
         {
-            _lastResponse = _backendHttpClient.Get($"api/v2/Section", new { userId = userId });
+            _lastResponse = _backendHttpClient.Get($"api/v2/Section", new() { { "userId", userId } });
             return JsonSerializer.Deserialize<List<SectionDTO>>(_lastResponse.Response);
         }
     }
