@@ -48,7 +48,7 @@ namespace vmProjectBFF.Services
             List<dynamic> courses = new();
             foreach (int vmTemplateId in vmTemplateIds)
             {
-                _lastResponse = _backendHttpClient.Get("api/v2/Course", new { { "vmTemplateId", vmTemplateId } });
+                _lastResponse = _backendHttpClient.Get("api/v2/Course", new() { { "vmTemplateId", vmTemplateId } });
                 dynamic course = JsonConvert.DeserializeObject<dynamic>(_lastResponse.Response);
                 course.VmTemplateId = vmTemplateId;
                 courses.Add(course);

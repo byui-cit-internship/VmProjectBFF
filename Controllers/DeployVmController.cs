@@ -45,7 +45,7 @@ namespace vmProjectBFF.Controllers
             {
                 User studentUser = _authorization.GetAuth("user");
 
-                if (studentUser != null)
+                if (studentUser is not null)
                 {
                     // "[{\"student_name\":\"Trevor Wayman\",\"course_name\":\"CIT 270\",\"course_id\":1,\"template_id\":\"cit270-empty-vm-template\",\"course_semester\":\"Spring\",\"enrollment_id\":33,\"folder\":\"CIT270\"}]"
                     _lastResponse = _backendHttpClient.Get("api/v1/CreateVm", new() { { "enrollmentId", enrollment_id } });
