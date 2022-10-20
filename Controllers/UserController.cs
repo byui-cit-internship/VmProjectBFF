@@ -93,7 +93,7 @@ namespace vmProjectBFF.Controllers
 
                 if (admin != null)
                 {
-                    _lastResponse = _backendHttpClient.Get("api/v2/User", new { email = postUser.email });
+                    _lastResponse = _backendHttpClient.Get("api/v2/User", new() { { "email", postUser.email } });
                     User user = JsonConvert.DeserializeObject<User>(_lastResponse.Response);
 
                     if (user == null)
@@ -134,7 +134,7 @@ namespace vmProjectBFF.Controllers
                 if (professor != null)
                 {
 
-                    _lastResponse = _backendHttpClient.Get($"api/v2/user", new { isAdmin = true });
+                    _lastResponse = _backendHttpClient.Get($"api/v2/user", new() { { "isAdmin", true } });
                     List<User> professorList = JsonConvert.DeserializeObject<List<User>>(_lastResponse.Response);
                     return Ok(professorList);
                 }

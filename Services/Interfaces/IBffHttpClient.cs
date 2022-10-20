@@ -12,7 +12,7 @@ namespace vmProjectBFF.Services
 
         public BffResponse Get(
             string path,
-            object queryParams);
+            Dictionary<string, dynamic> queryParams);
 
         public BffResponse Post(
             string path,

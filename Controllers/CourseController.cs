@@ -75,7 +75,7 @@ namespace vmProjectBFF.Controllers
         [HttpGet("professor/semester/{course_semester}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult> GetCoursesBySemester(string course_semester)
+        public async Task<ActionResult> GetCoursesBySemester(string semester)
         {
             try
             {
@@ -83,8 +83,7 @@ namespace vmProjectBFF.Controllers
 
                 if (professor is not null)
                 {
-                    dynamic thing = _backend.GetSectionBySemester(course_semester);
-                    return Ok(thing);
+                    return Ok(_backend.GetSectionBySemester(semester));
                 }
                 else
                 {
