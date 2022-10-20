@@ -16,6 +16,10 @@
 
         public int SectionCanvasId { get; set; }
 
+        public string SectionName { get; set; }
+        
+        public string LibraryId { get; set; }
+
         public SectionDTO()
         {
 

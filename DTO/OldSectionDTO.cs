@@ -2,15 +2,15 @@
 {
     public class OldSectionDTO
     {
-        private string courseName;
-        private int sectionId;
-        private string semesterTerm;
-        private int sectionNumber;
-        private string fullName;
+        public string sectionName;
+        public int sectionId;
+        public string semesterTerm;
+        public int sectionNumber;
+        public string fullName;
 
-        public OldSectionDTO(string courseName, int sectionId, string semesterTerm, int sectionNumber, string fullName)
+        public OldSectionDTO(string sectionName, int sectionId, string semesterTerm, int sectionNumber, string fullName)
         {
-            this.courseName = courseName;
+            this.sectionName = sectionName;
             this.sectionId = sectionId;
             this.semesterTerm = semesterTerm;
             this.sectionNumber = sectionNumber;
