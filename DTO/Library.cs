@@ -1,6 +1,6 @@
 ﻿namespace vmProjectBFF.DTO
 {
-    public class Library
+    public class ContentLibrary
     {
         public string id { get; set; }
 

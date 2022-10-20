@@ -12,5 +12,6 @@ namespace vmProjectBFF.Services
         public List<SectionDTO> GetSectionsByUserId(int userId);
         public List<Semester> GetAllSemesters(int userId);
         public List<User> GetUsersBySection(int sectionId);
+        public dynamic getInstancesByUser(int userId);
     }
 }
