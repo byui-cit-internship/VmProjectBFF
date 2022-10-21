@@ -93,7 +93,7 @@ namespace vmProjectBFF.Controllers
 
                 if (admin != null)
                 {
-                    _lastResponse = _backendHttpClient.Get("api/v2/User", new { email = postUser.email });
+                    _lastResponse = _backendHttpClient.Get("api/v2/User", new() { { "email", postUser.email } });
                     User user = JsonConvert.DeserializeObject<User>(_lastResponse.Response);
 
                     if (user == null)
@@ -134,13 +134,36 @@ namespace vmProjectBFF.Controllers
                 if (professor != null)
                 {
 
-                    _lastResponse = _backendHttpClient.Get($"api/v2/user", new { isAdmin = true });
+                    _lastResponse = _backendHttpClient.Get($"api/v2/user", new() { { "isAdmin", true } });
                     List<User> professorList = JsonConvert.DeserializeObject<List<User>>(_lastResponse.Response);
                     return Ok(professorList);
                 }
                 else
                 {
                     return Unauthorized("You are not a professor");
+                }
+            }
+            catch (BffHttpException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
+        }
+        [HttpGet("bySection")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult> GetUsersByCourse(int sectionId)
+        {
+            try
+            {
+                User professor = _authorization.GetAuth("admin");
+
+                if (professor is not null)
+                {
+                    return Ok(_backend.GetUsersBySection(sectionId));
+                }
+                else
+                {
+                    return Forbid();
                 }
             }
             catch (BffHttpException be)

@@ -55,7 +55,7 @@ namespace vmProjectBFF.Handlers
 
                 if (vimaCookie != null)
                 {
-                    _lastResponse = _backendHttpClient.Get($"api/v1/Token", new { sessionToken = vimaCookie });
+                    _lastResponse = _backendHttpClient.Get($"api/v1/Token", new() { { "sessionToken", vimaCookie } });
                     User user = JsonConvert.DeserializeObject<User>(_lastResponse.Response);
 
                     if (user != null)

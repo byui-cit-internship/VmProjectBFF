@@ -33,12 +33,12 @@ namespace vmProjectBFF.Services
                 {
                     if (authType == "professor")
                     {
-                        BffResponse professorResponse = _backendHttpClient.Get($"api/v2/authorization", new { authType = "professor", sectionId = sectionId });
+                        BffResponse professorResponse = _backendHttpClient.Get($"api/v2/authorization", new() { { "authType", "professor" }, { "sectionId", sectionId } });
                         return JsonConvert.DeserializeObject<User>(professorResponse.Response);
                     }
                     else
                     {
-                        BffResponse otherResponse = _backendHttpClient.Get($"api/v2/authorization", new { authType = authType });
+                        BffResponse otherResponse = _backendHttpClient.Get($"api/v2/authorization", new() { { "authType", authType } });
                         return JsonConvert.DeserializeObject<User>(otherResponse.Response);
                     }
                 }

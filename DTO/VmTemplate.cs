@@ -6,5 +6,6 @@ namespace vmProjectBFF.Models
         public string VmTemplateVcenterId { get; set; }
         public string VmTemplateName { get; set; }
         public DateTime VmTemplateAccessDate { get; set; }
+        public string LibraryId { get; set; }
     }
 }

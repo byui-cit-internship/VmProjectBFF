@@ -54,7 +54,7 @@ namespace vmProjectBFF.Services
 
         public override BffResponse Get(
             string path,
-            object queryParams)
+            Dictionary<string, dynamic> queryParams)
         {
             try
             {
@@ -75,6 +75,21 @@ namespace vmProjectBFF.Services
             {
                 return base.Post(path,
                                  (object)content);
+            }
+            catch (BffHttpException ex)
+            {
+                throw new CanvasHttpException(ex);
+            }
+        }
+
+        public override BffResponse Post(
+            string path,
+            Dictionary<string, dynamic> queryParams,
+            dynamic content)
+        {
+            try
+            {
+                return base.Post(path, queryParams, (object)content);
             }
             catch (BffHttpException ex)
             {

@@ -7,5 +7,7 @@ namespace vmProjectBFF.Models
         public int SemesterId { get; set; }
         public int SectionNumber { get; set; }
         public int SectionCanvasId { get; set; }
+        public string SectionName { get; set; }
+        public string LibraryId { get; set; }
     }
 }
