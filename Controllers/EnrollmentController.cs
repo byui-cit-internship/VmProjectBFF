@@ -133,6 +133,7 @@ namespace vmProjectBFF.Controllers
                                 template.VmTemplateVcenterId = templateVmId;
                                 template.VmTemplateName = "test";
                                 template.VmTemplateAccessDate = new DateTime(2022, 1, 1);
+                                template.LibraryId = courseDetails.libraryId;
 
                                 _lastResponse = _backendHttpClient.Post($"api/v2/VmTemplate", template);
                                 template = JsonConvert.DeserializeObject<VmTemplate>(_lastResponse.Response);
