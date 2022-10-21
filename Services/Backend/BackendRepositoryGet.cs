@@ -33,7 +33,7 @@ namespace vmProjectBFF.Services
             _lastResponse = _backendHttpClient.Get($"api/v2/User", new() { { "sectionId", sectionId } });
             return JsonConvert.DeserializeObject<List<User>>(_lastResponse.Response);
         }
-        public dynamic getInstancesByUser(int userId)
+        public dynamic GetInstancesByUserId(int userId)
         {
             _lastResponse = _backendHttpClient.Get("api/v2/VmInstance", new() { { "userId", userId } });
             List<VmInstance> vmInstances = JsonConvert.DeserializeObject<List<VmInstance>>(_lastResponse.Response);
@@ -66,6 +66,18 @@ namespace vmProjectBFF.Services
                      VmInstanceExpireDate = vi.VmInstanceExpireDate
                  }).ToList()
             );
+        }
+
+        public CreateVmDTO GetCreateVmByEnrollmentId(int enrollmentId)
+        {
+            _lastResponse = _backendHttpClient.Get("api/v1/CreateVm", new() { { "enrollmentId", enrollmentId } });
+            return JsonConvert.DeserializeObject<List<CreateVmDTO>>(_lastResponse.Response).FirstOrDefault();
+        }
+
+        public VmTemplate GetTemplateByVCenterId(string vCenterId)
+        {
+            _lastResponse = _backendHttpClient.Get("api/v2/VmTemplate", new() { { "vmTemplateVcenterId", vCenterId } });
+            return(JsonConvert.DeserializeObject<VmTemplate>(_lastResponse.Response));
         }
     }
 }

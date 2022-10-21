@@ -12,5 +12,11 @@ namespace vmProjectBFF.Services
         public List<OldFolder> GetFolders();
         public List<Template> GetTemplatesByContentLibraryId(string contentLibraryId);
         public Template GetTemplateByVCenterId(string vCenterId);
+        public List<Pool> GetResourceGroups();
+
+        // POST's
+        public string NewVmInstanceByTemplateId(
+            string vCenterTemplateId,
+            Deploy deploy);
     }
 }
