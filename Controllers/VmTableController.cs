@@ -37,63 +37,50 @@ namespace vmProjectBFF.Controllers
         [HttpGet("instances")]
         public async Task<ActionResult<dynamic>> GetInstances()
         {
-            User user = _authorization.GetAuth("user");
-            if (user != null){
-                try
+            try
+            {
+                User user = _authorization.GetAuth("user");
+                if (user is not null)
                 {
+<<<<<<< HEAD
+                    return _backend.GetInstancesByUserId(user.UserId);
+=======
                     return _backend.GetInstancesByUserId(1017);
+>>>>>>> main
                 }
-                catch (BffHttpException be)
+                else
                 {
-                return StatusCode((int)be.StatusCode, be.Message);
+                    return Forbid();
                 }
             }
-            return Forbid();
+            catch (BffHttpException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
         }
 
         //GET: api/vmtable/templates
         [HttpGet("templates/all")]
         public async Task<ActionResult<IEnumerable<string>>> GetTemplates(string libraryId)
         {
-            User professorUser = _authorization.GetAuth("admin");
-
-            if (professorUser != null)
+            try
             {
-                try
+                User professor = _authorization.GetAuth("admin");
+
+                if (professor is not null)
                 {
-                    // contains our base Url where templates were added in vcenter
-                    // This URL enpoint gives a list of all the Templates we have in our vcenter 
-                    List<Template> templates = new List<Template>();
-
-                    _lastResponse = _vCenterHttpClient.Get($"api/content/library/item?library_id={libraryId}");
-                    List<string> templateIds = templateIds = JsonConvert.DeserializeObject<List<String>>(_lastResponse.Response);
-
-
-                    //call Api, convert it to templates, and get the list of templates
-                    foreach (string templateId in templateIds)
-                    {
-                        _lastResponse = _vCenterHttpClient.Get($"api/content/library/item/{templateId}");
-                        Template template = JsonConvert.DeserializeObject<Template>(_lastResponse.Response);
-                        templates.Add(template);
-                    }
-                    if (templates != null)
-                    {
-                        return Ok(templates);
-                    }
-                    else
-                    {
-                        return NotFound("Failed calling");
-                    }
+                    return Ok(_vCenter.GetTemplatesByContentLibraryId(libraryId));
                 }
-                catch
+                else
                 {
-                    return Problem("crash returning templates!");
-
+                    return Forbid();
                 }
+            }
+            catch (BffHttpException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
 
             }
-            return Unauthorized("You are not Authorized and is not a professor");
-
         }
     }
 }

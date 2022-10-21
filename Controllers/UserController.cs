@@ -44,41 +44,24 @@ namespace vmProjectBFF.Controllers
         public async Task<ActionResult> PutUser(User user)
         {
             User admin = _authorization.GetAuth("admin");
-            if (admin != null)
+            if (admin is not null)
             {
-                _lastResponse = _backendHttpClient.Put("api/v2/User", user);
-                User changedUser = JsonConvert.DeserializeObject<User>(_lastResponse.Response);
-
-                if (admin.UserId == changedUser.UserId)
-                {
-                    return Ok(changedUser);
-                }
-                else
-                {
-                    return Ok("User was modified successfully");
-                }
+                return Ok(_backend.PutUser(user));
 
             }
             User authUser = _authorization.GetAuth("user");
-            if (authUser != null)
+            if (authUser is not null)
             {
                 if (user.UserId == authUser.UserId && user.IsAdmin == authUser.IsAdmin)
                 {
-                    _lastResponse = _backendHttpClient.Put("api/v2/User", user);
-                    User changedUser = JsonConvert.DeserializeObject<User>(_lastResponse.Response);
-
-                    return Ok(changedUser);
+                    return Ok(_backend.PutUser(user));
                 }
                 else
                 {
                     return BadRequest("Bad Request");
                 }
             }
-
-
-            return Unauthorized("Contact your admin to get access");
-
-
+            return Forbid();
         }
 
         /****************************************
@@ -91,30 +74,26 @@ namespace vmProjectBFF.Controllers
             {
                 User admin = _authorization.GetAuth("admin");
 
-                if (admin != null)
+                if (admin is not null)
                 {
-                    _lastResponse = _backendHttpClient.Get("api/v2/User", new() { { "email", postUser.email } });
-                    User user = JsonConvert.DeserializeObject<User>(_lastResponse.Response);
+                    User user = _backend.GetUserByEmail(postUser.email);
 
-                    if (user == null)
+                    if (user is null)
                     {
-                        user = new User();
-                        user.Email = postUser.email;
-                        user.FirstName = postUser.firstName;
-                        user.LastName = postUser.lastName;
-                        user.IsAdmin = true;
+                        user = new()
+                        {
+                            Email = postUser.email,
+                            FirstName = postUser.firstName,
+                            LastName = postUser.lastName,
+                            IsAdmin = true
+                        };
 
-                        _lastResponse = _backendHttpClient.Post("api/v2/User", user);
-
-                        return Ok("created user as admin");
+                        return Ok(_backend.PostUser(user));
                     }
                     else
                     {
                         user.IsAdmin = true;
-
-                        _lastResponse = _backendHttpClient.Put("api/v2/User", user);
-
-                        return Ok("modified user to be admin");
+                        return Ok(_backend.PutUser(user));
                     }
                 }
                 return Unauthorized();
@@ -131,16 +110,13 @@ namespace vmProjectBFF.Controllers
             {
                 User professor = _authorization.GetAuth("admin");
 
-                if (professor != null)
+                if (professor is not null)
                 {
-
-                    _lastResponse = _backendHttpClient.Get($"api/v2/user", new() { { "isAdmin", true } });
-                    List<User> professorList = JsonConvert.DeserializeObject<List<User>>(_lastResponse.Response);
-                    return Ok(professorList);
+                    return Ok(_backend.GetAdmins());
                 }
                 else
                 {
-                    return Unauthorized("You are not a professor");
+                    return Forbid();
                 }
             }
             catch (BffHttpException be)
@@ -148,6 +124,7 @@ namespace vmProjectBFF.Controllers
                 return StatusCode((int)be.StatusCode, be.Message);
             }
         }
+
         [HttpGet("bySection")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]

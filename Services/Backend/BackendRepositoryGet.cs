@@ -77,7 +77,25 @@ namespace vmProjectBFF.Services
         public VmTemplate GetTemplateByVCenterId(string vCenterId)
         {
             _lastResponse = _backendHttpClient.Get("api/v2/VmTemplate", new() { { "vmTemplateVcenterId", vCenterId } });
-            return(JsonConvert.DeserializeObject<VmTemplate>(_lastResponse.Response));
+            return JsonConvert.DeserializeObject<VmTemplate>(_lastResponse.Response);
+        }
+
+        public List<CourseListByUserDTO> GetStudentCourseByUserId(int userId)
+        {
+            _lastResponse = _backendHttpClient.Get($"api/v1/StudentCourse", new() { { "queryUserId", userId } });
+            return JsonConvert.DeserializeObject<List<CourseListByUserDTO>>(_lastResponse.Response);
+        }
+
+        public User GetUserByEmail(string email)
+        {
+            _lastResponse = _backendHttpClient.Get("api/v2/User", new() { { "email", email } });
+            return JsonConvert.DeserializeObject<User>(_lastResponse.Response);
+        }
+
+        public List<User> GetAdmins()
+        {
+            _lastResponse = _backendHttpClient.Get($"api/v2/user", new() { { "isAdmin", true } });
+            return JsonConvert.DeserializeObject<List<User>>(_lastResponse.Response);
         }
     }
 }

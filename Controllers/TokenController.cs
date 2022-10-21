@@ -91,12 +91,11 @@ namespace vmProjectBFF.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(510)]
-        public async Task<ActionResult> GetToken([FromBody] DTO.AccessTokenDTO accessTokenObj)
+        public async Task<ActionResult> GetToken([FromBody] AccessTokenDTO accessTokenObj)
         {
             try
             {
-                _lastResponse = _backendHttpClient.Post("api/v1/token", accessTokenObj);
-                (User authenticatedUser, string vimaCookie) = JsonConvert.DeserializeObject<(User, string)>(_lastResponse.Response);
+                (User authenticatedUser, string vimaCookie) = _backend.PostToken(accessTokenObj);
 
                 _httpContextAccessor.HttpContext.Response.Cookies.Append(
                     "vima-cookie",
@@ -114,10 +113,6 @@ namespace vmProjectBFF.Controllers
             catch (BffHttpException be)
             {
                 return StatusCode((int)be.StatusCode, be.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
             }
         }
 
@@ -144,7 +139,7 @@ namespace vmProjectBFF.Controllers
         {
             try
             {
-                BffResponse deleteResponse = _backendHttpClient.Delete("api/v1/token", null);
+                _backend.DeleteToken();
                 _httpContextAccessor.HttpContext.Response.Cookies.Delete("vima-cookie");
                 return Ok();
             }

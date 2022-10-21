@@ -11,6 +11,7 @@ namespace vmProjectBFF.Services
         public ContentLibrary GetContentLibraryById(string contentLibraryId);
         public List<OldFolder> GetFolders();
         public List<Template> GetTemplatesByContentLibraryId(string contentLibraryId);
+        public List<string> GetTemplateIdsInContentLibrary(string contentLibraryId);
         public Template GetTemplateByVCenterId(string vCenterId);
         public List<Pool> GetResourceGroups();
 
