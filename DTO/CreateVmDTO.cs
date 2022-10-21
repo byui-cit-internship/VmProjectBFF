@@ -10,7 +10,9 @@
         public int Enrollment_id { get; }
         public string Folder { get; }
 
-        public CreateVmDTO(string student_name, string section_name, int course_id, string template_id, string course_semester, int enrollment_id, string folder)
+        public string Library_id {get; }
+
+        public CreateVmDTO(string student_name, string section_name, int course_id, string template_id, string course_semester, int enrollment_id, string folder, string library_id)
         {
             Student_name = student_name;
             Section_name = section_name;
@@ -19,6 +21,7 @@
             Course_semester = course_semester;
             Enrollment_id = enrollment_id;
             Folder = folder;
+            Library_id = library_id;
         }
 
     }
