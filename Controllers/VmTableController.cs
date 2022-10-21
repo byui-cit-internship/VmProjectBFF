@@ -42,11 +42,7 @@ namespace vmProjectBFF.Controllers
                 User user = _authorization.GetAuth("user");
                 if (user is not null)
                 {
-<<<<<<< HEAD
                     return _backend.GetInstancesByUserId(user.UserId);
-=======
-                    return _backend.GetInstancesByUserId(1017);
->>>>>>> main
                 }
                 else
                 {
