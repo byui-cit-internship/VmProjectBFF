@@ -53,5 +53,11 @@ namespace vmProjectBFF.Services
             _lastResponse = _vCenterHttpClient.Get($"api/content/library/item/{vCenterId}");
             return JsonConvert.DeserializeObject<Template>(_lastResponse.Response);
         }
+
+        public List<Pool> GetResourceGroups()
+        {
+            _lastResponse = _vCenterHttpClient.Get("api/vcenter/resource-pool");
+            return JsonConvert.DeserializeObject<List<Pool>>(_lastResponse.Response);
+        }
     }
 }

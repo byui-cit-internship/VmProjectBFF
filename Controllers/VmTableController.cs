@@ -41,7 +41,7 @@ namespace vmProjectBFF.Controllers
             if (user != null){
                 try
                 {
-                    return _backend.getInstancesByUser(1017);
+                    return _backend.GetInstancesByUserId(1017);
                 }
                 catch (BffHttpException be)
                 {

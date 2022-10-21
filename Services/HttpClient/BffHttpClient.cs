@@ -140,12 +140,7 @@ namespace vmProjectBFF.Services
             string path,
             Dictionary<string, dynamic> queryParams)
         {
-            List<string> stringParams = new();
-            foreach (KeyValuePair<string, dynamic> param in queryParams)
-            {
-                stringParams.Add($"{param.Key}={HttpUtility.UrlEncode(param.Value.ToString())}");
-            }
-            path = string.Concat(path, "?", string.Join('&', stringParams));
+            path = string.Concat(path, "?", string.Join('&', GetQueryParamStringFromDictionary(queryParams)));
             return Get(path);
         }
 
@@ -159,6 +154,15 @@ namespace vmProjectBFF.Services
             return new(postResponse);
         }
 
+        public virtual BffResponse Post(
+            string path,
+            Dictionary<string, dynamic> queryParams,
+            dynamic content)
+        {
+            path = string.Concat(path, "?", string.Join('&', GetQueryParamStringFromDictionary(queryParams)));
+            return(Post(path, content));
+        }
+
         public virtual BffResponse Put(
             string path,
             dynamic content)
@@ -167,6 +171,16 @@ namespace vmProjectBFF.Services
                                                     HttpMethod.Put,
                                                     content);
             return new(postResponse);
+        }
+
+        public string GetQueryParamStringFromDictionary(Dictionary<string, dynamic> queryParams)
+        {
+            List<string> stringParams = new();
+            foreach (KeyValuePair<string, dynamic> param in queryParams)
+            {
+                stringParams.Add($"{param.Key}={HttpUtility.UrlEncode(param.Value.ToString())}");
+            }
+            return string.Join('&', stringParams);
         }
 
         public string LogError(
