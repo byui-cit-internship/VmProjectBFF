@@ -10,7 +10,7 @@ namespace vmProjectBFF.Services
             string receiverEmail,
             int code,
             string emailHead,
-            string Subject        )
+            string Subject        )  
         {
             // var senderEmail = configuration.GetConnectionString("vimaEmail");
             // var senderEmailPassword = configuration.GetConnectionString("vimaEmailPassword");
