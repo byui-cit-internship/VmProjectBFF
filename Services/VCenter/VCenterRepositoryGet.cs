@@ -39,8 +39,7 @@ namespace vmProjectBFF.Services
         public List<Template> GetTemplatesByContentLibraryId(string contentLibraryId)
         {
             List<Template> templates = new();
-            _lastResponse = _vCenterHttpClient.Get("api/content/library/item", new() { { "library_id", contentLibraryId } });
-            List<string> templateIds = JsonConvert.DeserializeObject<List<string>>(_lastResponse.Response);
+            List<string> templateIds = GetTemplateIdsInContentLibrary(contentLibraryId);
             foreach (string templateId in templateIds)
             {
                 templates.Add(GetTemplateByVCenterId(templateId));
@@ -48,10 +47,22 @@ namespace vmProjectBFF.Services
             return templates;
         }
 
+        public List<string> GetTemplateIdsInContentLibrary(string contentLibraryId)
+        {
+            _lastResponse = _vCenterHttpClient.Get("api/content/library/item", new() { { "library_id", contentLibraryId } });
+            return JsonConvert.DeserializeObject<List<string>>(_lastResponse.Response);
+        }
+
         public Template GetTemplateByVCenterId(string vCenterId)
         {
             _lastResponse = _vCenterHttpClient.Get($"api/content/library/item/{vCenterId}");
             return JsonConvert.DeserializeObject<Template>(_lastResponse.Response);
+        }
+
+        public List<Pool> GetResourceGroups()
+        {
+            _lastResponse = _vCenterHttpClient.Get("api/vcenter/resource-pool");
+            return JsonConvert.DeserializeObject<List<Pool>>(_lastResponse.Response);
         }
     }
 }

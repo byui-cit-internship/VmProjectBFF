@@ -1,4 +1,5 @@
 ﻿using vmProjectBFF.DTO;
+using vmProjectBFF.Exceptions;
 
 namespace vmProjectBFF.Services
 {
@@ -16,6 +17,11 @@ namespace vmProjectBFF.Services
 
         public BffResponse Post(
             string path,
+            dynamic content);
+
+        public BffResponse Post(
+            string path,
+            Dictionary<string, dynamic> queryParams,
             dynamic content);
 
         public BffResponse Put(

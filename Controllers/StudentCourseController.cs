@@ -43,14 +43,14 @@ namespace vmProjectBFF.Controllers
             try
             {
                 User student = _authorization.GetAuth("user");
-                if (student != null)
+                if (student is not null)
                 {
-                    _lastResponse = _backendHttpClient.Get($"api/v1/StudentCourse", new() { { "queryUserId", student.UserId } });
-                    List<CourseListByUserDTO> courseList = JsonConvert.DeserializeObject<List<CourseListByUserDTO>>(_lastResponse.Response);
-
-                    return Ok(courseList);
+                    return Ok(_backend.GetStudentCourseByUserId(student.UserId));
                 }
-                return Unauthorized("You are not an Authorized User");
+                else
+                {
+                    return Forbid();
+                }
             }
             catch (BffHttpException be)
             {
