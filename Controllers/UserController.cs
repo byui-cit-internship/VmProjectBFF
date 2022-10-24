@@ -13,12 +13,13 @@ namespace vmProjectBFF.Controllers
     [ApiController]
     public class UserController : BffController
     {
-
+        private readonly IEmailClient _emailClient;
         public UserController(
             IAuthorization authorization,
             IBackendRepository backend,
             ICanvasRepository canvas,
             IConfiguration configuration,
+            IEmailClient emailClient,
             IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
             ILogger<UserController> logger,
@@ -31,8 +32,11 @@ namespace vmProjectBFF.Controllers
                   httpClientFactory: httpClientFactory,
                   httpContextAccessor: httpContextAccessor,
                   logger: logger,
-                  vCenter: vCenter)
+                  vCenter: vCenter
+                  )
+                
         {
+            _emailClient = emailClient;
         }
 
         /***********************************************
@@ -88,7 +92,7 @@ namespace vmProjectBFF.Controllers
         public async Task<ActionResult<User>> PostAdminUser(PostAdmin postUser)
         {
             try
-            {
+            {   
                 User admin = _authorization.GetAuth("admin");
 
                 if (admin != null)

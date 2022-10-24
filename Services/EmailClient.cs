@@ -6,48 +6,51 @@ namespace vmProjectBFF.Services
 {
     public class EmailClient : IEmailClient
     {
-        IConfiguration _configuration;
+        private readonly IConfiguration _configuration;
+        private readonly ILogger<EmailClient> _logger;
         private readonly string _senderEmail;
         private readonly string _emailPassword;
         private readonly string _clientHost;
         private readonly string _senderEmailPassword;
         private readonly string _emailHead;
+        private readonly SmtpClient _client;
 
         public EmailClient(
-            IConfiguration configuration)
+            IConfiguration configuration,
+            ILogger<EmailClient> logger)
         {
             _configuration = configuration;
             _senderEmail = _configuration.GetConnectionString("vimaEmail");
-            _senderEmailPassword = _configuration.GetConnectionString("emailClientHost");
-            _clientHost = _configuration.GetConnectionString("smtp.outlook.com");
-            _emailHead = _configuration.GetConnectionString("GetConnectionString");
+            _senderEmailPassword = _configuration.GetConnectionString("vimaEmailPassword");
+            _clientHost = _configuration.GetConnectionString("emailClientHost");
+            _emailHead = _configuration.GetConnectionString("emailHead");
+
+            _client = new();
+            _client.Credentials = new NetworkCredential(_senderEmail, _senderEmailPassword);
+            _client.Port = 587;
+            _client.Host = _clientHost;
+            _client.EnableSsl = true;
+            _logger = logger;
         }
-        public void sendEmail(
+        public void SendEmail(
             string receiverEmail,
             int code,
-            string Subject)
+            string subject)
         {
-            string body = "The code is" + code.ToString();
+            string body = $"The code is {code.ToString()}";
 
             MailMessage mail = new MailMessage();
             mail.To.Add(receiverEmail);
             mail.From = new MailAddress(_senderEmail, _emailHead);
-            mail.Subject = Subject;
+            mail.Subject = subject;
             mail.Body = body;
-
-            SmtpClient client = new SmtpClient();
-            client.Credentials = new NetworkCredential(_senderEmail, _senderEmailPassword);
-            client.Port = 587;
-            client.Host = _clientHost;
-            client.EnableSsl = true;
-
             try
             {
-                client.Send(mail);
+                _client.Send(mail);
             }
-            catch (BffHttpException be)
+            catch (Exception e)
             {
-                Console.WriteLine(be);
+                _logger.LogError(e.Message);
             }
         }
     }
