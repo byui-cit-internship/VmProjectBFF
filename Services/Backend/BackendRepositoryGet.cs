@@ -45,11 +45,11 @@ namespace vmProjectBFF.Services
                 _lastResponse = _backendHttpClient.Get("api/v2/VmTemplate", new() { { "vmTemplateId", vmTemplateId } });
                 vmTemplates.Add(JsonConvert.DeserializeObject<VmTemplate>(_lastResponse.Response));
             }
-            List<dynamic> courses = new();
+            List<CourseTemplateDTO> courses = new();
             foreach (int vmTemplateId in vmTemplateIds)
             {
                 _lastResponse = _backendHttpClient.Get("api/v2/Course", new() { { "vmTemplateId", vmTemplateId } });
-                dynamic course = JsonConvert.DeserializeObject<dynamic>(_lastResponse.Response);
+                CourseTemplateDTO course = JsonConvert.DeserializeObject<CourseTemplateDTO>(_lastResponse.Response);
                 course.VmTemplateId = vmTemplateId;
                 courses.Add(course);
             }
