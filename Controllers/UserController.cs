@@ -34,7 +34,7 @@ namespace vmProjectBFF.Controllers
                   logger: logger,
                   vCenter: vCenter
                   )
-                
+
         {
             _emailClient = emailClient;
         }
@@ -75,7 +75,7 @@ namespace vmProjectBFF.Controllers
         public async Task<ActionResult<User>> PostAdminUser(PostAdmin postUser)
         {
             try
-            {   
+            {
                 User admin = _authorization.GetAuth("admin");
 
                 if (admin is not null)
@@ -146,6 +146,25 @@ namespace vmProjectBFF.Controllers
                 {
                     return Forbid();
                 }
+            }
+            catch (BffHttpException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
+        }
+        [HttpPut("sendToken")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult> SendToken()
+        {
+            var rand = new Random();
+            var uid = rand.Next(10000, 99999);
+
+            DateTime currDate = DateTime.Now;
+            DateTime codeExpDate = currDate.AddDays(1);
+
+            try { 
+                
+                return Ok();
             }
             catch (BffHttpException be)
             {
