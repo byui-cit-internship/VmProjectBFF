@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: vm-project-bff-dev
-  namespace: vm-project-dev
+  name: vmproject-bff-test
+  namespace: vima-project-test
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: vm-project-bff-dev
+      app: vmproject-bff-test
   template:
     metadata:
       labels:
-        app: vm-project-bff-dev
+        app: vmproject-bff-test
     spec:
       containers:
-      - name: vm-project-bff-dev
+      - name: 	vmproject-bff-test
         env:
         - name: APSNETCORE_ENVIRONMENT
-          value: Development
+          value: Test
         image: gcr.io/cubs-consulting/bff-repository/bff-vima:latest
         ports:
         - containerPort: 80        
@@ -35,16 +35,16 @@ spec:
           initialDelaySeconds: 3
           periodSeconds: 3               
       imagePullSecrets:
-      - name: bff-rcr-secret
+      - name: backend-rcr-secret
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: vm-project-bff-dev-loadbalancer
-  namespace: vm-project-dev
+  name: vmproject-bff-loadbalancer
+  namespace: vima-project-test
 spec:
   selector:
-    app: vm-project-bff-dev
+    app: 	vmproject-bff-test
   type: LoadBalancer
   ports:
   - port: 80
@@ -53,11 +53,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: vm-project-bff-dev-nodeport
-  namespace: vm-project-dev
+  name: vmproject-bff-nodeport
+  namespace: vima-project-test
 spec:
   selector:
-    app: vm-project-bff-dev
+    app: vmproject-bff-test
   type: NodePort
   ports:
     - port: 80
@@ -66,8 +66,8 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: vm-project-bff-dev-ingress
-  namespace: vm-project-dev
+  name: vmproject-bff-ingress
+  namespace: vima-project-test
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
     kubernetes.io/ingress.class: "nginx"
@@ -75,16 +75,16 @@ metadata:
 spec:
   tls:
   - hosts:
-    - rancher-dev-bff.cit.byui.edu
-    secretName: vm-project-bff-dev-tls
+    - rancher-test.bff.cit.byui.edu
+    secretName: test-bff-tls
   rules:
-  - host: rancher-dev-bff.cit.byui.edu
+  - host: rancher-test.bff.cit.byui.edu
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: vm-project-bff-dev-loadbalancer
+            name: vmproject-bff-loadbalancer
             port:
               number: 80
