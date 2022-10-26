@@ -72,7 +72,7 @@ namespace vmProjectBFF.Controllers
          * <response code="200">Returns a list of objects representing sections.</response>
          * <response code="403">Insufficent permission to make request.</response>
          */
-        [HttpGet("professor/semester/{course_semester}")]
+        [HttpGet("professor/semester/{semester}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult> GetCoursesBySemester(string semester)
