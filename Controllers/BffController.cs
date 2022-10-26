@@ -30,7 +30,8 @@ namespace vmProjectBFF.Controllers
             IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
             ILogger logger,
-            IVCenterRepository vCenter)
+            IVCenterRepository vCenter
+            )
         {
             _authorization = authorization;
             _backend = backend;

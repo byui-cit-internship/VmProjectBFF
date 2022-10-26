@@ -144,27 +144,31 @@ namespace vmProjectBFF.Controllers
             }
         }
 
-        
+
         [HttpGet("professor/canvasDropdown")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult> canvasDropdown()
         {
-            try {
+            try
+            {
                 User professor = _authorization.GetAuth("admin");
 
-                if (professor is not null) {
+                if (professor is not null)
+                {
                     return Ok(_canvas.GetCoursesByCanvasToken(professor.CanvasToken));
-                } else {
+                }
+                else
+                {
                     return Forbid();
                 }
-            } 
+            }
             catch (BffHttpException be)
             {
                 return StatusCode((int)be.StatusCode, be.Message);
             }
         }
-        
+
         /****************************************
         Checks canvas section id and canvas api key
         ****************************************/
