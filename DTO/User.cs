@@ -8,9 +8,9 @@ namespace vmProjectBFF.Models
         public string Email { get; set; }
         public bool IsAdmin { get; set; }
         public string CanvasToken { get; set; }
-
         public bool EmailIsVerified { get; set; }
         public int VerificationCode { get; set; }
         public DateTime VerificationCodeExpiration { get; set; }
+
     }
 }
