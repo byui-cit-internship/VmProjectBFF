@@ -10,6 +10,7 @@ namespace vmProjectBFF.Models
         public string CanvasToken { get; set; }
         public bool EmailIsVerified { get; set; }
         public int VerificationCode { get; set; }
-        public DateTime StartDate { get; set; }
+        public DateTime VerificationCodeExpiration { get; set; }
+
     }
 }

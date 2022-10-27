@@ -34,7 +34,7 @@ namespace vmProjectBFF.Controllers
                   logger: logger,
                   vCenter: vCenter
                   )
-                
+
         {
             _emailClient = emailClient;
         }
@@ -75,7 +75,7 @@ namespace vmProjectBFF.Controllers
         public async Task<ActionResult<User>> PostAdminUser(PostAdmin postUser)
         {
             try
-            {   
+            {
                 User admin = _authorization.GetAuth("admin");
 
                 if (admin is not null)
@@ -152,5 +152,6 @@ namespace vmProjectBFF.Controllers
                 return StatusCode((int)be.StatusCode, be.Message);
             }
         }
+
     }
 }

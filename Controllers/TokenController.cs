@@ -96,7 +96,7 @@ namespace vmProjectBFF.Controllers
             try
             {
                 (User authenticatedUser, string vimaCookie) = _backend.PostToken(accessTokenObj);
-
+                
                 _httpContextAccessor.HttpContext.Response.Cookies.Append(
                     "vima-cookie",
                     vimaCookie,
