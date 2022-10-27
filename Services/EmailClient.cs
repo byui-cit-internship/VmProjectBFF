@@ -73,7 +73,7 @@ namespace vmProjectBFF.Services
             }
         }
 
-        private AlternateView GetCodeEmail(String imgFilePath, String code, String link)
+        private AlternateView GetCodeEmail(string imgFilePath, string code, string link)
         {
             string content = @$"
             <div>
