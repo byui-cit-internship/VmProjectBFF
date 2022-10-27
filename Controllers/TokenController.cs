@@ -12,6 +12,7 @@ namespace vmProjectBFF.Controllers
     [ApiController]
     public class TokenController : BffController
     {
+        IEmailClient _emailClient;
         public TokenController(
             IAuthorization authorization,
             IBackendRepository backend,
@@ -20,7 +21,8 @@ namespace vmProjectBFF.Controllers
             IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
             ILogger<TokenController> logger,
-            IVCenterRepository vCenter)
+            IVCenterRepository vCenter,
+            IEmailClient emailClient)
             : base(
                   authorization: authorization,
                   backend: backend,
@@ -31,6 +33,7 @@ namespace vmProjectBFF.Controllers
                   logger: logger,
                   vCenter: vCenter)
         {
+            _emailClient = emailClient;
         }
 
         /**************************************
@@ -96,7 +99,7 @@ namespace vmProjectBFF.Controllers
             try
             {
                 (User authenticatedUser, string vimaCookie) = _backend.PostToken(accessTokenObj);
-                
+
                 _httpContextAccessor.HttpContext.Response.Cookies.Append(
                     "vima-cookie",
                     vimaCookie,
@@ -107,6 +110,24 @@ namespace vmProjectBFF.Controllers
                         IsEssential = true,
                         Secure = true
                     });
+                if (!authenticatedUser.EmailIsVerified)
+                {
+                    if (authenticatedUser.IsAdmin && 
+                    (authenticatedUser.VerificationCode is 0 || authenticatedUser.VerificationCodeExpiration < DateTime.Now))
+                    {
+                        var rand = new Random();
+                        var code = rand.Next(10000, 99999);
+
+                        DateTime currDate = DateTime.Now;
+                        DateTime codeExpDate = currDate.AddDays(1);
+
+                        authenticatedUser.VerificationCode = code;
+                        authenticatedUser.VerificationCodeExpiration = codeExpDate;
+
+                        _emailClient.SendEmailCode(authenticatedUser.Email, code.ToString(), "Vima Confirmation Code");
+                        _backend.PutUser(authenticatedUser);
+                    }
+                }
 
                 return Ok(authenticatedUser);
             }

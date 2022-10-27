@@ -153,5 +153,59 @@ namespace vmProjectBFF.Controllers
             }
         }
 
+        [HttpPut("verifyUser/{code}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult> verifyUser(int code)
+        {
+            User authUser = _authorization.GetAuth("user"); // Should it be user or admin??
+            try
+            {
+                if (authUser.VerificationCodeExpiration > DateTime.Now && authUser.VerificationCode == code)
+                {
+                    authUser.EmailIsVerified = true;
+                    return Ok(_backend.PutUser(authUser)); // How to avoid returning the confirmation code?
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+            catch (BffHttpException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
+        }
+
+        [HttpPut("sendCode")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult> sendCode()
+        {
+            User authUser = _authorization.GetAuth("user");
+
+            if (authUser is not null)
+            {
+                var rand = new Random();
+                var code = rand.Next(10000, 99999);
+
+                DateTime currDate = DateTime.Now;
+                DateTime codeExpDate = currDate.AddDays(1);
+
+                authUser.VerificationCode = code;
+                authUser.VerificationCodeExpiration = codeExpDate;
+
+                try
+                {
+                    _emailClient.SendEmailCode(authUser.Email, code.ToString(), "Vima Confirmation Code");
+                    return Ok(_backend.PutUser(authUser)); // Check backend req was succesful before sending email
+                }
+                catch (BffHttpException be)
+                {
+                    return StatusCode((int)be.StatusCode, be.Message);
+                }
+            }
+            return Unauthorized();
+        }
     }
 }
