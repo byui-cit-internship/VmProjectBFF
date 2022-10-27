@@ -1,10 +1,10 @@
 using System.Net.Mail;
 using System.Net;
-using vmProjectBFF.Exceptions;
-
+using System.Net.Mime;
 namespace vmProjectBFF.Services
+
 {
-    public class EmailClient : IEmailClient
+    public partial class EmailClient : IEmailClient
     {
         private readonly IConfiguration _configuration;
         private readonly ILogger<EmailClient> _logger;
@@ -14,6 +14,8 @@ namespace vmProjectBFF.Services
         private readonly string _senderEmailPassword;
         private readonly string _emailHead;
         private readonly SmtpClient _client;
+        private readonly MailMessage _mailMessage;
+        private readonly Stream _reader;
 
         public EmailClient(
             IConfiguration configuration,
@@ -31,28 +33,66 @@ namespace vmProjectBFF.Services
             _client.Host = _clientHost;
             _client.EnableSsl = true;
             _logger = logger;
+
+            _mailMessage = new();
         }
-        public void SendEmail(
+        public void SendEmailCode(
             string receiverEmail,
-            int code,
+            string code,
+            string link, // This needs to be generated based on the code
             string subject)
         {
-            string body = $"The code is {code.ToString()}";
+            _mailMessage.To.Add(receiverEmail);
+            _mailMessage.From = new MailAddress(_senderEmail, _emailHead);
+            _mailMessage.Subject = subject;
+            _mailMessage.IsBodyHtml = true;
+            _mailMessage.AlternateViews.Add(GetCodeEmail("./Images/LOGO-VIMA2.png", code, link));
 
-            MailMessage mail = new MailMessage();
-            mail.To.Add(receiverEmail);
-            mail.From = new MailAddress(_senderEmail, _emailHead);
-            mail.Subject = subject;
-            mail.Body = body;
             try
             {
-                _client.Send(mail);
+                _client.Send(_mailMessage);
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
             }
         }
-    }
 
+        public void SendEmail(
+            string receiverEmail,
+            string message,
+            string subject)
+        {
+            try
+            {
+                // TO-DO    
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+            }
+        }
+
+        private AlternateView GetCodeEmail(String imgFilePath, String code, String link)
+        {
+            string content = @$"
+            <div>
+            <p>The code is {code}</p>
+            <p>Or Click on this link: </p>
+            <a href={link}>{link}</a>
+            </div>
+            ";
+
+            LinkedResource res = new LinkedResource(imgFilePath);
+            res.ContentId = Guid.NewGuid().ToString();
+            string htmlBody = @"
+            <div>
+            <img src='cid:" + res.ContentId + @$"'/>
+            {content}
+            </div>";
+            AlternateView alternateView = AlternateView.CreateAlternateViewFromString(htmlBody, null, MediaTypeNames.Text.Html);
+            alternateView.LinkedResources.Add(res);
+            return alternateView;
+        }
+    }
 }

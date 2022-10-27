@@ -152,24 +152,36 @@ namespace vmProjectBFF.Controllers
                 return StatusCode((int)be.StatusCode, be.Message);
             }
         }
-        [HttpPut("sendToken")]
+        [HttpPut("sendCode")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult> SendToken()
+        public async Task<ActionResult> sendCode()
         {
-            var rand = new Random();
-            var uid = rand.Next(10000, 99999);
+            User authUser = _authorization.GetAuth("user");
 
-            DateTime currDate = DateTime.Now;
-            DateTime codeExpDate = currDate.AddDays(1);
-
-            try { 
-                
-                return Ok();
-            }
-            catch (BffHttpException be)
+            if (authUser is not null)
             {
-                return StatusCode((int)be.StatusCode, be.Message);
+                var rand = new Random();
+                var code = rand.Next(10000, 99999);
+
+                DateTime currDate = DateTime.Now;
+                DateTime codeExpDate = currDate.AddDays(1);
+                
+                Console.WriteLine(codeExpDate);
+                authUser.VerificationCode = code;
+                authUser.VerificationCodeExpiration = codeExpDate;
+                try
+                {
+                    _emailClient.SendEmailCode(authUser.Email, code.ToString(), "www.Google.com", "Vima Confirmation Code");
+                    
+                    return Ok(_backend.PutUser(authUser)); // Check backend req was succesful before sending email
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e.Message);
+                }
+                //return Ok(_backend.PutUser(authUser));
             }
+            return Forbid();
         }
     }
 }
