@@ -95,19 +95,14 @@ namespace vmProjectBFF.Controllers
                         _lastResponse = _backendHttpClient.Put("api/v2/User", professor);
                         professor = JsonConvert.DeserializeObject<User>(_lastResponse.Response);
 
-                        _lastResponse = _backendHttpClient.Get($"api/v2/Semester", new() { { "semesterTerm", courseDetails.semester }, { "semesterYear", 2022 } });
+
+                        _lastResponse = _backendHttpClient.Get($"api/v2/Semester", new() { { "enrollmentTermId", courseDetails.semester.EnrollmentTermId } });
                         Semester term = JsonConvert.DeserializeObject<Semester>(_lastResponse.Response);
 
                         if (term == null)
                         {
-                            term = new Semester();
-                            term.SemesterTerm = courseDetails.semester;
-                            term.SemesterYear = 2022;
-                            term.StartDate = new DateTime(2022, 1, 1);
-                            term.EndDate = new DateTime(2022, 12, 31);
-
-                            _lastResponse = _backendHttpClient.Post($"api/v2/Semester", term);
-                            term = JsonConvert.DeserializeObject<Semester>(_lastResponse.Response);
+                            _lastResponse = _backendHttpClient.Post($"api/v2/Semester", courseDetails.semester);
+                            courseDetails.semester = JsonConvert.DeserializeObject<Semester>(_lastResponse.Response);
                         }
 
                         _lastResponse = _backendHttpClient.Get($"api/v2/ResourceGroup", new() { { "resourceGroupId", course.ResourceGroupId } });
