@@ -13,6 +13,7 @@ namespace vmProjectBFF.Services
         private readonly string _clientHost;
         private readonly string _senderEmailPassword;
         private readonly string _emailHead;
+        private readonly string _frontendURI;
         private readonly SmtpClient _client;
         private readonly MailMessage _mailMessage;
         private readonly Stream _reader;
@@ -26,6 +27,7 @@ namespace vmProjectBFF.Services
             _senderEmailPassword = _configuration.GetConnectionString("vimaEmailPassword");
             _clientHost = _configuration.GetConnectionString("emailClientHost");
             _emailHead = _configuration.GetConnectionString("emailHead");
+            _frontendURI = _configuration.GetConnectionString("FrontendRootUri");
 
             _client = new();
             _client.Credentials = new NetworkCredential(_senderEmail, _senderEmailPassword);
@@ -39,9 +41,9 @@ namespace vmProjectBFF.Services
         public void SendEmailCode(
             string receiverEmail,
             string code,
-            string link, // This needs to be generated based on the code
             string subject)
         {
+            string link = _frontendURI + $"verifyemail?code={code}";
             _mailMessage.To.Add(receiverEmail);
             _mailMessage.From = new MailAddress(_senderEmail, _emailHead);
             _mailMessage.Subject = subject;
@@ -96,35 +98,3 @@ namespace vmProjectBFF.Services
         }
     }
 }
-
-        // [HttpPut("sendCode")]
-        // [ProducesResponseType(StatusCodes.Status200OK)]
-        // public async Task<ActionResult> sendCode()
-        // {
-        //     User authUser = _authorization.GetAuth("user");
-
-        //     if (authUser is not null)
-        //     {
-        //         var rand = new Random();
-        //         var code = rand.Next(10000, 99999);
-
-        //         DateTime currDate = DateTime.Now;
-        //         DateTime codeExpDate = currDate.AddDays(1);
-                
-        //         Console.WriteLine(codeExpDate);
-        //         authUser.VerificationCode = code;
-        //         authUser.VerificationCodeExpiration = codeExpDate;
-        //         try
-        //         {
-        //             _emailClient.SendEmailCode(authUser.Email, code.ToString(), "www.Google.com", "Vima Confirmation Code");
-                    
-        //             return Ok(_backend.PutUser(authUser)); // Check backend req was succesful before sending email
-        //         }
-        //         catch (Exception e)
-        //         {
-        //             _logger.LogError(e.Message);
-        //         }
-        //         //return Ok(_backend.PutUser(authUser));
-        //     }
-        //     return Forbid();
-        // }

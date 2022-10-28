@@ -153,5 +153,62 @@ namespace vmProjectBFF.Controllers
             }
         }
 
+        [HttpPut("verifyUser/{code}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult> verifyUser(int code)
+        {
+            User authUser = _authorization.GetAuth("user");
+            try
+            {
+                if (authUser.VerificationCodeExpiration > DateTime.Now && authUser.VerificationCode == code)
+                {
+                    authUser.EmailIsVerified = true;
+                    return Ok(_backend.PutUser(authUser));
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+            catch (BffHttpException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
+        }
+
+        [HttpPut("sendCode")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult> sendCode()
+        {
+            User authUser = _authorization.GetAuth("user");
+
+            if (authUser is not null)
+            {
+                var rand = new Random();
+                var code = rand.Next(10000, 99999);
+
+                DateTime currDate = DateTime.Now;
+                DateTime codeExpDate = currDate.AddDays(1);
+
+                authUser.VerificationCode = code;
+                authUser.VerificationCodeExpiration = codeExpDate;
+
+                try
+                {
+                    User updatedUser = _backend.PutUser(authUser);
+                    updatedUser.VerificationCode = 0;
+                    _emailClient.SendEmailCode(authUser.Email, code.ToString(), "Vima Confirmation Code");
+
+                    return Ok(updatedUser); 
+                }
+                catch (BffHttpException be)
+                {
+                    return StatusCode((int)be.StatusCode, be.Message);
+                }
+            }
+            return Unauthorized();
+        }
     }
 }
