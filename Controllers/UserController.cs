@@ -158,14 +158,13 @@ namespace vmProjectBFF.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> verifyUser(int code)
         {
-            User authUser = _authorization.GetAuth("user"); // Should it be user or admin??
+            User authUser = _authorization.GetAuth("user");
             try
             {
                 if (authUser.VerificationCodeExpiration > DateTime.Now && authUser.VerificationCode == code)
                 {
                     authUser.EmailIsVerified = true;
-                    // Clear out the code 
-                    return Ok(_backend.PutUser(authUser)); // How to avoid returning the confirmation code? also, should we not send code??
+                    return Ok(_backend.PutUser(authUser));
                 }
                 else
                 {
@@ -201,7 +200,7 @@ namespace vmProjectBFF.Controllers
                     User updatedUser = _backend.PutUser(authUser);
                     updatedUser.VerificationCode = 0;
                     _emailClient.SendEmailCode(authUser.Email, code.ToString(), "Vima Confirmation Code");
-                    
+
                     return Ok(updatedUser); 
                 }
                 catch (BffHttpException be)
