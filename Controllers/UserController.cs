@@ -164,7 +164,8 @@ namespace vmProjectBFF.Controllers
                 if (authUser.VerificationCodeExpiration > DateTime.Now && authUser.VerificationCode == code)
                 {
                     authUser.EmailIsVerified = true;
-                    return Ok(_backend.PutUser(authUser)); // How to avoid returning the confirmation code?
+                    // Clear out the code 
+                    return Ok(_backend.PutUser(authUser)); // How to avoid returning the confirmation code? also, should we not send code??
                 }
                 else
                 {
@@ -197,8 +198,11 @@ namespace vmProjectBFF.Controllers
 
                 try
                 {
+                    User updatedUser = _backend.PutUser(authUser);
+                    updatedUser.VerificationCode = 0;
                     _emailClient.SendEmailCode(authUser.Email, code.ToString(), "Vima Confirmation Code");
-                    return Ok(_backend.PutUser(authUser)); // Check backend req was succesful before sending email
+                    
+                    return Ok(updatedUser); 
                 }
                 catch (BffHttpException be)
                 {
