@@ -131,7 +131,7 @@ namespace vmProjectBFF.Controllers
                             {
                                 template = new VmTemplate();
                                 template.VmTemplateVcenterId = templateVmId;
-                                template.VmTemplateName = "test";
+                                template.VmTemplateName = courseDetails.vmTemplateName;
                                 template.VmTemplateAccessDate = new DateTime(2022, 1, 1);
                                 template.LibraryId = courseDetails.libraryId;
 
