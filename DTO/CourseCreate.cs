@@ -12,6 +12,7 @@ namespace vmProjectBFF.Models
         public string folder { get; set; }
 
         public List<string> templateVm { get; set; }
+        public string vmTemplateName {get; set;}
 
         public string resource_group { get; set; }
 
