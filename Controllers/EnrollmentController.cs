@@ -103,6 +103,7 @@ namespace vmProjectBFF.Controllers
                         {
                             _lastResponse = _backendHttpClient.Post($"api/v2/Semester", courseDetails.semester);
                             courseDetails.semester = JsonConvert.DeserializeObject<Semester>(_lastResponse.Response);
+                            term = courseDetails.semester;
                         }
 
                         _lastResponse = _backendHttpClient.Get($"api/v2/ResourceGroup", new() { { "resourceGroupId", course.ResourceGroupId } });
