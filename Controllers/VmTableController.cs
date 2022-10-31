@@ -1,12 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using vmProjectBFF.DTO;
-using vmProjectBFF.Models;
-using vmProjectBFF.Services;
-using vmProjectBFF.Exceptions;
+using VmProjectBFF.DTO.Database;
+using VmProjectBFF.Exceptions;
+using VmProjectBFF.Services;
 
-namespace vmProjectBFF.Controllers
+namespace VmProjectBFF.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
@@ -75,7 +73,6 @@ namespace vmProjectBFF.Controllers
             catch (BffHttpException be)
             {
                 return StatusCode((int)be.StatusCode, be.Message);
-
             }
         }
     }

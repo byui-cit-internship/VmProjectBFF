@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using vmProjectBFF.DTO;
-using vmProjectBFF.Exceptions;
-using vmProjectBFF.Models;
-using vmProjectBFF.Services;
+using VmProjectBFF.DTO.Database;
+using VmProjectBFF.DTO.VCenter;
+using VmProjectBFF.Exceptions;
+using VmProjectBFF.Services;
+using VCFolder = VmProjectBFF.DTO.VCenter.Folder;
 
-namespace vmProjectBFF.Controllers
+namespace VmProjectBFF.Controllers
 {
 
     [Route("api/[controller]")]
@@ -120,7 +120,7 @@ namespace vmProjectBFF.Controllers
          * <response code="550">Error code from vsphere.</response>
          */
         [HttpGet("folders")]
-        public async Task<ActionResult<IEnumerable<OldFolder>>> GetFolders()
+        public async Task<ActionResult<IEnumerable<VCFolder>>> GetFolders()
         {
             try
             {

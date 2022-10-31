@@ -1,12 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using vmProjectBFF.DTO;
-using vmProjectBFF.Exceptions;
-using vmProjectBFF.Models;
-using vmProjectBFF.Services;
+using VmProjectBFF.DTO;
+using VmProjectBFF.DTO.Database;
+using VmProjectBFF.Exceptions;
+using VmProjectBFF.Services;
 
-namespace vmProjectBFF.Controllers
+namespace VmProjectBFF.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
@@ -107,6 +106,7 @@ namespace vmProjectBFF.Controllers
                 return StatusCode((int)be.StatusCode, be.Message);
             }
         }
+
         [HttpGet("professors")]
         public async Task<ActionResult> GetProfessors()
         {
@@ -153,17 +153,17 @@ namespace vmProjectBFF.Controllers
             }
         }
 
-        [HttpPut("verifyUser/{code}")]
+        [HttpPut("verifyUser")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult> verifyUser(int code)
+        public async Task<ActionResult> verifyUser([FromQuery]int code)
         {
             User authUser = _authorization.GetAuth("user");
             try
             {
                 if (authUser.VerificationCodeExpiration > DateTime.Now && authUser.VerificationCode == code)
                 {
-                    authUser.EmailIsVerified = true;
+                    authUser.IsVerified = true;
                     return Ok(_backend.PutUser(authUser));
                 }
                 else
@@ -180,35 +180,40 @@ namespace vmProjectBFF.Controllers
         [HttpPut("sendCode")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult> sendCode()
+        public async Task<ActionResult> SendCode()
         {
             User authUser = _authorization.GetAuth("user");
 
             if (authUser is not null)
             {
-                var rand = new Random();
-                var code = rand.Next(10000, 99999);
+                int codeLength = 5;
+                Random random = new();
+                List<string> codeStr = new(codeLength);
+                for (int i = 0; i < codeLength; i++)
+                {
+                    codeStr.Add(random.Next(1, 9).ToString());
+                }
+                int code = int.Parse(string.Concat(codeStr));
 
-                DateTime currDate = DateTime.Now;
-                DateTime codeExpDate = currDate.AddDays(1);
+                DateTime codeExpDate = DateTime.Now.AddDays(1);
 
                 authUser.VerificationCode = code;
                 authUser.VerificationCodeExpiration = codeExpDate;
 
                 try
                 {
-                    User updatedUser = _backend.PutUser(authUser);
-                    updatedUser.VerificationCode = 0;
+                    authUser = _backend.PutUser(authUser);
                     _emailClient.SendEmailCode(authUser.Email, code.ToString(), "Vima Confirmation Code");
 
-                    return Ok(updatedUser); 
+                    authUser.VerificationCode = null;
+                    return Ok(authUser); 
                 }
                 catch (BffHttpException be)
                 {
                     return StatusCode((int)be.StatusCode, be.Message);
                 }
             }
-            return Unauthorized();
+            return Forbid();
         }
     }
 }

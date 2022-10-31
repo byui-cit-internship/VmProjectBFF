@@ -1,12 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using vmProjectBFF.DTO;
-using vmProjectBFF.Exceptions;
-using vmProjectBFF.Models;
-using vmProjectBFF.Services;
+using System.Linq;
+using VmProjectBFF.DTO.Database;
+using VmProjectBFF.Exceptions;
+using VmProjectBFF.Services;
 
-namespace vmProjectBFF.Controllers
+namespace VmProjectBFF.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -94,7 +93,7 @@ namespace vmProjectBFF.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(510)]
-        public async Task<ActionResult> GetToken([FromBody] AccessTokenDTO accessTokenObj)
+        public async Task<ActionResult> GetToken([FromBody] AccessToken accessTokenObj)
         {
             try
             {
@@ -110,16 +109,21 @@ namespace vmProjectBFF.Controllers
                         IsEssential = true,
                         Secure = true
                     });
-                if (!authenticatedUser.EmailIsVerified)
+                if (!authenticatedUser.IsVerified)
                 {
-                    if (authenticatedUser.IsAdmin && 
-                    (authenticatedUser.VerificationCode is 0 || authenticatedUser.VerificationCodeExpiration < DateTime.Now))
+                    if (authenticatedUser.IsAdmin &&
+                    (authenticatedUser.VerificationCode is null || authenticatedUser.VerificationCodeExpiration < DateTime.Now))
                     {
-                        var rand = new Random();
-                        var code = rand.Next(10000, 99999);
+                        int codeLength = 5;
+                        Random random = new();
+                        List<string> codeStr = new(codeLength);
+                        for(int i = 0; i < codeLength; i++)
+                        {
+                            codeStr.Add(random.Next(1, 9).ToString());
+                        }
+                        int code = int.Parse(string.Concat(codeStr));
 
-                        DateTime currDate = DateTime.Now;
-                        DateTime codeExpDate = currDate.AddDays(1);
+                        DateTime codeExpDate = DateTime.Now.AddDays(1);
 
                         authenticatedUser.VerificationCode = code;
                         authenticatedUser.VerificationCodeExpiration = codeExpDate;
@@ -127,7 +131,11 @@ namespace vmProjectBFF.Controllers
                         authenticatedUser = _backend.PutUser(authenticatedUser);
                         _emailClient.SendEmailCode(authenticatedUser.Email, code.ToString(), "Vima Confirmation Code");
 
-                        authenticatedUser.VerificationCode = 0;
+                        authenticatedUser.VerificationCode = code;
+                    }
+                    else
+                    {
+                        return Forbid();
                     }
                 }
 

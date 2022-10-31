@@ -1,4 +1,4 @@
-﻿namespace vmProjectBFF.Models
+﻿namespace VmProjectBFF.DTO
 {
     public class SessionToken
     {

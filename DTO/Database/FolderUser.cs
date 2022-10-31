@@ -1,4 +1,4 @@
-﻿namespace vmProjectBFF.DTO.ModelBased
+﻿namespace VmProjectBFF.DTO.Database
 {
     public class FolderUser
     {
@@ -12,6 +12,5 @@
         // Not Null
         // Links to User
         public int UserId { get; set; }
-
     }
 }

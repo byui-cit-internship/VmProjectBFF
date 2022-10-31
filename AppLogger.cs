@@ -1,4 +1,4 @@
-﻿namespace vmProjectBFF
+﻿namespace VmProjectBFF
 {
     public class AppLogger
     {

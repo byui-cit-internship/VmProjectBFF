@@ -1,11 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using vmProjectBFF.Exceptions;
-using vmProjectBFF.Models;
-using vmProjectBFF.Services;
-using Newtonsoft.Json;
+using VmProjectBFF.DTO.Database;
+using VmProjectBFF.Exceptions;
+using VmProjectBFF.Services;
 
-namespace vmProjectBFF.Controllers
+namespace VmProjectBFF.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
@@ -61,40 +60,28 @@ namespace vmProjectBFF.Controllers
                 return StatusCode((int)be.StatusCode, be.Message);
             }
         }
+
         /****************************************
-        Create Semesters
-        ****************************************/
-        [HttpPost("createSemester")]
-        public async Task<ActionResult<Semester>> PostSemester([FromBody] Semester semester)
+         * Return A list of all enrollment terms from canvas
+         ***************************************/
+
+        [HttpGet("enrollmentTerms")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult> GetEnrollmentTerms()
         {
             try
             {
-                User admin = _authorization.GetAuth("admin");
+                User professor = _authorization.GetAuth("admin");
 
-                if (admin is not null && semester is not null)
+                if (professor is not null)
                 {
-                    _lastResponse = _backendHttpClient.Get($"api/v2/Semester", new() { { "semesterId", semester.SemesterId } });
-                    Semester semesterExist = JsonConvert.DeserializeObject<Semester>(_lastResponse.Response);
-                    
-                    if (semesterExist is null) {
-                        semesterExist = new();
-                        {
-                            semesterExist.SemesterYear = semester.SemesterYear;
-                            semesterExist.SemesterTerm = semester.SemesterTerm;
-                            semesterExist.StartDate = semester.StartDate;
-                            semesterExist.EndDate = semester.EndDate;
-                        }
-                        _lastResponse = _backendHttpClient.Post($"api/v2/Semester", semesterExist);
-                        semesterExist = JsonConvert.DeserializeObject<Semester>(_lastResponse.Response);
-
-                        return Ok("Semester ID " + semesterExist.SemesterId + ", " + semesterExist.SemesterTerm + ", " + semesterExist.SemesterYear + " was created");
-                    }
-                    else
-                    {
-                        return Conflict(new { message = $"A semester already exits with this id {semester.SemesterId}" });
-                    }
+                    return Ok(_canvas.GetEnrollmentTerms(professor.CanvasToken));
                 }
-                return Unauthorized();
+                else
+                {
+                    return Forbid();
+                }
             }
             catch (BffHttpException be)
             {

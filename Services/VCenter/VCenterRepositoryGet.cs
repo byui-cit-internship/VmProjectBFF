@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
-using vmProjectBFF.DTO;
+using VmProjectBFF.DTO.VCenter;
 
-namespace vmProjectBFF.Services
+namespace VmProjectBFF.Services
 {
     public partial class VCenterRepository
     {
@@ -30,15 +30,15 @@ namespace vmProjectBFF.Services
             return JsonConvert.DeserializeObject<ContentLibrary>(_lastResponse.Response);
         }
 
-        public List<OldFolder> GetFolders()
+        public List<Folder> GetFolders()
         {
             _lastResponse = _vCenterHttpClient.Get("rest/vcenter/folder", new() { { "filter.type", "VIRTUAL_MACHINE" } });
-            return new List<OldFolder>(JsonConvert.DeserializeObject<FolderResponse>(_lastResponse.Response).value);
+            return new List<Folder>(JsonConvert.DeserializeObject<FolderContainer>(_lastResponse.Response).value);
         }
 
-        public List<Template> GetTemplatesByContentLibraryId(string contentLibraryId)
+        public List<VmTemplate> GetTemplatesByContentLibraryId(string contentLibraryId)
         {
-            List<Template> templates = new();
+            List<VmTemplate> templates = new();
             List<string> templateIds = GetTemplateIdsInContentLibrary(contentLibraryId);
             foreach (string templateId in templateIds)
             {
@@ -53,10 +53,10 @@ namespace vmProjectBFF.Services
             return JsonConvert.DeserializeObject<List<string>>(_lastResponse.Response);
         }
 
-        public Template GetTemplateByVCenterId(string vCenterId)
+        public VmTemplate GetTemplateByVCenterId(string vCenterId)
         {
             _lastResponse = _vCenterHttpClient.Get($"api/content/library/item/{vCenterId}");
-            return JsonConvert.DeserializeObject<Template>(_lastResponse.Response);
+            return JsonConvert.DeserializeObject<VmTemplate>(_lastResponse.Response);
         }
 
         public List<Pool> GetResourceGroups()

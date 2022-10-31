@@ -1,10 +1,6 @@
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using System.Collections.Generic;
-using vmProjectBFF.DTO;
-using vmProjectBFF.Models;
+using VmProjectBFF.DTO;
 
-namespace vmProjectBFF.Services
+namespace VmProjectBFF.Services
 {
     public partial class CanvasRepository : ICanvasRepository
     {

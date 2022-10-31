@@ -1,10 +1,10 @@
 using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
-using vmProjectBFF.DTO;
-using vmProjectBFF.Exceptions;
-using vmProjectBFF.Models;
+using VmProjectBFF.DTO;
+using VmProjectBFF.DTO.Database;
+using VmProjectBFF.Exceptions;
 
-namespace vmProjectBFF.Services
+namespace VmProjectBFF.Services
 {
     public class BackgroundService1 : BackgroundService
     {
@@ -34,7 +34,7 @@ namespace vmProjectBFF.Services
             _contextAccessor = contextAccessor;
             _backendHttpClient = backendHttpClient;
             _httpClientFactory = httpClientFactory;
-            canvasStudentRoleId = Int32.Parse(_configuration["Canvas:StudentRoleId"]);
+            canvasStudentRoleId = int.Parse(_configuration["Canvas:StudentRoleId"]);
 
             _backendHttpClient.Cookie = _configuration.GetConnectionString("BackendConnectionPassword");
         }

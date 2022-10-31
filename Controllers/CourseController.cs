@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using vmProjectBFF.Exceptions;
-using vmProjectBFF.Models;
-using vmProjectBFF.Services;
+using VmProjectBFF.DTO.Canvas;
+using VmProjectBFF.DTO.Database;
+using VmProjectBFF.Exceptions;
+using VmProjectBFF.Services;
 
-namespace vmProjectBFF.Controllers
+namespace VmProjectBFF.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]

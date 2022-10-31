@@ -1,8 +1,7 @@
-﻿using vmProjectBFF.DTO;
-using Newtonsoft.Json;
-using vmProjectBFF.Models;
+﻿using Newtonsoft.Json;
+using VmProjectBFF.DTO.Database;
 
-namespace vmProjectBFF.Services
+namespace VmProjectBFF.Services
 {
     public partial class BackendRepository
     {

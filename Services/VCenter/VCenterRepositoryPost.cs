@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
-using vmProjectBFF.DTO;
+using VmProjectBFF.DTO.VCenter;
 
-namespace vmProjectBFF.Services
+namespace VmProjectBFF.Services
 {
     public partial class VCenterRepository
     {

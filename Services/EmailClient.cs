@@ -1,40 +1,40 @@
 using System.Net.Mail;
-using System.Net;
 using System.Net.Mime;
-namespace vmProjectBFF.Services
+using System.Net;
+using VmProjectBFF.Exceptions;
 
+namespace VmProjectBFF.Services
 {
     public partial class EmailClient : IEmailClient
     {
         private readonly IConfiguration _configuration;
         private readonly ILogger<EmailClient> _logger;
-        private readonly string _senderEmail;
-        private readonly string _emailPassword;
+
+        private readonly SmtpClient _client;
         private readonly string _clientHost;
-        private readonly string _senderEmailPassword;
         private readonly string _emailHead;
         private readonly string _frontendURI;
-        private readonly SmtpClient _client;
+        private readonly string _senderEmailAddress;
         private readonly MailMessage _mailMessage;
-        private readonly Stream _reader;
 
         public EmailClient(
             IConfiguration configuration,
             ILogger<EmailClient> logger)
         {
             _configuration = configuration;
-            _senderEmail = _configuration.GetConnectionString("vimaEmail");
-            _senderEmailPassword = _configuration.GetConnectionString("vimaEmailPassword");
+            _logger = logger;
+            _senderEmailAddress = _configuration.GetConnectionString("vimaEmail");
             _clientHost = _configuration.GetConnectionString("emailClientHost");
             _emailHead = _configuration.GetConnectionString("emailHead");
-            _frontendURI = _configuration.GetConnectionString("FrontendRootUri");
+            _frontendURI = _configuration.GetConnectionString("frontendRootUri");
 
-            _client = new();
-            _client.Credentials = new NetworkCredential(_senderEmail, _senderEmailPassword);
-            _client.Port = 587;
-            _client.Host = _clientHost;
-            _client.EnableSsl = true;
-            _logger = logger;
+            _client = new()
+            {
+                Credentials = new NetworkCredential(_senderEmailAddress, _configuration.GetConnectionString("vimaEmailPassword")),
+                Port = 587,
+                Host = _clientHost,
+                EnableSsl = true
+            };
 
             _mailMessage = new();
         }
@@ -45,7 +45,7 @@ namespace vmProjectBFF.Services
         {
             string link = _frontendURI + $"verifyemail?code={code}";
             _mailMessage.To.Add(receiverEmail);
-            _mailMessage.From = new MailAddress(_senderEmail, _emailHead);
+            _mailMessage.From = new MailAddress(_senderEmailAddress, _emailHead);
             _mailMessage.Subject = subject;
             _mailMessage.IsBodyHtml = true;
             _mailMessage.AlternateViews.Add(GetCodeEmail("./Images/LOGO-VIMA2.png", code, link));
@@ -85,8 +85,10 @@ namespace vmProjectBFF.Services
             </div>
             ";
 
-            LinkedResource res = new LinkedResource(imgFilePath);
-            res.ContentId = Guid.NewGuid().ToString();
+            LinkedResource res = new(imgFilePath)
+            {
+                ContentId = Guid.NewGuid().ToString()
+            };
             string htmlBody = @"
             <div>
             <img src='cid:" + res.ContentId + @$"'/>

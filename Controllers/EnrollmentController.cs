@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using vmProjectBFF.DTO;
-using vmProjectBFF.Exceptions;
-using vmProjectBFF.Models;
-using vmProjectBFF.Services;
+using VmProjectBFF.DTO;
+using VmProjectBFF.DTO.Database;
+using VmProjectBFF.Exceptions;
+using VmProjectBFF.Services;
 
-namespace vmProjectBFF.Controllers
+namespace VmProjectBFF.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
@@ -50,7 +50,7 @@ namespace vmProjectBFF.Controllers
                 if (professor != null && courseDetails != null)
                 {
                     _lastResponse = _backendHttpClient.Get($"api/v2/Section", new() { { "sectionCanvasId", courseDetails.canvasCourseId } });
-                    SectionDTO courseExist = JsonConvert.DeserializeObject<SectionDTO>(_lastResponse.Response);
+                    Section courseExist = JsonConvert.DeserializeObject<Section>(_lastResponse.Response);
 
                     if (courseExist == null)
                     {
@@ -95,19 +95,15 @@ namespace vmProjectBFF.Controllers
                         _lastResponse = _backendHttpClient.Put("api/v2/User", professor);
                         professor = JsonConvert.DeserializeObject<User>(_lastResponse.Response);
 
-                        _lastResponse = _backendHttpClient.Get($"api/v2/Semester", new() { { "semesterTerm", courseDetails.semester }, { "semesterYear", 2022 } });
+
+                        _lastResponse = _backendHttpClient.Get($"api/v2/Semester", new() { { "enrollmentTermId", courseDetails.semester.EnrollmentTermId } });
                         Semester term = JsonConvert.DeserializeObject<Semester>(_lastResponse.Response);
 
                         if (term == null)
                         {
-                            term = new Semester();
-                            term.SemesterTerm = courseDetails.semester;
-                            term.SemesterYear = 2022;
-                            term.StartDate = new DateTime(2022, 1, 1);
-                            term.EndDate = new DateTime(2022, 12, 31);
-
-                            _lastResponse = _backendHttpClient.Post($"api/v2/Semester", term);
-                            term = JsonConvert.DeserializeObject<Semester>(_lastResponse.Response);
+                            _lastResponse = _backendHttpClient.Post($"api/v2/Semester", courseDetails.semester);
+                            courseDetails.semester = JsonConvert.DeserializeObject<Semester>(_lastResponse.Response);
+                            term = courseDetails.semester;
                         }
 
                         _lastResponse = _backendHttpClient.Get($"api/v2/ResourceGroup", new() { { "resourceGroupId", course.ResourceGroupId } });
@@ -121,28 +117,28 @@ namespace vmProjectBFF.Controllers
                         _lastResponse = _backendHttpClient.Post($"api/v2/ResourceGroup", resourceGroupSection);
                         resourceGroupSection = JsonConvert.DeserializeObject<ResourceGroup>(_lastResponse.Response);
 
-                        List<VmTemplate> vmTemplates = new();
+                        List<DTO.Database.VmTemplate> vmTemplates = new();
                         foreach (string templateVmId in courseDetails.templateVm)
                         {
                             _lastResponse = _backendHttpClient.Get($"api/v2/VmTemplate", new() { { "vmTemplateVcenterId", templateVmId } });
-                            VmTemplate template = JsonConvert.DeserializeObject<VmTemplate>(_lastResponse.Response);
+                            DTO.Database.VmTemplate template = JsonConvert.DeserializeObject<DTO.Database.VmTemplate>(_lastResponse.Response);
 
                             if (template == null)
                             {
                                 template = new VmTemplate();
-                                template.VmTemplateVcenterId = templateVmId;
-                                template.VmTemplateName = courseDetails.vmTemplateName;
+                                template.VmTemplateVCenterId = templateVmId;
+                                template.VmTemplateVCenterName = courseDetails.vmTemplateName;
                                 template.VmTemplateAccessDate = new DateTime(2022, 1, 1);
-                                template.LibraryId = courseDetails.libraryId;
+                                template.LibraryVCenterId = courseDetails.libraryId;
 
                                 _lastResponse = _backendHttpClient.Post($"api/v2/VmTemplate", template);
-                                template = JsonConvert.DeserializeObject<VmTemplate>(_lastResponse.Response);
+                                template = JsonConvert.DeserializeObject<DTO.Database.VmTemplate>(_lastResponse.Response);
                             }
 
                             vmTemplates.Add(template);
                         }
 
-                        SectionDTO newSection = new();
+                        Section newSection = new();
                         newSection.CourseId = (int)course.CourseId;
                         newSection.SectionCanvasId = Int32.Parse(courseDetails.canvasCourseId);
                         newSection.SemesterId = term.SemesterId;
@@ -150,10 +146,10 @@ namespace vmProjectBFF.Controllers
                         newSection.FolderId = folder.FolderId;
                         newSection.ResourceGroupId = resourceGroupSection.ResourceGroupId;
                         newSection.SectionName = courseDetails.sectionName;
-                        newSection.LibraryId = courseDetails.libraryId;
+                        newSection.LibraryVCenterId = courseDetails.libraryId;
 
                         _lastResponse = _backendHttpClient.Post($"api/v2/Section", newSection);
-                        newSection = JsonConvert.DeserializeObject<SectionDTO>(_lastResponse.Response);
+                        newSection = JsonConvert.DeserializeObject<Section>(_lastResponse.Response);
 
                         _lastResponse = _backendHttpClient.Get($"api/v2/Role", new() { { "roleName", "Professor" } });
                         Role profRole = JsonConvert.DeserializeObject<List<Role>>(_lastResponse.Response).FirstOrDefault();
@@ -188,7 +184,7 @@ namespace vmProjectBFF.Controllers
                         if (tag == null)
                         {
                             tag = new();
-                            tag.TagVcenterId = "TEMP_USE";
+                            tag.TagVCenterId = "TEMP_USE";
                             tag.TagCategoryId = tagCategory.TagCategoryId;
                             tag.TagName = course.CourseCode;
                             tag.TagDescription = "Do not attempt to use with VCenter.";
@@ -197,7 +193,7 @@ namespace vmProjectBFF.Controllers
                             tag = JsonConvert.DeserializeObject<Tag>(_lastResponse.Response);
                         }
 
-                        foreach (VmTemplate vmTemplate in vmTemplates)
+                        foreach (DTO.Database.VmTemplate vmTemplate in vmTemplates)
                         {
                             _lastResponse = _backendHttpClient.Get($"api/v2/VmTemplateTag", new() { { "tagId", tag.TagId }, { "vmTemplateId", vmTemplate.VmTemplateId } });
                             VmTemplateTag vmTemplateTag = JsonConvert.DeserializeObject<VmTemplateTag>(_lastResponse.Response);

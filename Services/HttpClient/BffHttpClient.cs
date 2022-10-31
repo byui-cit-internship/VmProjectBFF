@@ -2,10 +2,10 @@
 using System.Reflection;
 using System.Text;
 using System.Web;
-using vmProjectBFF.DTO;
-using vmProjectBFF.Exceptions;
+using VmProjectBFF.DTO;
+using VmProjectBFF.Exceptions;
 
-namespace vmProjectBFF.Services
+namespace VmProjectBFF.Services
 {
     public class BffHttpClient : HttpClient
     {
@@ -19,23 +19,25 @@ namespace vmProjectBFF.Services
 
         private static HttpClientHandler GetHttpClientHandler()
         {
-            HttpClientHandler handler = new();
-            handler.ClientCertificateOptions = ClientCertificateOption.Manual;
-            handler.ServerCertificateCustomValidationCallback = (
-                httpRequestMessage,
-                cert,
-                cetChain,
-                policyErrors) =>
-                {
-                    return true;
-                };
+            HttpClientHandler handler = new()
+            {
+                ClientCertificateOptions = ClientCertificateOption.Manual,
+                ServerCertificateCustomValidationCallback = (
+                    httpRequestMessage,
+                    cert,
+                    cetChain,
+                    policyErrors) =>
+                    {
+                        return true;
+                    }
+            };
             return handler;
         }
 
         private static Dictionary<string, string> GetHeadersFromObject(object headers)
         {
             Dictionary<string, string> headersDict = new();
-            if (headers != null)
+            if (headers is not null)
             {
                 foreach (PropertyInfo headerInfo in headers.GetType().GetProperties())
                 {

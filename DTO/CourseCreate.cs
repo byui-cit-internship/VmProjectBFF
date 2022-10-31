@@ -1,4 +1,6 @@
-namespace vmProjectBFF.Models
+using VmProjectBFF.DTO.Database;
+
+namespace VmProjectBFF.DTO
 {
     public class CourseCreate
     {
@@ -7,7 +9,7 @@ namespace vmProjectBFF.Models
         public string courseCode { get; set; }
         public string canvas_token { get; set; }
         public int section_num { get; set; }
-        public string semester { get; set; }
+        public Semester semester { get; set; }
         public string libraryId { get; set; }
         public string folder { get; set; }
 
@@ -17,7 +19,6 @@ namespace vmProjectBFF.Models
         public string resource_group { get; set; }
 
         public string userId { get; set; }
-        public int semesterYear { get; set; }
         public string canvasCourseId { get; set; }
     }
 }
