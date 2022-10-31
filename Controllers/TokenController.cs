@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 using VmProjectBFF.DTO.Database;
 using VmProjectBFF.Exceptions;
 using VmProjectBFF.Services;
@@ -10,6 +11,7 @@ namespace VmProjectBFF.Controllers
     [ApiController]
     public class TokenController : BffController
     {
+        IEmailClient _emailClient;
         public TokenController(
             IAuthorization authorization,
             IBackendRepository backend,
@@ -18,7 +20,8 @@ namespace VmProjectBFF.Controllers
             IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
             ILogger<TokenController> logger,
-            IVCenterRepository vCenter)
+            IVCenterRepository vCenter,
+            IEmailClient emailClient)
             : base(
                   authorization: authorization,
                   backend: backend,
@@ -29,6 +32,7 @@ namespace VmProjectBFF.Controllers
                   logger: logger,
                   vCenter: vCenter)
         {
+            _emailClient = emailClient;
         }
 
         /**************************************
@@ -105,6 +109,35 @@ namespace VmProjectBFF.Controllers
                         IsEssential = true,
                         Secure = true
                     });
+                if (!authenticatedUser.IsVerified)
+                {
+                    if (authenticatedUser.IsAdmin &&
+                    (authenticatedUser.VerificationCode is null || authenticatedUser.VerificationCodeExpiration < DateTime.Now))
+                    {
+                        int codeLength = 5;
+                        Random random = new();
+                        List<string> codeStr = new(codeLength);
+                        for(int i = 0; i < codeLength; i++)
+                        {
+                            codeStr.Add(random.Next(1, 9).ToString());
+                        }
+                        int code = int.Parse(string.Concat(codeStr));
+
+                        DateTime codeExpDate = DateTime.Now.AddDays(1);
+
+                        authenticatedUser.VerificationCode = code;
+                        authenticatedUser.VerificationCodeExpiration = codeExpDate;
+
+                        authenticatedUser = _backend.PutUser(authenticatedUser);
+                        _emailClient.SendEmailCode(authenticatedUser.Email, code.ToString(), "Vima Confirmation Code");
+
+                        authenticatedUser.VerificationCode = code;
+                    }
+                    else
+                    {
+                        return Forbid();
+                    }
+                }
 
                 return Ok(authenticatedUser);
             }

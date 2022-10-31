@@ -13,5 +13,12 @@ namespace VmProjectBFF.DTO.Database
         public bool IsAdmin { get; set; }
 
         public string CanvasToken { get; set; }
+
+        public bool IsVerified { get; set; }
+
+        public int? VerificationCode { get; set; }
+
+        public DateTime VerificationCodeExpiration { get; set; }
+
     }
 }
