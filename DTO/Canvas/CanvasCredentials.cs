@@ -1,5 +1,6 @@
 // this model is not link to the Database, it is just used to recieve data from post methods [HttpPost("professor/checkCanvasToken")]
-namespace vmProjectBFF.Models
+
+namespace VmProjectBFF.DTO.Canvas
 {
     public class CanvasCredentials
     {

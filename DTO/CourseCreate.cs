@@ -1,4 +1,6 @@
-namespace vmProjectBFF.Models
+using VmProjectBFF.DTO.Database;
+
+namespace VmProjectBFF.DTO
 {
     public class CourseCreate
     {

@@ -1,10 +1,9 @@
 ﻿using System.Net;
 
-namespace vmProjectBFF.Exceptions
+namespace VmProjectBFF.Exceptions
 {
     public class BackendHttpException : BffHttpException
     {
-
         public BackendHttpException(
             HttpStatusCode statusCode,
             string message)

@@ -1,7 +1,6 @@
-﻿using vmProjectBFF.DTO;
-using vmProjectBFF.Exceptions;
+﻿using VmProjectBFF.DTO;
 
-namespace vmProjectBFF.Services
+namespace VmProjectBFF.Services
 {
     public interface IBffHttpClient
     {

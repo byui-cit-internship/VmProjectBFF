@@ -1,8 +1,7 @@
-﻿using vmProjectBFF.DTO;
-using Newtonsoft.Json;
-using vmProjectBFF.Models;
+﻿using Newtonsoft.Json;
+using VmProjectBFF.DTO.Database;
 
-namespace vmProjectBFF.Services
+namespace VmProjectBFF.Services
 {
     public partial class BackendRepository
     {
@@ -12,9 +11,9 @@ namespace vmProjectBFF.Services
             return JsonConvert.DeserializeObject<VmInstance>(_lastResponse.Response);
         }
 
-        public (User, string) PostToken(AccessTokenDTO token)
+        public (User, string) PostToken(AccessToken token)
         {
-            _lastResponse = _backendHttpClient.Post("api/v1/token", token);
+            _lastResponse = _backendHttpClient.Post("api/v1/token", token.AccessTokenValue);
             return JsonConvert.DeserializeObject<(User, string)>(_lastResponse.Response);
         }
 

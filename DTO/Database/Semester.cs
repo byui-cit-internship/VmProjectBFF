@@ -1,7 +1,7 @@
-using vmProjectBFF.DTO;
 using Newtonsoft.Json;
+using VmProjectBFF.DTO.Canvas;
 
-namespace vmProjectBFF.Models
+namespace VmProjectBFF.DTO.Database
 {
     public class Semester
     {
@@ -31,7 +31,7 @@ namespace vmProjectBFF.Models
         }
 
         public Semester(
-            Test1 term
+            EnrollmentTerm term
         )
         {
             EnrollmentTermId = term.id;

@@ -1,8 +1,8 @@
-﻿using vmProjectBFF.DTO;
+﻿using VmProjectBFF.DTO;
 using Newtonsoft.Json;
-using vmProjectBFF.Models;
+using VmProjectBFF.DTO.Database;
 
-namespace vmProjectBFF.Services
+namespace VmProjectBFF.Services
 {
     public partial class BackendRepository
     {
@@ -18,21 +18,24 @@ namespace vmProjectBFF.Services
             return JsonConvert.DeserializeObject<List<Course>>(_lastResponse.Response);
         }
 
-        public List<SectionDTO> GetSectionsByUserId(int userId)
+        public List<Section> GetSectionsByUserId(int userId)
         {
             _lastResponse = _backendHttpClient.Get($"api/v2/Section", new() { { "userId", userId } });
-            return JsonConvert.DeserializeObject<List<SectionDTO>>(_lastResponse.Response);
+            return JsonConvert.DeserializeObject<List<Section>>(_lastResponse.Response);
         }
+
         public List<Semester> GetAllSemesters(int userId)
         {
             _lastResponse = _backendHttpClient.Get($"api/v2/Semester", new() { { "userId", userId } });
             return JsonConvert.DeserializeObject<List<Semester>>(_lastResponse.Response);
         }
+
         public List<User> GetUsersBySection(int sectionId)
         {
             _lastResponse = _backendHttpClient.Get($"api/v2/User", new() { { "sectionId", sectionId } });
             return JsonConvert.DeserializeObject<List<User>>(_lastResponse.Response);
         }
+
         public dynamic GetInstancesByUserId(int userId)
         {
             _lastResponse = _backendHttpClient.Get("api/v2/VmInstance", new() { { "userId", userId } });
@@ -62,7 +65,7 @@ namespace vmProjectBFF.Services
                  select new
                  {
                      CourseCode = c.CourseCode,
-                     VmTemplateName = vt.VmTemplateName,
+                     VmTemplateName = vt.VmTemplateVCenterName,
                      VmInstanceExpireDate = vi.VmInstanceExpireDate
                  }).ToList()
             );

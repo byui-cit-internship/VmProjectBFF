@@ -1,4 +1,4 @@
-﻿namespace vmProjectBFF.DTO
+﻿namespace VmProjectBFF.DTO.Database
 {
     public class Tag
     {
@@ -6,7 +6,7 @@
 
         public int TagCategoryId { get; set; }
 
-        public string TagVcenterId { get; set; }
+        public string TagVCenterId { get; set; }
 
         public string TagName { get; set; }
 

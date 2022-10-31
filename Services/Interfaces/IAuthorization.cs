@@ -1,6 +1,6 @@
-﻿using vmProjectBFF.Models;
+﻿using VmProjectBFF.DTO.Database;
 
-namespace vmProjectBFF.Services
+namespace VmProjectBFF.Services
 {
     public interface IAuthorization
     {

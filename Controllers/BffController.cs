@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using vmProjectBFF.DTO;
-using vmProjectBFF.Services;
+using VmProjectBFF.DTO;
+using VmProjectBFF.Services;
 
-namespace vmProjectBFF.Controllers
+namespace VmProjectBFF.Controllers
 {
     public class BffController : ControllerBase
     {

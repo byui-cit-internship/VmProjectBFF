@@ -3,12 +3,12 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
-using vmProjectBFF.DTO;
-using vmProjectBFF.Exceptions;
-using vmProjectBFF.Models;
-using vmProjectBFF.Services;
+using VmProjectBFF.DTO;
+using VmProjectBFF.DTO.Database;
+using VmProjectBFF.Exceptions;
+using VmProjectBFF.Services;
 
-namespace vmProjectBFF.Handlers
+namespace VmProjectBFF.Handlers
 {
     public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {

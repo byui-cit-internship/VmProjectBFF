@@ -1,7 +1,7 @@
-﻿using vmProjectBFF.DTO;
-using vmProjectBFF.Models;
+﻿using VmProjectBFF.DTO;
+using VmProjectBFF.DTO.Database;
 
-namespace vmProjectBFF.Services
+namespace VmProjectBFF.Services
 {
     public interface IBackendRepository
     {
@@ -10,7 +10,7 @@ namespace vmProjectBFF.Services
         // GET's
         public dynamic GetSectionBySemester(string semester);
         public List<Course> GetCoursesByUserId(int userId);
-        public List<SectionDTO> GetSectionsByUserId(int userId);
+        public List<Section> GetSectionsByUserId(int userId);
         public List<Semester> GetAllSemesters(int userId);
         public List<User> GetUsersBySection(int sectionId);
         public dynamic GetInstancesByUserId(int userId);
@@ -22,7 +22,7 @@ namespace vmProjectBFF.Services
 
         // POST's
         public VmInstance CreateVmInstance(VmInstance vmInstance);
-        public (User, string) PostToken(AccessTokenDTO token);
+        public (User, string) PostToken(AccessToken token);
         public User PostUser(User user);
 
         // PUT's

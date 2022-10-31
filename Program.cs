@@ -1,6 +1,6 @@
-using vmProjectBFF.Services;
+using VmProjectBFF.Services;
 
-namespace vmProjectBFF
+namespace VmProjectBFF
 {
     public class Program
     {

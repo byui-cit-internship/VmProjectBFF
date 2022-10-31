@@ -1,12 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using vmProjectBFF.DTO;
-using vmProjectBFF.Exceptions;
-using vmProjectBFF.Models;
-using vmProjectBFF.Services;
+using VmProjectBFF.DTO.Database;
+using VmProjectBFF.Exceptions;
+using VmProjectBFF.Services;
 
-namespace vmProjectBFF.Controllers
+namespace VmProjectBFF.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -91,7 +89,7 @@ namespace vmProjectBFF.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(510)]
-        public async Task<ActionResult> GetToken([FromBody] AccessTokenDTO accessTokenObj)
+        public async Task<ActionResult> GetToken([FromBody] AccessToken accessTokenObj)
         {
             try
             {

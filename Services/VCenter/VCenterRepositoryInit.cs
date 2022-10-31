@@ -1,6 +1,6 @@
-﻿using vmProjectBFF.DTO;
+﻿using VmProjectBFF.DTO;
 
-namespace vmProjectBFF.Services
+namespace VmProjectBFF.Services
 {
     public partial class VCenterRepository : IVCenterRepository
     {
