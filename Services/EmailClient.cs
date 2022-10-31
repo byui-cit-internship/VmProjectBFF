@@ -13,7 +13,9 @@ namespace VmProjectBFF.Services
         private readonly SmtpClient _client;
         private readonly string _clientHost;
         private readonly string _emailHead;
-        private readonly SmtpClient _client;
+        private readonly string _frontendURI;
+        private readonly string _senderEmailAddress;
+        private readonly MailMessage _mailMessage;
 
         public EmailClient(
             IConfiguration configuration,
@@ -21,11 +23,10 @@ namespace VmProjectBFF.Services
         {
             _configuration = configuration;
             _logger = logger;
-
             _senderEmailAddress = _configuration.GetConnectionString("vimaEmail");
             _clientHost = _configuration.GetConnectionString("emailClientHost");
             _emailHead = _configuration.GetConnectionString("emailHead");
-            _frontendURI = _configuration.GetConnectionString("FrontendRootUri");
+            _frontendURI = _configuration.GetConnectionString("frontendRootUri");
 
             _client = new()
             {
@@ -44,7 +45,7 @@ namespace VmProjectBFF.Services
         {
             string link = _frontendURI + $"verifyemail?code={code}";
             _mailMessage.To.Add(receiverEmail);
-            _mailMessage.From = new MailAddress(_senderEmail, _emailHead);
+            _mailMessage.From = new MailAddress(_senderEmailAddress, _emailHead);
             _mailMessage.Subject = subject;
             _mailMessage.IsBodyHtml = true;
             _mailMessage.AlternateViews.Add(GetCodeEmail("./Images/LOGO-VIMA2.png", code, link));
@@ -84,8 +85,10 @@ namespace VmProjectBFF.Services
             </div>
             ";
 
-            LinkedResource res = new LinkedResource(imgFilePath);
-            res.ContentId = Guid.NewGuid().ToString();
+            LinkedResource res = new(imgFilePath)
+            {
+                ContentId = Guid.NewGuid().ToString()
+            };
             string htmlBody = @"
             <div>
             <img src='cid:" + res.ContentId + @$"'/>
