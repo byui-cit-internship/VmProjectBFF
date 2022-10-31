@@ -1,8 +1,8 @@
 ﻿using System.Text;
-using vmProjectBFF.DTO;
-using vmProjectBFF.Exceptions;
+using VmProjectBFF.DTO;
+using VmProjectBFF.Exceptions;
 
-namespace vmProjectBFF.Services
+namespace VmProjectBFF.Services
 {
     public class VCenterHttpClient : BffHttpClient, IDisposable, IVCenterHttpClient
     {
@@ -51,7 +51,7 @@ namespace vmProjectBFF.Services
             _timer = new(LogoutLogin, new WeakReference<VCenterHttpClient>(this), 60 * 1000, 60 * 1000);
         }
 
-        public void Dispose()
+        void IDisposable.Dispose()
         {
             if (!_disposed && _initialized)
             {

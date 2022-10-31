@@ -1,4 +1,4 @@
-﻿namespace vmProjectBFF.DTO
+﻿namespace VmProjectBFF.DTO.Database
 {
     public class Cookie
     {

@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace vmProjectBFF.Exceptions
+namespace VmProjectBFF.Exceptions
 {
     public class BffHttpException : Exception
     {

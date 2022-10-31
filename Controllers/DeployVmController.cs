@@ -1,13 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using System.Text;
-using vmProjectBFF.DTO;
-using vmProjectBFF.Exceptions;
-using vmProjectBFF.Models;
-using vmProjectBFF.Services;
+using VmProjectBFF.DTO;
+using VmProjectBFF.DTO.Database;
+using VmProjectBFF.DTO.VCenter;
+using VmProjectBFF.Exceptions;
+using VmProjectBFF.Services;
 
-namespace vmProjectBFF.Controllers
+namespace VmProjectBFF.Controllers
 {
 
     [Route("api/[controller]")]
@@ -64,7 +63,7 @@ namespace vmProjectBFF.Controllers
                     string vCenterInstanceId = _vCenter.NewVmInstanceByTemplateId(createVm.Template_id,
                                                                                   deploy);
 
-                    VmTemplate template = _backend.GetTemplateByVCenterId(createVm.Template_id);
+                    DTO.Database.VmTemplate template = _backend.GetTemplateByVCenterId(createVm.Template_id);
 
                     VmInstance vmInstance = new()
                     {

@@ -1,4 +1,4 @@
-﻿namespace vmProjectBFF.DTO.ModelBased
+﻿namespace VmProjectBFF.DTO.Database
 {
     public class IpAddress
     {

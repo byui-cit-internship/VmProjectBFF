@@ -1,4 +1,4 @@
-﻿namespace vmProjectBFF.DTO
+﻿namespace VmProjectBFF.DTO
 {
     public class CreateVmDTO
     {

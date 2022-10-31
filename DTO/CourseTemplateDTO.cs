@@ -1,7 +1,6 @@
+using VmProjectBFF.DTO.Database;
 
-
-
-namespace vmProjectBFF.Models
+namespace VmProjectBFF.DTO
 {
     public class CourseTemplateDTO : Course
     {

@@ -1,7 +1,4 @@
-
-
-
-namespace vmProjectBFF.Models
+namespace VmProjectBFF.DTO.Database
 {
     public class Course
     {

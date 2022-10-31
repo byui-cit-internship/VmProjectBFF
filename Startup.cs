@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc.Abstractions;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Newtonsoft.Json.Serialization;
 using System.Reflection;
-using vmProjectBFF.Handlers;
-using vmProjectBFF.Services;
+using VmProjectBFF.Handlers;
+using VmProjectBFF.Services;
 
-namespace vmProjectBFF
+namespace VmProjectBFF
 {
     public class Startup
     {
@@ -88,7 +90,10 @@ namespace vmProjectBFF
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, Microsoft.AspNetCore.Mvc.Infrastructure.IActionDescriptorCollectionProvider actionProvider)
+        public void Configure(
+            IApplicationBuilder app,
+            IWebHostEnvironment env,
+            IActionDescriptorCollectionProvider actionProvider)
         {
             app.UseSwagger();
             app.UseSwaggerUI();
@@ -111,19 +116,17 @@ namespace vmProjectBFF
             app.UseAuthentication();
             app.UseAuthorization();
 
-
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
-            Console.WriteLine("Available routes:");
-            var routes = actionProvider.ActionDescriptors.Items.Where(x => x.AttributeRouteInfo != null);
-            foreach (var route in routes)
+            Logger.LogInformation("Available routes:");
+            IEnumerable<ActionDescriptor> routes = actionProvider.ActionDescriptors.Items.Where(x => x.AttributeRouteInfo != null);
+            foreach (ActionDescriptor route in routes)
             {
-                Console.WriteLine($"{route.AttributeRouteInfo.Template}");
+                Logger.LogInformation($"{route.AttributeRouteInfo.Template}");
             }
-            Console.WriteLine("Application configured successfully");
+            Logger.LogInformation("Application configured successfully");
         }
     }
 }

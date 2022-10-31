@@ -1,4 +1,4 @@
-﻿namespace vmProjectBFF.DTO
+﻿namespace VmProjectBFF.DTO.Database
 {
     public class TagCategory
     {
@@ -9,6 +9,5 @@
         public string TagCategoryName { get; set; }
 
         public string TagCategoryDescription { get; set; }
-
     }
 }

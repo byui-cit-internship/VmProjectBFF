@@ -1,7 +1,9 @@
-namespace vmProjectBFF.Services
+namespace VmProjectBFF.Services
 {
     public interface IEmailClient
     {
-        public void SendEmail(string receiverEmail, int code, string subject);
+        public void SendEmailCode(string receiverEmail, string code, string subject);
+        public void SendEmail(string receiverEmail, string code, string subject);
+
     }
 }
