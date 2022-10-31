@@ -13,7 +13,7 @@ namespace VmProjectBFF.Services
 
         public (User, string) PostToken(AccessToken token)
         {
-            _lastResponse = _backendHttpClient.Post("api/v1/token", token.AccessTokenValue);
+            _lastResponse = _backendHttpClient.Post("api/v1/token", token);
             return JsonConvert.DeserializeObject<(User, string)>(_lastResponse.Response);
         }
 
