@@ -133,10 +133,6 @@ namespace VmProjectBFF.Controllers
 
                         authenticatedUser.VerificationCode = code;
                     }
-                    else
-                    {
-                        return Forbid();
-                    }
                 }
 
                 return Ok(authenticatedUser);
