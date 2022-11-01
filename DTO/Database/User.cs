@@ -20,5 +20,8 @@ namespace VmProjectBFF.DTO.Database
 
         public DateTime VerificationCodeExpiration { get; set; }
 
+        public string role { get; set; }
+
+        public string approveStatus { get; set; }
     }
 }
