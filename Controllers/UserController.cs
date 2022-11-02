@@ -203,7 +203,7 @@ namespace VmProjectBFF.Controllers
                 try
                 {
                     authUser = _backend.PutUser(authUser);
-                    _emailClient.SendEmailCode(authUser.Email, code.ToString(), "Vima Confirmation Code");
+                    _emailClient.SendCode(authUser.Email, code.ToString(), "Vima Confirmation Code");
 
                     authUser.VerificationCode = null;
                     return Ok(authUser); 
