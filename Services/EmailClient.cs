@@ -62,15 +62,18 @@ namespace VmProjectBFF.Services
                 _logger.LogError(e.Message);
             }
         }
-        public void SendMessage(string receiverEmail, string subject, string message)
+        public void SendMessage(
+            string receiverEmail,
+            string subject, 
+            string message)
         {
             string content = @$"
             <div>
             <p>{message}</p>
             </div>
             ";
-            try 
-            { 
+            try
+            {
                 SendEmail(receiverEmail, subject, content);
             }
             catch (Exception e)
