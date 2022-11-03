@@ -156,7 +156,7 @@ namespace VmProjectBFF.Controllers
         [HttpPut("verifyUser")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult> verifyUser([FromQuery]int code)
+        public async Task<ActionResult> verifyUser([FromQuery] int code)
         {
             User authUser = _authorization.GetAuth("user");
             try
@@ -206,7 +206,61 @@ namespace VmProjectBFF.Controllers
                     _emailClient.SendCode(authUser.Email, code.ToString(), "Vima Confirmation Code");
 
                     authUser.VerificationCode = null;
-                    return Ok(authUser); 
+                    return Ok(authUser);
+                }
+                catch (BffHttpException be)
+                {
+                    return StatusCode((int)be.StatusCode, be.Message);
+                }
+            }
+            return Forbid();
+        }
+
+        [HttpPut("requestAccess")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult> RequestAccess()
+        {
+            User authUser = _authorization.GetAuth("user"); // admin should not be linked to role
+            if (authUser is not null && authUser.approveStatus is null)
+            {
+                try
+                {
+                    authUser.approveStatus = "pending";
+                    authUser.role = "professor";
+                    authUser = _backend.PutUser(authUser);
+
+                    string message = "Your authorization request has been sent. An administrator will respond to your request.";
+                    _emailClient.SendMessage(authUser.Email, "authorization request", message);
+
+                    return Ok(authUser);
+                }
+                catch (BffHttpException be)
+                {
+                    return StatusCode((int)be.StatusCode, be.Message);
+                }
+            }
+            return Forbid();
+        }
+
+        [HttpPut("approveAccess")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult> ApproveAccess([FromBody] User user)
+        {
+            User authUser = _authorization.GetAuth("admin"); // admin should not be linked to role
+            if (authUser is not null)
+            {
+                try
+                {
+                    user.approveStatus = "approved";
+
+                    user = _backend.PutUser(user);
+                    _emailClient.SendMessage(user.Email, "Request approved", "Your request has been approved, you can now login.");
+
+                    return Ok(user);
                 }
                 catch (BffHttpException be)
                 {
