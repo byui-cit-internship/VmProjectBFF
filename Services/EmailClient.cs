@@ -38,18 +38,57 @@ namespace VmProjectBFF.Services
 
             _mailMessage = new();
         }
-        public void SendEmailCode(
+        public void SendCode(
             string receiverEmail,
             string code,
             string subject)
         {
+
             string link = _frontendURI + $"verifyemail?code={code}";
+            string content = @$"
+            <div>
+            <p>The code is {code}</p>
+            <p>Or Click on this link: </p>
+            <a href={link}>{link}</a>
+            </div>
+            ";
+
+            try
+            {
+                SendEmail(receiverEmail, subject, content);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+            }
+        }
+        public void SendMessage(
+            string receiverEmail,
+            string subject, 
+            string message)
+        {
+            string content = @$"
+            <div>
+            <p>{message}</p>
+            </div>
+            ";
+            try
+            {
+                SendEmail(receiverEmail, subject, content);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+            }
+        }
+
+        private void SendEmail(string receiverEmail, string subject, string content)
+        {
             _mailMessage.To.Add(receiverEmail);
             _mailMessage.From = new MailAddress(_senderEmailAddress, _emailHead);
             _mailMessage.Subject = subject;
             _mailMessage.IsBodyHtml = true;
-            _mailMessage.AlternateViews.Add(GetCodeEmail("./Images/LOGO-VIMA2.png", code, link));
-
+            _mailMessage.AlternateViews.Add(GetEmailView(content, "./Images/LOGO-VIMA2.png"));
             try
             {
                 _client.Send(_mailMessage);
@@ -60,40 +99,19 @@ namespace VmProjectBFF.Services
             }
         }
 
-        public void SendEmail(
-            string receiverEmail,
-            string message,
-            string subject)
+        private AlternateView GetEmailView(string content, string imgFilePath)
         {
-            try
-            {
-                // TO-DO    
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e.Message);
-            }
-        }
-
-        private AlternateView GetCodeEmail(string imgFilePath, string code, string link)
-        {
-            string content = @$"
-            <div>
-            <p>The code is {code}</p>
-            <p>Or Click on this link: </p>
-            <a href={link}>{link}</a>
-            </div>
-            ";
-
             LinkedResource res = new(imgFilePath)
             {
                 ContentId = Guid.NewGuid().ToString()
             };
+
             string htmlBody = @"
             <div>
             <img src='cid:" + res.ContentId + @$"'/>
             {content}
             </div>";
+
             AlternateView alternateView = AlternateView.CreateAlternateViewFromString(htmlBody, null, MediaTypeNames.Text.Html);
             alternateView.LinkedResources.Add(res);
             return alternateView;

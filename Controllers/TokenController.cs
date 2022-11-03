@@ -129,7 +129,7 @@ namespace VmProjectBFF.Controllers
                         authenticatedUser.VerificationCodeExpiration = codeExpDate;
 
                         authenticatedUser = _backend.PutUser(authenticatedUser);
-                        _emailClient.SendEmailCode(authenticatedUser.Email, code.ToString(), "Vima Confirmation Code");
+                        _emailClient.SendCode(authenticatedUser.Email, code.ToString(), "Vima Confirmation Code");
 
                         authenticatedUser.VerificationCode = code;
                     }
