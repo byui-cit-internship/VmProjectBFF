@@ -216,13 +216,55 @@ namespace VmProjectBFF.Controllers
             return Forbid();
         }
 
+        /****************************************
+         * 
+         ***************************************/
+        /**
+         * <summary>
+         * Changes requesting user's approve status to "pending" and sets the role to "professor"
+         * </summary>
+         * <returns>Returns requesting user's information.</returns>
+         * <remarks>
+         * Only certain parameter combinations are allowed. Possible combinations include:<br/>
+         *   
+         * <![CDATA[
+         *      <pre>
+         *          <code>/api/user/requestAccess
+         *          </code>
+         *      </pre>
+         * ]]>
+         * Sample requests:
+         *
+         *      Returns the requesting user.
+         *      PUT /api/user/requestAccess
+         *      RETURNS
+         *       {
+         *           "userId": 1019,
+         *           "firstName": "Joe",
+         *           "lastName": "Doe",
+         *           "email": "joedoe@byui.edu",
+         *           "isAdmin": true,
+         *           "canvasToken": "123456789asdfdfgh",
+         *           "isVerified": true,
+         *           "verificationCode": 0,
+         *           "verificationCodeExpiration": "0001-01-01T00:00:00",
+         *           "role": "professor",
+         *           "approveStatus": "pending" 
+         *        }
+         *      
+         *
+         * </remarks>
+         * <response code="200">Returns approved user.</response>
+         * <response code="403">Insufficent permission to make request.</response>
+         */
         [HttpPut("requestAccess")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult> RequestAccess()
-        {
-            User authUser = _authorization.GetAuth("user"); // admin should not be linked to role
+        {   
+            // Checks should be added to verify canvas token
+            User authUser = _authorization.GetAuth("user");
             if (authUser is not null && authUser.approveStatus == "n/a")
             {
                 try
@@ -243,14 +285,58 @@ namespace VmProjectBFF.Controllers
             }
             return Forbid();
         }
-
-        [HttpPut("approveAccess")]
+ 
+        /****************************************
+         * 
+         ***************************************/
+        /**
+         * <summary>
+         * Changes user (with professor role) approved_status column to 'approved'
+         * </summary>
+         * <returns>Returns the approved professor.</returns>
+         * <remarks>
+         * Only certain parameter combinations are allowed. Possible combinations include:<br/>
+         *   
+         * <![CDATA[
+         *      <pre>
+         *          <code>/api/user/approve
+         *          </code>
+         *      </pre>
+         * ]]>
+         * Sample requests:
+         *
+         *      Returns the approved user.
+         *      PUT /api/user/approve
+         *      BODY
+         *      {
+         *          "email": "joedoe@byui.edu"
+         *       }
+         *      RETURNS
+         *       {
+         *           "userId": 1019,
+         *           "firstName": "Joe",
+         *           "lastName": "Doe",
+         *           "email": "joedoe@byui.edu",
+         *           "isAdmin": true,
+         *           "canvasToken": "123456789asdfdfgh",
+         *           "isVerified": true,
+         *           "verificationCode": 0,
+         *           "verificationCodeExpiration": "0001-01-01T00:00:00",
+         *           "role": "professor",
+         *           "approveStatus": "approved" 
+         *        }
+         *      
+         *
+         * </remarks>
+         * <response code="200">Returns approved user.</response>
+         * <response code="403">Insufficent permission to make request.</response>
+         */
+        [HttpPut("approve")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult> ApproveAccess([FromBody] User user) // you only have pass the field you need...
+        public async Task<ActionResult> Approve([FromBody] User user)
         {
-            User authUser = _authorization.GetAuth("admin"); // admin should not be linked to role
+            User authUser = _authorization.GetAuth("admin");
             if (authUser is not null)
             {
                 try
