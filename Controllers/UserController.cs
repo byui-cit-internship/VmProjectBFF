@@ -223,7 +223,7 @@ namespace VmProjectBFF.Controllers
         public async Task<ActionResult> RequestAccess()
         {
             User authUser = _authorization.GetAuth("user"); // admin should not be linked to role
-            if (authUser is not null && authUser.approveStatus is null)
+            if (authUser is not null && authUser.approveStatus == "n/a")
             {
                 try
                 {
@@ -248,13 +248,14 @@ namespace VmProjectBFF.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult> ApproveAccess([FromBody] User user)
+        public async Task<ActionResult> ApproveAccess([FromBody] User user) // you only have pass the field you need...
         {
             User authUser = _authorization.GetAuth("admin"); // admin should not be linked to role
             if (authUser is not null)
             {
                 try
-                {
+                {   
+                    user = _backend.GetUserByEmail(user.Email);
                     user.approveStatus = "approved";
 
                     user = _backend.PutUser(user);
