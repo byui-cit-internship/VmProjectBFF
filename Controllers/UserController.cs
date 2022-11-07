@@ -156,7 +156,7 @@ namespace VmProjectBFF.Controllers
         [HttpPut("verifyUser")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult> verifyUser([FromQuery]int code)
+        public async Task<ActionResult> verifyUser([FromQuery] int code)
         {
             User authUser = _authorization.GetAuth("user");
             try
@@ -206,7 +206,148 @@ namespace VmProjectBFF.Controllers
                     _emailClient.SendCode(authUser.Email, code.ToString(), "Vima Confirmation Code");
 
                     authUser.VerificationCode = null;
-                    return Ok(authUser); 
+                    return Ok(authUser);
+                }
+                catch (BffHttpException be)
+                {
+                    return StatusCode((int)be.StatusCode, be.Message);
+                }
+            }
+            return Forbid();
+        }
+
+        /****************************************
+         * 
+         ***************************************/
+        /**
+         * <summary>
+         * Changes requesting user's approve status to "pending" and sets the role to "professor"
+         * </summary>
+         * <returns>Returns requesting user's information.</returns>
+         * <remarks>
+         * Only certain parameter combinations are allowed. Possible combinations include:<br/>
+         *   
+         * <![CDATA[
+         *      <pre>
+         *          <code>/api/user/requestAccess
+         *          </code>
+         *      </pre>
+         * ]]>
+         * Sample requests:
+         *
+         *      Returns the requesting user.
+         *      PUT /api/user/requestAccess
+         *      RETURNS
+         *       {
+         *           "userId": 1019,
+         *           "firstName": "Joe",
+         *           "lastName": "Doe",
+         *           "email": "joedoe@byui.edu",
+         *           "isAdmin": true,
+         *           "canvasToken": "123456789asdfdfgh",
+         *           "isVerified": true,
+         *           "verificationCode": 0,
+         *           "verificationCodeExpiration": "0001-01-01T00:00:00",
+         *           "role": "professor",
+         *           "approveStatus": "pending" 
+         *        }
+         *      
+         *
+         * </remarks>
+         * <response code="200">Returns approved user.</response>
+         * <response code="403">Insufficent permission to make request.</response>
+         */
+        [HttpPut("requestAccess")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult> RequestAccess()
+        {   
+            // Checks should be added to verify canvas token
+            User authUser = _authorization.GetAuth("user");
+            if (authUser is not null && authUser.approveStatus == "n/a")
+            {
+                try
+                {
+                    authUser.approveStatus = "pending";
+                    authUser.role = "professor";
+                    authUser = _backend.PutUser(authUser);
+
+                    string message = "Your authorization request has been sent. An administrator will respond to your request.";
+                    _emailClient.SendMessage(authUser.Email, "authorization request", message);
+
+                    return Ok(authUser);
+                }
+                catch (BffHttpException be)
+                {
+                    return StatusCode((int)be.StatusCode, be.Message);
+                }
+            }
+            return Forbid();
+        }
+ 
+        /****************************************
+         * 
+         ***************************************/
+        /**
+         * <summary>
+         * Changes user (with professor role) approved_status column to 'approved'
+         * </summary>
+         * <returns>Returns the approved professor.</returns>
+         * <remarks>
+         * Only certain parameter combinations are allowed. Possible combinations include:<br/>
+         *   
+         * <![CDATA[
+         *      <pre>
+         *          <code>/api/user/approve
+         *          </code>
+         *      </pre>
+         * ]]>
+         * Sample requests:
+         *
+         *      Returns the approved user.
+         *      PUT /api/user/approve
+         *      BODY
+         *      {
+         *          "email": "joedoe@byui.edu"
+         *       }
+         *      RETURNS
+         *       {
+         *           "userId": 1019,
+         *           "firstName": "Joe",
+         *           "lastName": "Doe",
+         *           "email": "joedoe@byui.edu",
+         *           "isAdmin": true,
+         *           "canvasToken": "123456789asdfdfgh",
+         *           "isVerified": true,
+         *           "verificationCode": 0,
+         *           "verificationCodeExpiration": "0001-01-01T00:00:00",
+         *           "role": "professor",
+         *           "approveStatus": "approved" 
+         *        }
+         *      
+         *
+         * </remarks>
+         * <response code="200">Returns approved user.</response>
+         * <response code="403">Insufficent permission to make request.</response>
+         */
+        [HttpPut("approve")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult> Approve([FromBody] User user)
+        {
+            User authUser = _authorization.GetAuth("admin");
+            if (authUser is not null)
+            {
+                try
+                {   
+                    user = _backend.GetUserByEmail(user.Email);
+                    user.approveStatus = "approved";
+
+                    user = _backend.PutUser(user);
+                    _emailClient.SendMessage(user.Email, "Request approved", "Your request has been approved, you can now login.");
+
+                    return Ok(user);
                 }
                 catch (BffHttpException be)
                 {
