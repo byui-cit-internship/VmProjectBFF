@@ -261,9 +261,12 @@ namespace VmProjectBFF.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult> RequestAccess()
+        public async Task<ActionResult> RequestAccess(string canvasToken)
         {   
-            // Checks should be added to verify canvas token
+            // _canvasHttpClient.SetCanvasToken("10706~KhGAErlzSGxD3FOd6CoZopTx1Hp4fzEhiA8pdsiREUg9CsCofaCRor42G6S93jUW");
+            // BffResponse user = _canvasHttpClient.Get("/api/v1/users/self/profile");
+            dynamic something = _canvas.GetUserByCanvasToken(canvasToken);
+            
             User authUser = _authorization.GetAuth("user");
             if (authUser is not null && authUser.approveStatus == "n/a")
             {

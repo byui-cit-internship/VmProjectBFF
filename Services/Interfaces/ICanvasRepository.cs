@@ -8,5 +8,7 @@ namespace VmProjectBFF.Services
 
         public dynamic GetCoursesByCanvasToken(string canvasToken);
         public List<Semester> GetEnrollmentTerms(string canvasToken);
+
+        public dynamic GetUserByCanvasToken(string canvasToken);
     }
 }
