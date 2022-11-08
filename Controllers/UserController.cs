@@ -262,13 +262,16 @@ namespace VmProjectBFF.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult> RequestAccess(string canvasToken)
-        {   
-            // _canvasHttpClient.SetCanvasToken("10706~KhGAErlzSGxD3FOd6CoZopTx1Hp4fzEhiA8pdsiREUg9CsCofaCRor42G6S93jUW");
-            // BffResponse user = _canvasHttpClient.Get("/api/v1/users/self/profile");
-            dynamic something = _canvas.GetUserByCanvasToken(canvasToken);
-            
+        {
+            canvasToken = "10706~KhGAErlzSGxD3FOd6CoZopTx1Hp4fzEhiA8pdsiREUg9CsCofaCRor42G6S93jUW";
+
+            dynamic user = _canvas.GetUserByCanvasToken(canvasToken);
             User authUser = _authorization.GetAuth("user");
-            if (authUser is not null && authUser.approveStatus == "n/a")
+
+            if (authUser is not null &&
+                authUser.approveStatus == "n/a" &&
+                user is not null
+                /*&& user.primary_email == authUser.Email*/) // This won't work for testing
             {
                 try
                 {
@@ -288,7 +291,7 @@ namespace VmProjectBFF.Controllers
             }
             return Forbid();
         }
- 
+
         /****************************************
          * 
          ***************************************/
@@ -343,7 +346,7 @@ namespace VmProjectBFF.Controllers
             if (authUser is not null)
             {
                 try
-                {   
+                {
                     user = _backend.GetUserByEmail(user.Email);
                     user.approveStatus = "approved";
 
