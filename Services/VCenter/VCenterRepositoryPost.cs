@@ -9,7 +9,7 @@ namespace VmProjectBFF.Services
             string vCenterTemplateId,
             Deploy deploy)
         {
-            _lastResponse = _vCenterHttpClient.Post($"api/vcenter/vm-template/library-items/{vCenterTemplateId}", new() { { "action", "deploy" } }, deploy);
+            _lastResponse = _vCenterHttpClient.Post($"rest/vcenter/vm-template/library-items/{vCenterTemplateId}", new() { { "action", "deploy" } }, deploy);
             return JsonConvert.DeserializeObject<string>(_lastResponse.Response);
         }
     }
