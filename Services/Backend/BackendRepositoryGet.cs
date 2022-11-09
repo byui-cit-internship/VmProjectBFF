@@ -65,7 +65,7 @@ namespace VmProjectBFF.Services
                  select new
                  {
                      CourseCode = c.CourseCode,
-                     VmTemplateName = vt.VmTemplateVCenterName,
+                     VmTemplateName = vt.VmTemplateName,
                      VmInstanceExpireDate = vi.VmInstanceExpireDate
                  }).ToList()
             );
