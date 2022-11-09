@@ -4,7 +4,6 @@ namespace VmProjectBFF.DTO
 {
     public class CourseCreate
     {
-        public int course_id { get; set; }
         public string sectionName { get; set; }
         public string courseCode { get; set; }
         public string canvas_token { get; set; }
