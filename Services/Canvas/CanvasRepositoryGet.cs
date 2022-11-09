@@ -32,5 +32,12 @@ namespace VmProjectBFF.Services
             }
             return semesterList;
         }
+
+        public dynamic GetUserByCanvasToken(string canvasToken)
+        {
+            _canvasHttpClient.SetCanvasToken(canvasToken);
+            dynamic user = _canvasHttpClient.Get("/api/v1/users/self/profile");
+            return user;
+        }
     }
 }
