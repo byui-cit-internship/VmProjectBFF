@@ -36,7 +36,9 @@ namespace VmProjectBFF.Services
         public dynamic GetUserByCanvasToken(string canvasToken)
         {
             _canvasHttpClient.SetCanvasToken(canvasToken);
-            dynamic user = _canvasHttpClient.Get("/api/v1/users/self/profile");
+            _lastResponse = _canvasHttpClient.Get("/api/v1/users/self/profile");
+            CanvasUser user = JsonConvert.DeserializeObject<CanvasUser>(_lastResponse.Response);
+            
             return user;
         }
     }
