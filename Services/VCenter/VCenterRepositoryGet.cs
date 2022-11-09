@@ -20,14 +20,14 @@ namespace VmProjectBFF.Services
 
         public List<string> GetContentLibraryIds()
         {
-            _lastResponse = _vCenterHttpClient.Get("api/content/local-library");
-            return JsonConvert.DeserializeObject<List<string>>(_lastResponse.Response);
+            _lastResponse = _vCenterHttpClient.Get("rest/com/vmware/content/local-library");
+            return (JsonConvert.DeserializeObject<ContentLibraryIdList>(_lastResponse.Response)).value;
         }
 
         public ContentLibrary GetContentLibraryById(string contentLibraryId)
         {
-            _lastResponse = _vCenterHttpClient.Get($"api/content/local-library/{contentLibraryId}");
-            return JsonConvert.DeserializeObject<ContentLibrary>(_lastResponse.Response);
+            _lastResponse = _vCenterHttpClient.Get($"rest/com/vmware/content/local-library/id:{contentLibraryId}");
+            return (JsonConvert.DeserializeObject<ContentLibraryContainer>(_lastResponse.Response)).value;
         }
 
         public List<Folder> GetFolders()
@@ -49,7 +49,7 @@ namespace VmProjectBFF.Services
 
         public List<string> GetTemplateIdsInContentLibrary(string contentLibraryId)
         {
-            _lastResponse = _vCenterHttpClient.Get("api/content/library/item", new() { { "library_id", contentLibraryId } });
+            _lastResponse = _vCenterHttpClient.Get("rest/com/vmware/content/library/item", new() { { "library_id", contentLibraryId } });
             return JsonConvert.DeserializeObject<List<string>>(_lastResponse.Response);
         }
 
@@ -61,8 +61,8 @@ namespace VmProjectBFF.Services
 
         public List<Pool> GetResourceGroups()
         {
-            _lastResponse = _vCenterHttpClient.Get("api/vcenter/resource-pool");
-            return JsonConvert.DeserializeObject<List<Pool>>(_lastResponse.Response);
+            _lastResponse = _vCenterHttpClient.Get("rest/vcenter/resource-pool");
+            return new List<Pool>(JsonConvert.DeserializeObject<PoolContainer>(_lastResponse.Response).value);
         }
     }
 }

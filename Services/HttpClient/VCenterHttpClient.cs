@@ -1,6 +1,8 @@
 ﻿using System.Text;
 using VmProjectBFF.DTO;
 using VmProjectBFF.Exceptions;
+using Newtonsoft.Json;
+using VcenterToken = VmProjectBFF.DTO.VCenter.SessionToken;
 
 namespace VmProjectBFF.Services
 {
@@ -69,9 +71,11 @@ namespace VmProjectBFF.Services
                 {
                     Headers = new() { { "Authorization", $"Basic {GetVCenterLoginBase64(_configuration)}" } };
                 }
-                BffResponse loginResponse = base.Post("api/session",
+                BffResponse loginResponse = base.Post("rest/com/vmware/cis/session",
                                                       null);
-                Headers = new() { { "Cookie", $"vmware-api-session-id={loginResponse.Response}" } };
+                VcenterToken sessionToken = JsonConvert.DeserializeObject<VcenterToken>(loginResponse.Response);
+                _logger.LogInformation($"{sessionToken.value}");
+                Headers = new() { { "Cookie", $"vmware-api-session-id={sessionToken.value}" } };
             }
             catch (BffHttpException ex)
             {
@@ -83,7 +87,7 @@ namespace VmProjectBFF.Services
         {
             try
             {
-                base.Delete("api/session",
+                base.Delete("rest/com/vmware/cis/session",
                             null);
             }
             catch (BffHttpException ex)
