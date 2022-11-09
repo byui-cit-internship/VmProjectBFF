@@ -54,7 +54,7 @@ namespace VmProjectBFF.Controllers
 
                     if (courseExist == null)
                     {
-                        _lastResponse = _backendHttpClient.Get($"api/v2/Course", new() { { "courseId", courseDetails.course_id } });
+                        _lastResponse = _backendHttpClient.Get($"api/v2/Course", new() { { "courseCode", courseDetails.courseCode } });
                         Course course = JsonConvert.DeserializeObject<Course>(_lastResponse.Response);
 
                         if (course == null)
@@ -96,7 +96,7 @@ namespace VmProjectBFF.Controllers
                         professor = JsonConvert.DeserializeObject<User>(_lastResponse.Response);
 
 
-                        _lastResponse = _backendHttpClient.Get($"api/v2/Semester", new() { { "enrollmentTermId", courseDetails.semester.EnrollmentTermId } });
+                        _lastResponse = _backendHttpClient.Get($"api/v2/Semester", new() { { "enrollmentTermCanvasId", courseDetails.semester.EnrollmentTermCanvasId } });
                         Semester term = JsonConvert.DeserializeObject<Semester>(_lastResponse.Response);
 
                         if (term == null)
@@ -223,7 +223,7 @@ namespace VmProjectBFF.Controllers
                     }
                     else
                     {
-                        return Conflict(new { message = $"A course already exits with this id {courseDetails.course_id}" });
+                        return Conflict(new { message = $"A course already exits with this id {courseDetails.courseCode}" });
                     }
                 }
                 return Unauthorized();

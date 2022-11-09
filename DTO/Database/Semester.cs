@@ -10,7 +10,7 @@ namespace VmProjectBFF.DTO.Database
         public string SemesterTerm { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public int EnrollmentTermId { get; set; }
+        public int EnrollmentTermCanvasId { get; set; }
 
         [JsonConstructor]
         public Semester(
@@ -19,7 +19,7 @@ namespace VmProjectBFF.DTO.Database
             string semesterTerm,
             DateTime startDate,
             DateTime endDate,
-            int enrollmentTermId
+            int enrollmentTermCanvasId
         )
         {
             SemesterId = semesterId;
@@ -27,14 +27,14 @@ namespace VmProjectBFF.DTO.Database
             SemesterTerm = semesterTerm;
             StartDate = startDate;
             EndDate = endDate;
-            EnrollmentTermId = enrollmentTermId;
+            EnrollmentTermCanvasId = enrollmentTermCanvasId;
         }
 
         public Semester(
             EnrollmentTerm term
         )
         {
-            EnrollmentTermId = term.id;
+            EnrollmentTermCanvasId = term.id;
             string[] splitTerm = term.name.Split(' ');
             SemesterYear = int.Parse(splitTerm[1]);
             SemesterTerm = splitTerm[0];
