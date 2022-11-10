@@ -364,5 +364,64 @@ namespace VmProjectBFF.Controllers
             }
             return Forbid();
         }
+
+        /*
+        * <summary>
+        * Sends current user's information.
+        * </summary>
+        * <return>Returns user's own information</returns>
+        * 
+        * <remarks>
+        * <![CDATA[
+        *   <pre>
+        *       <code> /api/user/self </code>
+        *   </pre>
+        * ]]>
+        *
+        * Samples requests:
+        *
+        *   Returns the information of the user calling the endpoint.
+        *   GET /api/user/self
+        *   RETURNS 
+        *       {
+        *           "userId": 1019,
+        *           "firstName": "Joe",
+        *           "lastName": "Doe",
+        *           "email": "joedoe@byui.edu",
+        *           "isAdmin": true,
+        *           "canvasToken": "123456789asdfdfgh",
+        *           "isVerified": true,
+        *           "verificationCode": 0,
+        *           "verificationCodeExpiration": "0001-01-01T00:00:00",
+        *           "role": "professor",
+        *           "approveStatus": "approved" 
+        *        }
+        * </remarks>
+        *
+        * <response code="200">Returns user's information</response>
+        * <response code="401">User not authenticated</response>
+        * <response code="403">Insufficient permission to make request</response>
+        */
+        [HttpGet("self")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult> Self()
+        {
+            try
+            {
+                User authUser = _authorization.GetAuth("admin");
+                if (authUser is not null)
+                {
+                    return Ok(authUser);
+                }
+                return Forbid();
+            }
+            catch (BffHttpException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
+        }
+
     }
 }
