@@ -270,18 +270,25 @@ namespace VmProjectBFF.Controllers
                 User authUser = _authorization.GetAuth("user");
 
                 if (authUser is not null &&
-                    authUser.approveStatus == "n/a" &&
-                    user is not null
+                    (authUser.approveStatus == "n/a" || authUser.approveStatus == "approved")
+                    && user is not null
                     /*&& user.primary_email == canvasUser.primary_email */) // This won't work for testing
                 {
-                    authUser.approveStatus = "pending";
                     authUser.role = "professor";
                     authUser.CanvasToken = user.CanvasToken;
 
-                    authUser = _backend.PutUser(authUser);
-
-                    string message = "Your authorization request has been sent. An administrator will respond to your request.";
-                    _emailClient.SendMessage(authUser.Email, "authorization request", message);
+                    if (authUser.approveStatus == "n/a")
+                    {
+                        authUser.approveStatus = "pending";
+                        string message = "Your authorization request has been sent. An administrator will respond to your request.";
+                        string subject = "Request sent.";
+                        authUser = _backend.PutUser(authUser);
+                        _emailClient.SendMessage(authUser.Email, subject, message);
+                    }
+                    else if (authUser.approveStatus == "approved")
+                    {
+                        authUser = _backend.PutUser(authUser);
+                    }
 
                     return Ok(authUser);
                 }
@@ -291,9 +298,7 @@ namespace VmProjectBFF.Controllers
             {
                 return StatusCode((int)be.StatusCode, be.Message);
             }
-
         }
-
         /****************************************
          * 
          ***************************************/
