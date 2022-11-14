@@ -20,6 +20,8 @@ namespace VmProjectBFF.Services
         public User GetUserByEmail(string email);
         public List<User> GetAdmins();
 
+        public List<User> GetProfessors();
+
         // POST's
         public VmInstance CreateVmInstance(VmInstance vmInstance);
         public (User, string) PostToken(AccessToken token);
