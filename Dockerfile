@@ -10,7 +10,7 @@ RUN dotnet restore
 # Copy everything else and build
 COPY . ./
 
-RUN dotnet publish -c Release -o out /p:EnvironmentName=Development
+RUN dotnet publish -c Release -o out 
 
 # Build runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS runtime
