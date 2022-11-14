@@ -437,7 +437,7 @@ namespace VmProjectBFF.Controllers
         {
             try
             {
-                User authUser = _authorization.GetAuth("admin");
+                User authUser = _authorization.GetAuth("user");
                 if (authUser is not null)
                 {
                     return Ok(authUser);
