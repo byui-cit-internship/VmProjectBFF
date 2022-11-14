@@ -107,7 +107,44 @@ namespace VmProjectBFF.Controllers
                 return StatusCode((int)be.StatusCode, be.Message);
             }
         }
-
+/**
+         * <summary>
+         * Returns a list of professors.
+         * </summary>
+         * <returns>A list of "OldSectionDTO" objects repesenting information about sections the requesting professor teaches.</returns>
+         * <remarks>
+         * Only certain parameter combinations are allowed. Possible combinations include:<br/>
+         * <![CDATA[
+         *      <pre>
+         *          <code>/api/user/professors
+         *          </code>
+         *      </pre>
+         * ]]>
+         * Sample requests:
+         *
+         *      Returns the user logging in.
+         *      GET /api/user/professors
+         *      RETURNS
+         [
+    {
+        "userId": 1,
+        "firstName": "Shae",
+        "lastName": "Carnahan",
+        "email": "shaecarnahan@gmail.com",
+        "isAdmin": true,
+        "canvasToken": "10706~V8zJCRp7mx2pilM4LHfjPKe6KiV2FOJ2H79J7EFNNVDRFMQMaARM6lrNus89y2Y2",
+        "isVerified": false,
+        "verificationCode": 0,
+        "verificationCodeExpiration": "0001-01-01T00:00:00",
+        "role": "professor",
+        "approveStatus": "approved"
+    }]
+         *     
+         *
+         * </remarks>
+         * <response code="200">Returns a list of objects representing sections.</response>
+         * <response code="403">Insufficent permission to make request.</response>
+         */
         [HttpGet("professors")]
         public async Task<ActionResult> GetProfessors()
         {
@@ -129,7 +166,31 @@ namespace VmProjectBFF.Controllers
                 return StatusCode((int)be.StatusCode, be.Message);
             }
         }
-
+/**
+         * <summary>
+         * Returns a list of students in a section.
+         * </summary>
+         * <returns>A list of "OldSectionDTO" objects repesenting information about sections the requesting professor teaches.</returns>
+         * <remarks>
+         * Only certain parameter combinations are allowed. Possible combinations include:<br/>
+         * <![CDATA[
+         *      <pre>
+         *          <code>/api/user/bySection?sectionId=9
+         *          </code>
+         *      </pre>
+         * ]]>
+         * Sample requests:
+         *
+         *      Returns the user logging in.
+         *      GET /api/user/bySection?sectionId=9
+         *      RETURNS
+         
+         *     
+         *
+         * </remarks>
+         * <response code="200">Returns a list of objects representing sections.</response>
+         * <response code="403">Insufficent permission to make request.</response>
+         */
         [HttpGet("bySection")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]

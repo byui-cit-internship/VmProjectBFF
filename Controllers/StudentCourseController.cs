@@ -35,7 +35,33 @@ namespace VmProjectBFF.Controllers
 
         //Student get to see all their classes that they are enrolled in
         // GET: api/StudentCourse
-        [HttpGet()]
+
+        /**
+         * <summary>
+         * Returns a list of courses a student is enrolled for.
+         * </summary>
+         * <returns>A list of "OldSectionDTO" objects repesenting information about sections the requesting professor teaches.</returns>
+         * <remarks>
+         * Only certain parameter combinations are allowed. Possible combinations include:<br/>
+         * <![CDATA[
+         *      <pre>
+         *          <code>/api/studentcourse
+         *          </code>
+         *      </pre>
+         * ]]>
+         * Sample requests:
+         *
+         *      Returns the user logging in.
+         *      GET /api/semester/semester
+         *      RETURNS
+         *     
+         *
+         * </remarks>
+         * <response code="200">Returns a list of objects representing sections.</response>
+         * <response code="403">Insufficent permission to make request.</response>
+         */
+
+        [HttpGet("StudentCourse")]
         public async Task<ActionResult<IEnumerable<Course>>> GetCourses()
         {
             try
