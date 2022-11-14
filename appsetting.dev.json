@@ -1,0 +1,29 @@
+{
+    "ConnectionStrings": {
+      "BackendRootUri": "https://rancher-dev-bff.cit.byui.edu/",
+      "BackendConnectionPassword": "SFd27ygDkHhPPSea",
+      "VCenterRootUri": "https://vctr-dev.cit.byui.edu/",
+      "VCenterLoginUsername": "api-test@vsphere.local",
+      "VCenterLoginPassword": "wnD<Dz[HZW@25{]q1",
+      "CanvasRootUri": "https://byui.test.instructure.com/",
+      "vimaEmail": "byui_vima@hotmail.com",
+      "vimaEmailPassword": "fakepassword123",
+      "emailClientHost": "smtp.outlook.com",
+      "emailHead": "Vima",
+      "frontendRootUri": "https://rancher-vmforntend-dev.cit.byui.edu/"
+    },
+    "Logging": {
+      "LogLevel": {
+        "Default": "Information",
+        "Microsoft": "Warning",
+        "Microsoft.Hosting.Lifetime": "Information",
+        "Microsoft.EntityFrameworkCore.Database.Command": "Information"
+      }
+    },
+    "Canvas": {
+      "StudentRoleId": 386
+    },
+    "AllowedHosts": "*",
+    "Resource_Pool": "resgroup-3045",
+    "IgnoreFolder": "DO-NOT-USE"
+  }
