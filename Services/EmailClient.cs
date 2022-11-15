@@ -46,8 +46,15 @@ namespace VmProjectBFF.Services
 
             string link = _frontendURI + $"verifyemail?code={code}";
             string content = @$"
+
+            <head>
+            <style >
+            </style>
+            </head>
             <div>
-            <p>The code is {code}</p>
+            <p color: #1a63a1>The code is {code}</p>
+            <p>Hello Mary</p><p>Great news Mary</p>
+            <span >Your content here is this still working?</span>
             <p>Or Click on this link: </p>
             <a href={link}>{link}</a>
             </div>
@@ -69,7 +76,7 @@ namespace VmProjectBFF.Services
         {
             string content = @$"
             <div>
-            <p>{message}</p>
+            <p >{message}</p>
             </div>
             ";
             try
@@ -88,7 +95,7 @@ namespace VmProjectBFF.Services
             _mailMessage.From = new MailAddress(_senderEmailAddress, _emailHead);
             _mailMessage.Subject = subject;
             _mailMessage.IsBodyHtml = true;
-            _mailMessage.AlternateViews.Add(GetEmailView(content, "./Images/LOGO-VIMA2.png"));
+            _mailMessage.AlternateViews.Add(GetEmailView(content, "./Images/LOGO-VIMA.png"));
             try
             {
                 _client.Send(_mailMessage);
