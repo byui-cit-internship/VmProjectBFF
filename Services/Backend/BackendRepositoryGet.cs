@@ -6,7 +6,7 @@ namespace VmProjectBFF.Services
 {
     public partial class BackendRepository
     {
-        public dynamic GetSectionBySemester(string semester)
+        public dynamic GetSectionBySemester(int semester)
         {
             _lastResponse = _backendHttpClient.Get($"api/v1/section/sectionList", new() { { "semester", semester } });
             return JsonConvert.DeserializeObject<dynamic>(_lastResponse.Response);

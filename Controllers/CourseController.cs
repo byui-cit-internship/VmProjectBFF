@@ -76,7 +76,7 @@ namespace VmProjectBFF.Controllers
         [HttpGet("professor/semester/{semester}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult> GetCoursesBySemester(string semester)
+        public async Task<ActionResult> GetCoursesBySemester(int semester)
         {
             try
             {
