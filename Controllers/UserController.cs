@@ -89,7 +89,10 @@ namespace VmProjectBFF.Controllers
                             Email = postUser.email,
                             FirstName = postUser.firstName,
                             LastName = postUser.lastName,
-                            IsAdmin = true
+                            IsAdmin = true,
+                            VerificationCode = 0,
+                            role = "professor",
+                            approveStatus = "approved"
                         };
 
                         return Ok(_backend.PostUser(user));
@@ -118,6 +121,28 @@ namespace VmProjectBFF.Controllers
                 if (professor is not null)
                 {
                     return Ok(_backend.GetAdmins());
+                }
+                else
+                {
+                    return Forbid();
+                }
+            }
+            catch (BffHttpException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
+        }
+
+        [HttpGet("allProfessors")]
+        public async Task<ActionResult> GetAllProfessors()
+        {
+            try
+            {
+                User professor = _authorization.GetAuth("admin");
+
+                if (professor is not null)
+                {
+                    return Ok(_backend.GetProfessors());
                 }
                 else
                 {
@@ -356,6 +381,7 @@ namespace VmProjectBFF.Controllers
                 {
                     user = _backend.GetUserByEmail(user.Email);
                     user.approveStatus = "approved";
+                    user.IsAdmin = true;
 
                     user = _backend.PutUser(user);
                     _emailClient.SendMessage(user.Email, "Request approved", "Your request has been approved, you can now login.");
@@ -415,7 +441,7 @@ namespace VmProjectBFF.Controllers
         {
             try
             {
-                User authUser = _authorization.GetAuth("admin");
+                User authUser = _authorization.GetAuth("user");
                 if (authUser is not null)
                 {
                     return Ok(authUser);

@@ -100,5 +100,10 @@ namespace VmProjectBFF.Services
             _lastResponse = _backendHttpClient.Get($"api/v2/user", new() { { "isAdmin", true } });
             return JsonConvert.DeserializeObject<List<User>>(_lastResponse.Response);
         }
+        public List<User> GetProfessors()
+        {
+            _lastResponse = _backendHttpClient.Get($"api/v2/user", new() { { "role", "professor" } });
+            return JsonConvert.DeserializeObject<List<User>>(_lastResponse.Response);
+        }
     }
 }
