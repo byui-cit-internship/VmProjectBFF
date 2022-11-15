@@ -109,31 +109,6 @@ namespace VmProjectBFF.Controllers
                         IsEssential = true,
                         Secure = true
                     });
-                // if (!authenticatedUser.IsVerified)
-                // {
-                //     if (authenticatedUser.IsAdmin &&
-                //     (authenticatedUser.VerificationCode is null || authenticatedUser.VerificationCodeExpiration < DateTime.Now))
-                //     {
-                //         int codeLength = 5;
-                //         Random random = new();
-                //         List<string> codeStr = new(codeLength);
-                //         for(int i = 0; i < codeLength; i++)
-                //         {
-                //             codeStr.Add(random.Next(1, 9).ToString());
-                //         }
-                //         int code = int.Parse(string.Concat(codeStr));
-
-                //         DateTime codeExpDate = DateTime.Now.AddDays(1);
-
-                //         authenticatedUser.VerificationCode = code;
-                //         authenticatedUser.VerificationCodeExpiration = codeExpDate;
-
-                //         authenticatedUser = _backend.PutUser(authenticatedUser);
-                //         _emailClient.SendCode(authenticatedUser.Email, code.ToString(), "Vima Confirmation Code");
-
-                //         authenticatedUser.VerificationCode = code;
-                //     }
-                // }
 
                 return Ok(authenticatedUser);
             }
