@@ -2,9 +2,34 @@ using System.Net.Mail;
 using System.Net.Mime;
 using System.Net;
 using VmProjectBFF.Exceptions;
+[Route("api/[controller]")]
+[ApiController]
 
 namespace VmProjectBFF.Services
 {
+
+    public class MailController : ControllerBase
+{
+    private readonly IMailService mailService;
+    public MailController(IMailService mailService)
+    {
+        this.mailService = mailService;
+    }
+    [HttpPost("send")]
+    public async Task<IActionResult> SendMail([FromForm]MailRequest request)
+    {
+        try
+        {
+            await mailService.SendEmailAsync(request);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+            
+    }
+}
     public partial class EmailClient : IEmailClient
     {
         private readonly IConfiguration _configuration;
@@ -59,7 +84,13 @@ namespace VmProjectBFF.Services
             <a href={link}>{link}</a>
             </div>
             ";
-
+            // SEPARATION
+            string FilePath = Directory.GetCurrentDirectory() + "../Services/templates/vimaemail.html";
+            StreamReader str = new StreamReader(FilePath);
+            string MailText = str.ReadToEnd();
+            str.Close();
+            MailText = MailText.Replace("[username]", request.UserName).Replace("[email]", request.ToEmail);
+            // SEPARATION
             try
             {
                 SendEmail(receiverEmail, subject, content);
