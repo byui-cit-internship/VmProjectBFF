@@ -89,7 +89,10 @@ namespace VmProjectBFF.Controllers
                             Email = postUser.email,
                             FirstName = postUser.firstName,
                             LastName = postUser.lastName,
-                            IsAdmin = true
+                            IsAdmin = true,
+                            VerificationCode = 0,
+                            role = "professor",
+                            approveStatus = "approved"
                         };
 
                         return Ok(_backend.PostUser(user));
