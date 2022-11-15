@@ -75,10 +75,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - rancher-test.bff.cit.byui.edu
+    - rancher-test-bff.cit.byui.edu
     secretName: vm-project-bff-test-tls
   rules:
-  - host: rancher-test.bff.cit.byui.edu
+  - host: rancher-test-bff.cit.byui.edu
     http:
       paths:
       - path: /
