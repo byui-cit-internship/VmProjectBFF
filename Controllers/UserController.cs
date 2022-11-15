@@ -378,6 +378,7 @@ namespace VmProjectBFF.Controllers
                 {
                     user = _backend.GetUserByEmail(user.Email);
                     user.approveStatus = "approved";
+                    user.IsAdmin = true;
 
                     user = _backend.PutUser(user);
                     _emailClient.SendMessage(user.Email, "Request approved", "Your request has been approved, you can now login.");
