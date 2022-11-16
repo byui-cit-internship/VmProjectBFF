@@ -24,10 +24,10 @@
     "StudentRoleId": 386
   },
   "MailSettings": {
-    "Mail": "mukesh@gmail.com",
-    "DisplayName": "Mukesh Murugan",
-    "Password": "mysupersecretpassword",
-    "Host": "smtp.gmail.com",
+    "Mail": "byui_vima@hotmail.com",
+    "DisplayName": "VIMA Project",
+    "Password": "fakepassword123",
+    "Host": "smtp.outlook.com",
     "Port": 587
   },
   "AllowedHosts": "*",
