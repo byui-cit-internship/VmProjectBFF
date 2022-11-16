@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: vmproject-bff-test
+  name: vm-project-bff-test
   namespace: vima-project-test
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: vmproject-bff-test
+      app: vm-project-bff-test
   template:
     metadata:
       labels:
-        app: vmproject-bff-test
+        app: vm-project-bff-test
     spec:
       containers:
-      - name: 	vmproject-bff-test
+      - name: vm-project-bff-test
         env:
         - name: APSNETCORE_ENVIRONMENT
           value: Test
@@ -35,16 +35,16 @@ spec:
           initialDelaySeconds: 3
           periodSeconds: 3               
       imagePullSecrets:
-      - name: backend-rcr-secret
+      - name: bff-rcr-secret
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: vmproject-bff-loadbalancer
+  name: vm-project-bff-test-loadbalancer
   namespace: vima-project-test
 spec:
   selector:
-    app: 	vmproject-bff-test
+    app: 	vm-project-bff-test
   type: LoadBalancer
   ports:
   - port: 80
@@ -53,11 +53,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: vmproject-bff-nodeport
+  name: vm-project-bff-test-nodeport
   namespace: vima-project-test
 spec:
   selector:
-    app: vmproject-bff-test
+    app: vm-project-bff-test
   type: NodePort
   ports:
     - port: 80
@@ -66,7 +66,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: vmproject-bff-ingress
+  name: vm-project-bff-test-ingress
   namespace: vima-project-test
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
@@ -75,16 +75,16 @@ metadata:
 spec:
   tls:
   - hosts:
-    - rancher-test.bff.cit.byui.edu
-    secretName: test-bff-tls
+    - rancher-test-bff.cit.byui.edu
+    secretName: vm-project-bff-test-tls
   rules:
-  - host: rancher-test.bff.cit.byui.edu
+  - host: rancher-test-bff.cit.byui.edu
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: vmproject-bff-loadbalancer
+            name: vm-project-bff-test-loadbalancer
             port:
               number: 80

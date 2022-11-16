@@ -8,7 +8,7 @@ namespace VmProjectBFF.Services
         public IBackendHttpClient BackendHttpClient { get; }
 
         // GET's
-        public dynamic GetSectionBySemester(string semester);
+        public dynamic GetSectionBySemester(int semester);
         public List<Course> GetCoursesByUserId(int userId);
         public List<Section> GetSectionsByUserId(int userId);
         public List<Semester> GetAllSemesters(int userId);
@@ -19,6 +19,8 @@ namespace VmProjectBFF.Services
         public List<CourseListByUserDTO> GetStudentCourseByUserId(int userId);
         public User GetUserByEmail(string email);
         public List<User> GetAdmins();
+
+        public List<User> GetProfessors();
 
         // POST's
         public VmInstance CreateVmInstance(VmInstance vmInstance);

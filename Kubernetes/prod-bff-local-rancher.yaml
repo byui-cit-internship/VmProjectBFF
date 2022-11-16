@@ -17,7 +17,7 @@ spec:
       - name: vm-project-bff-prod
         env:
         - name: APSNETCORE_ENVIRONMENT
-          value: Development
+          value: Production
         image: gcr.io/cubs-consulting/bff-repository/bff-vima:latest
         ports:
         - containerPort: 80        
