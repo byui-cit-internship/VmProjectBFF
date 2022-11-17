@@ -44,6 +44,8 @@ namespace VmProjectBFF.Services
             string subject)
         {
 
+    // MailText = MailText.Replace("[username]", request.UserName).Replace("[email]", request.ToEmail);
+
             string link = _frontendURI + $"verifyemail?code={code}";
             string content = @$"
             <div>
@@ -55,6 +57,7 @@ namespace VmProjectBFF.Services
 
             try
             {
+                // Console.WriteLine(MailText);
                 SendEmail(receiverEmail, subject, content);
             }
             catch (Exception e)
@@ -67,6 +70,10 @@ namespace VmProjectBFF.Services
             string subject, 
             string message)
         {
+                        string FilePath = "./templates/email.html";
+    StreamReader str = new StreamReader(FilePath);
+    string MailText = str.ReadToEnd();
+    str.Close();
             string content = @$"
             <div>
             <p>{message}</p>
@@ -74,7 +81,8 @@ namespace VmProjectBFF.Services
             ";
             try
             {
-                SendEmail(receiverEmail, subject, content);
+                Console.WriteLine(MailText);
+                SendEmail(receiverEmail, subject, MailText);
             }
             catch (Exception e)
             {
