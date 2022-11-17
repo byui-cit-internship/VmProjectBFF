@@ -18,8 +18,8 @@ namespace VmProjectBFF.Services
         public List<Pool> GetResourceGroups();
 
         // POST's
-        public string NewVmInstanceByTemplateId(
+        public NewVmInstance NewVmInstanceByTemplateId(
             string vCenterTemplateId,
-            Deploy deploy);
+            DeployContainer deployContainer);
     }
 }
