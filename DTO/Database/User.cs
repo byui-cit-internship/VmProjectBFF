@@ -14,12 +14,6 @@ namespace VmProjectBFF.DTO.Database
 
         public string CanvasToken { get; set; }
 
-        public bool IsVerified { get; set; }
-
-        public int? VerificationCode { get; set; }
-
-        public DateTime VerificationCodeExpiration { get; set; }
-
         public string role { get; set; }
 
         public string approveStatus { get; set; }
