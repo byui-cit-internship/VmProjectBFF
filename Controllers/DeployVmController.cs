@@ -50,24 +50,27 @@ namespace VmProjectBFF.Controllers
                     CreateVmDTO createVm = _backend.GetCreateVmByEnrollmentId(enrollment_id); // Should validation be added so createVm is not made by any student on behalf of another student??
 
                     // Create vm with the information we have in vsphere
-                    Deploy deploy = new()
+                    DeployContainer deployContainer = new()
+                    {
+                    spec = new Deploy  
                     {
                         name = HttpContext.User.Identity.Name,
                         placement = new Placement
                         {
                             folder = createVm.Folder, // Check CIT270 error 
-                            resource_pool = _configuration["Resource_Pool"]
+                            resource_pool = "resgroup-2014"
                         }
+                    }
                     };
 
-                    string vCenterInstanceId = _vCenter.NewVmInstanceByTemplateId(createVm.Template_id,
-                                                                                  deploy);
+                    NewVmInstance vCenterInstanceId = _vCenter.NewVmInstanceByTemplateId(createVm.Template_id,
+                                                                                  deployContainer);
 
                     DTO.Database.VmTemplate template = _backend.GetTemplateByVCenterId(createVm.Template_id);
 
                     VmInstance vmInstance = new()
                     {
-                        VmInstanceVcenterId = vCenterInstanceId,
+                        VmInstanceVcenterId = vCenterInstanceId.value,
                         VmTemplateId = template.VmTemplateId,
                         VmInstanceExpireDate = DateTime.MaxValue
                     };
