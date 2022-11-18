@@ -32,9 +32,41 @@ namespace VmProjectBFF.Controllers
         {
         }
 
-        /****************************************
-         * Return A list of all semesters
-         ***************************************/
+        /**
+         * <summary>
+         * Returns a list of semesters, with  information of their start to end date.
+         * </summary>
+         * <returns>A list of "OldSectionDTO" objects repesenting information about sections the requesting professor teaches.</returns>
+         * <remarks>
+         * Only certain parameter combinations are allowed. Possible combinations include:<br/>
+         * <![CDATA[
+         *      <pre>
+         *          <code>/api/semester/semester
+         *          </code>
+         *      </pre>
+         * ]]>
+         * Sample requests:
+         *
+         *      Returns the user logging in.
+         *      GET /api/semester/semester
+         *      RETURNS
+
+         [
+    {
+        "semesterId": 9,
+        "semesterYear": 2021,
+        "semesterTerm": "Winter",
+        "startDate": "2021-01-06T07:00:00",
+        "endDate": "2021-04-24T06:00:00",
+        "enrollmentTermCanvasId": 271
+    }
+]
+         *     
+         *
+         * </remarks>
+         * <response code="200">Returns a list of objects representing sections.</response>
+         * <response code="403">Insufficent permission to make request.</response>
+         */
 
         [HttpGet("semester")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -64,7 +96,30 @@ namespace VmProjectBFF.Controllers
         /****************************************
          * Return A list of all enrollment terms from canvas
          ***************************************/
-
+    /**
+         * <summary>
+         * Returns a list of semesters, with  information of their start to end date.
+         * </summary>
+         * <returns>A list of "OldSectionDTO" objects repesenting information about sections the requesting professor teaches.</returns>
+         * <remarks>
+         * Only certain parameter combinations are allowed. Possible combinations include:<br/>
+         * <![CDATA[
+         *      <pre>
+         *          <code>/api/semester/semester
+         *          </code>
+         *      </pre>
+         * ]]>
+         * Sample requests:
+         *
+         *      Returns the user logging in.
+         *      GET /api/semester/semester
+         *      RETURNS
+         *     
+         *
+         * </remarks>
+         * <response code="200">Returns a list of objects representing sections.</response>
+         * <response code="403">Insufficent permission to make request.</response>
+         */
         [HttpGet("enrollmentTerms")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
