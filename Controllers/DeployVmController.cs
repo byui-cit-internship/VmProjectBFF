@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using VmProjectBFF.DTO;
 using VmProjectBFF.DTO.Database;
 using VmProjectBFF.DTO.VCenter;
+using VCPool = VmProjectBFF.DTO.VCenter.Pool;
 using VmProjectBFF.Exceptions;
 using VmProjectBFF.Services;
 
@@ -86,11 +87,11 @@ namespace VmProjectBFF.Controllers
         }
 
         [HttpGet("resource-pool")]
-        public async Task<ActionResult<IEnumerable<Pool>>> GetPools()
+        public async Task<ActionResult<IEnumerable<VCPool>>> GetPools()
         {
             try
             {
-                return Ok(_vCenter.GetResourceGroups());
+                return Ok(_vCenter.GetResourcePools());
             }
             catch (BffHttpException be)
             {

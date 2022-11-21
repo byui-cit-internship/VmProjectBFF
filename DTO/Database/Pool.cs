@@ -1,15 +1,15 @@
 ﻿namespace VmProjectBFF.DTO.Database
 {
-    public class Group
+    public class Pool
     {
         // Primary Key
-        public int GroupId { get; set; }
+        public int PoolId { get; set; }
 
         // Not Null
-        public int CanvasGroupId { get; set; }
+        public int CanvasPoolId { get; set; }
 
         // Not Null
-        public string GroupName { get; set; }
+        public string PoolName { get; set; }
 
         // Not Null
         // Links to Section

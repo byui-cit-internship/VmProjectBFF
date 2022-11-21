@@ -60,21 +60,22 @@ namespace VmProjectBFF.Controllers
                         if (course == null)
                         {
 
-                            _lastResponse = _backendHttpClient.Get($"api/v2/ResourceGroup", new() { { "memory", 0 }, { "cpu", 0 }, { "resourceGroupName", courseDetails.resource_group } });
-                            ResourceGroup resourceGroupCourse = JsonConvert.DeserializeObject<ResourceGroup>(_lastResponse.Response);
-                            if (resourceGroupCourse == null)
+                            _lastResponse = _backendHttpClient.Get($"api/v2/ResourcePool", new() { { "memory", 0 }, { "cpu", 0 }, { "resourcePoolName", courseDetails.resourcePoolName } });
+                            ResourcePool resourcePoolCourse = JsonConvert.DeserializeObject<ResourcePool>(_lastResponse.Response);
+                            if (resourcePoolCourse == null)
                             {
-                                resourceGroupCourse = new();
-                                resourceGroupCourse.Cpu = 0;
-                                resourceGroupCourse.Memory = 0;
-                                resourceGroupCourse.ResourceGroupName = courseDetails.resource_group;
-                                _lastResponse = _backendHttpClient.Post("api/v2/ResourceGroup", resourceGroupCourse);
-                                resourceGroupCourse = JsonConvert.DeserializeObject<ResourceGroup>(_lastResponse.Response);
+                                resourcePoolCourse = new();
+                                resourcePoolCourse.Cpu = 0;
+                                resourcePoolCourse.Memory = 0;
+                                resourcePoolCourse.ResourcePoolName = courseDetails.resourcePoolName;
+                                resourcePoolCourse.ResourcePoolVsphereId = courseDetails.resource_pool;
+                                _lastResponse = _backendHttpClient.Post("api/v2/ResourcePool", resourcePoolCourse);
+                                resourcePoolCourse = JsonConvert.DeserializeObject<ResourcePool>(_lastResponse.Response);
                             }
 
                             course = new();
                             course.CourseCode = courseDetails.courseCode;
-                            course.ResourceGroupId = resourceGroupCourse.ResourceGroupId;
+                            course.ResourcePoolId = resourcePoolCourse.ResourcePoolId;
 
                             _lastResponse = _backendHttpClient.Post("api/v2/Course", course);
                             course = JsonConvert.DeserializeObject<Course>(_lastResponse.Response);
@@ -106,16 +107,17 @@ namespace VmProjectBFF.Controllers
                             term = courseDetails.semester;
                         }
 
-                        _lastResponse = _backendHttpClient.Get($"api/v2/ResourceGroup", new() { { "resourceGroupId", course.ResourceGroupId } });
-                        ResourceGroup resourceGroupTemplate = JsonConvert.DeserializeObject<ResourceGroup>(_lastResponse.Response);
+                        _lastResponse = _backendHttpClient.Get($"api/v2/ResourcePool", new() { { "resourcePoolId", course.ResourcePoolId } });
+                        ResourcePool resourcePoolTemplate = JsonConvert.DeserializeObject<ResourcePool>(_lastResponse.Response);
 
-                        ResourceGroup resourceGroupSection = new();
-                        resourceGroupSection.Cpu = resourceGroupTemplate.Cpu;
-                        resourceGroupSection.Memory = resourceGroupTemplate.Memory;
-                        resourceGroupSection.ResourceGroupName = $"{resourceGroupTemplate.ResourceGroupName}-{courseDetails.resource_group}";
+                        ResourcePool resourcePoolSection = new();
+                        resourcePoolSection.Cpu = resourcePoolTemplate.Cpu;
+                        resourcePoolSection.Memory = resourcePoolTemplate.Memory;
+                        resourcePoolSection.ResourcePoolName = resourcePoolTemplate.ResourcePoolName;
+                        resourcePoolSection.ResourcePoolVsphereId = resourcePoolTemplate.ResourcePoolVsphereId;
 
-                        _lastResponse = _backendHttpClient.Post($"api/v2/ResourceGroup", resourceGroupSection);
-                        resourceGroupSection = JsonConvert.DeserializeObject<ResourceGroup>(_lastResponse.Response);
+                        _lastResponse = _backendHttpClient.Post($"api/v2/ResourcePool", resourcePoolSection);
+                        resourcePoolSection = JsonConvert.DeserializeObject<ResourcePool>(_lastResponse.Response);
 
                         List<DTO.Database.VmTemplate> vmTemplates = new();
                         foreach (string templateVmId in courseDetails.templateVm)
@@ -144,7 +146,7 @@ namespace VmProjectBFF.Controllers
                         newSection.SemesterId = term.SemesterId;
                         newSection.SectionNumber = courseDetails.section_num;
                         newSection.FolderId = folder.FolderId;
-                        newSection.ResourceGroupId = resourceGroupSection.ResourceGroupId;
+                        newSection.ResourcePoolId = resourcePoolSection.ResourcePoolId;
                         newSection.SectionName = courseDetails.sectionName;
                         newSection.LibraryVCenterId = courseDetails.libraryId;
 
@@ -223,7 +225,7 @@ namespace VmProjectBFF.Controllers
                     }
                     else
                     {
-                        return Conflict(new { message = $"A course already exits with this id {courseDetails.courseCode}" });
+                        return Conflict(new { message = $"A course already exits with this code {courseDetails.courseCode}" });
                     }
                 }
                 return Unauthorized();
