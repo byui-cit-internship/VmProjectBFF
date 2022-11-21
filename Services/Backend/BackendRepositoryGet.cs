@@ -77,6 +77,24 @@ namespace VmProjectBFF.Services
             return JsonConvert.DeserializeObject<List<CreateVmDTO>>(_lastResponse.Response).FirstOrDefault();
         }
 
+        public Section GetSectionsByEnrollmentId(int enrollmentId)
+        {
+            _lastResponse = _backendHttpClient.Get($"api/v2/Section", new() { { "userSectionRoleId", enrollmentId } });
+            return JsonConvert.DeserializeObject<Section>(_lastResponse.Response);
+        }
+
+        public ResourcePool GetResourcePoolByResourcePoolId(int resourcePoolId)
+        {
+            _lastResponse = _backendHttpClient.Get($"api/v2/ResourcePool", new() { { "resourcePoolId", resourcePoolId } });
+            return JsonConvert.DeserializeObject<ResourcePool>(_lastResponse.Response);
+        }
+
+        public Folder GetFolderByFolderId(int folderId)
+        {
+            _lastResponse = _backendHttpClient.Get($"api/v2/Folder", new() { { "folderId", folderId } });
+            return JsonConvert.DeserializeObject<Folder>(_lastResponse.Response);
+        }
+
         public VmTemplate GetTemplateByVCenterId(string vCenterId)
         {
             _lastResponse = _backendHttpClient.Get("api/v2/VmTemplate", new() { { "vmTemplateVcenterId", vCenterId } });
