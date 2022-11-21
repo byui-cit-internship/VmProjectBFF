@@ -1,13 +1,13 @@
 ﻿namespace VmProjectBFF.DTO.Database
 {
-    public class GroupMembership
+    public class PoolMembership
     {
         // Primary Key
-        public int GroupMembershipId { get; set; }
+        public int PoolMembershipId { get; set; }
 
         // Not Null
-        // Links to Group
-        public int GroupId { get; set; }
+        // Links to Pool
+        public int PoolId { get; set; }
 
         // Not Null
         // Links to User

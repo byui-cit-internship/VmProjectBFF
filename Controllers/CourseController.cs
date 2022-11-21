@@ -124,12 +124,12 @@ namespace VmProjectBFF.Controllers
     {
         "courseId": 32,
         "courseCode": "CIT 171",
-        "resourceGroupId": 1060
+        "resourcePoolId": 1060
     },
     {
         "courseId": 33,
         "courseCode": "CIT 171",
-        "resourceGroupId": 1060
+        "resourcePoolId": 1060
     }
 ]
          *
@@ -197,7 +197,7 @@ namespace VmProjectBFF.Controllers
 
         "folderId": 7,
 
-        "resourceGroupId": 1074,
+        "resourcePoolId": 1074,
 
         "sectionNumber": 1,
 

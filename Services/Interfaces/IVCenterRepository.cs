@@ -15,7 +15,7 @@ namespace VmProjectBFF.Services
         public List<VmTemplate> GetTemplatesByContentLibraryId(string contentLibraryId);
         public List<string> GetTemplateIdsInContentLibrary(string contentLibraryId);
         public VmTemplate GetTemplateByVCenterId(string vCenterId);
-        public List<Pool> GetResourceGroups();
+        public List<Pool> GetResourcePools();
 
         // POST's
         public NewVmInstance NewVmInstanceByTemplateId(

@@ -10,7 +10,7 @@ namespace VmProjectBFF.DTO.Database
 
         public int FolderId { get; set; }
 
-        public int ResourceGroupId { get; set; }
+        public int ResourcePoolId { get; set; }
 
         public int SectionNumber { get; set; }
 

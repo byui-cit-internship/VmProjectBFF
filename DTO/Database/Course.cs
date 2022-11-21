@@ -9,7 +9,7 @@ namespace VmProjectBFF.DTO.Database
         public string CourseCode { get; set; }
         
         // Not Null
-        // Links to ResourceGroup
-        public int ResourceGroupId { get; set; }
+        // Links to ResourcePool
+        public int ResourcePoolId { get; set; }
     }
 }
