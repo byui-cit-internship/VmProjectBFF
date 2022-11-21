@@ -21,6 +21,10 @@ namespace VmProjectBFF.Services
         public List<User> GetAdmins();
 
         public List<User> GetProfessors();
+        public Section GetSectionsByEnrollmentId(int enrollmentId);
+        public ResourcePool GetResourcePoolByResourcePoolId(int resourcePoolId);
+        public Folder GetFolderByFolderId(int folderId);
+
 
         // POST's
         public VmInstance CreateVmInstance(VmInstance vmInstance);

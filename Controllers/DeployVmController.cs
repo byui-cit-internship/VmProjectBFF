@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using VmProjectBFF.DTO;
 using VmProjectBFF.DTO.Database;
+using DBFolder = VmProjectBFF.DTO.Database.Folder;
 using VmProjectBFF.DTO.VCenter;
 using VCPool = VmProjectBFF.DTO.VCenter.Pool;
 using VmProjectBFF.Exceptions;
@@ -49,17 +50,20 @@ namespace VmProjectBFF.Controllers
                 {
                     // "[{\"student_name\":\"Trevor Wayman\",\"course_name\":\"CIT 270\",\"course_id\":1,\"template_id\":\"cit270-empty-vm-template\",\"course_semester\":\"Spring\",\"enrollment_id\":33,\"folder\":\"CIT270\"}]"
                     CreateVmDTO createVm = _backend.GetCreateVmByEnrollmentId(enrollment_id); // Should validation be added so createVm is not made by any student on behalf of another student??
+                    Section section = _backend.GetSectionsByEnrollmentId(enrollment_id);
+                    ResourcePool resourcePool = _backend.GetResourcePoolByResourcePoolId(section.ResourcePoolId);
+                    DBFolder folder = _backend.GetFolderByFolderId(section.FolderId);
 
                     // Create vm with the information we have in vsphere
                     DeployContainer deployContainer = new()
                     {
-                    spec = new Deploy  
+                    spec = new Deploy
                     {
                         name = HttpContext.User.Identity.Name,
                         placement = new Placement
                         {
-                            folder = createVm.Folder, // Check CIT270 error 
-                            resource_pool = "resgroup-2014"
+                            folder = folder.VcenterFolderId, // Check CIT270 error 
+                            resource_pool = resourcePool.ResourcePoolVsphereId
                         }
                     }
                     };
