@@ -12,7 +12,7 @@ namespace VmProjectBFF.Services
         public dynamic GetCoursesByCanvasToken(string canvasToken)
         {
             _canvasHttpClient.SetCanvasToken(canvasToken);
-            _lastResponse = _canvasHttpClient.Get("api/v1/courses");
+            _lastResponse = _canvasHttpClient.Get("api/v1/courses?per_page=1000");
             return JsonConvert.DeserializeObject<dynamic>(_lastResponse.Response); 
         }
 
