@@ -59,7 +59,7 @@ namespace VmProjectBFF.Services
             return (JsonConvert.DeserializeObject<VmTemplateContainer>(_lastResponse.Response).value);
         }
 
-        public List<Pool> GetResourceGroups()
+        public List<Pool> GetResourcePools()
         {
             _lastResponse = _vCenterHttpClient.Get("rest/vcenter/resource-pool");
             return new List<Pool>(JsonConvert.DeserializeObject<PoolContainer>(_lastResponse.Response).value);
