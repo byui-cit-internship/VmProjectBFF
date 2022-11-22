@@ -16,7 +16,7 @@ spec:
       containers:
       - name: vm-project-bff-test
         env:
-        - name: APSNETCORE_ENVIRONMENT
+        - name: ASPNETCORE_ENVIRONMENT
           value: Test
         image: gcr.io/cubs-consulting/bff-repository/bff-vima:latest
         ports:
