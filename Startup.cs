@@ -20,7 +20,6 @@ namespace VmProjectBFF
 
             Configuration = builder.Build();
             Environment = env;
-            Console.WriteLine(env.EnvironmentName);
             MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
         }
 
