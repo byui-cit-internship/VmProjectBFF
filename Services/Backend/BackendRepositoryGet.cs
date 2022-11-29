@@ -12,6 +12,12 @@ namespace VmProjectBFF.Services
             return JsonConvert.DeserializeObject<dynamic>(_lastResponse.Response);
         }
 
+        public Section GetSectionById(int sectionId)
+        {
+            _lastResponse = _backendHttpClient.Get($"api/v2/Section", new() { { "sectionId", sectionId } });
+            return JsonConvert.DeserializeObject<Section>(_lastResponse.Response);
+        }
+
         public List<Course> GetCoursesByUserId(int userId)
         {
             _lastResponse = _backendHttpClient.Get($"api/v2/Course", new() { { "userId", userId } });

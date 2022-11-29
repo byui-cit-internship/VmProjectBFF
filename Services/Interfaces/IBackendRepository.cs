@@ -9,6 +9,7 @@ namespace VmProjectBFF.Services
 
         // GET's
         public dynamic GetSectionBySemester(int semester);
+        public Section GetSectionById(int sectionId);
         public List<Course> GetCoursesByUserId(int userId);
         public List<Section> GetSectionsByUserId(int userId);
         public List<Section>GetSectionsByCourseId(int courseId);

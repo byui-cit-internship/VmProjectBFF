@@ -86,6 +86,21 @@ namespace VmProjectBFF.Controllers
             }
         }
 
+        [HttpGet("libraryById/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(550)]
+        public async Task<ActionResult<IEnumerable<ContentLibrary>>> GetLibrariesById(string id)
+        {
+            try
+            {
+                return Ok(_vCenter.GetContentLibraryById(id));
+            }
+            catch (BffHttpException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
+        }
+
 
         /**
          * <summary>
@@ -172,7 +187,6 @@ namespace VmProjectBFF.Controllers
         {
             try
             {
-                //check if it is a professor
                 User professorUser = _authorization.GetAuth("admin");
 
                 if (professorUser is not null)
