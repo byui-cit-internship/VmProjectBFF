@@ -5,6 +5,7 @@ using VmProjectBFF.DTO.VCenter;
 using VmProjectBFF.Exceptions;
 using VmProjectBFF.Services;
 using VCFolder = VmProjectBFF.DTO.VCenter.Folder;
+using Newtonsoft.Json;
 
 namespace VmProjectBFF.Controllers
 {
@@ -182,6 +183,36 @@ namespace VmProjectBFF.Controllers
                 {
                     return Forbid();
                 }
+            }
+            catch (BffHttpException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
+        }
+
+        [HttpPost("templates/postTemplate")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<ActionResult> PostTemplate([FromBody] DTO.Database.VmTemplate template)
+        {
+            try
+            {
+                User professor = _authorization.GetAuth("admin");
+                if (professor is not null)
+                {
+                    _lastResponse = _backendHttpClient.Get($"api/v2/VmTemplate", new() { { "vmTemplateVcenterId", template.VmTemplateId } });
+                    DTO.Database.VmTemplate fetchedTemplate = JsonConvert.DeserializeObject<DTO.Database.VmTemplate>(_lastResponse.Response);
+
+                    if (fetchedTemplate is not null)
+                    {
+                        _lastResponse = _backendHttpClient.Post($"api/v2/VmTemplate", template);
+                        template = JsonConvert.DeserializeObject<DTO.Database.VmTemplate>(_lastResponse.Response);
+                        return Ok(template);
+                    }
+                    return Conflict();
+                }
+                return Unauthorized();
             }
             catch (BffHttpException be)
             {
