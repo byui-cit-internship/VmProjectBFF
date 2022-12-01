@@ -226,7 +226,27 @@ namespace VmProjectBFF.Controllers
             }
         }
 
-        
+        [HttpGet("vCenterTemplate/metadata/{id}")]
+        public async Task<ActionResult<IEnumerable<string>>> GetVCenterTemplateMetadata(string id)
+        {
+            try
+            {
+                User professorUser = _authorization.GetAuth("admin");
+
+                if (professorUser is not null)
+                {
+                    return Ok(_vCenter.GetTemplateMetadata(id));
+                }
+                else
+                {
+                    return Forbid();
+                }
+            }
+            catch (BffHttpException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
+        }
 
 
 
