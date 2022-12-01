@@ -204,6 +204,32 @@ namespace VmProjectBFF.Controllers
             }
         }
 
+        [HttpGet("vCenterTemplate/{id}")]
+        public async Task<ActionResult<IEnumerable<string>>> GetVCenterTemplateById(string id)
+        {
+            try
+            {
+                User professorUser = _authorization.GetAuth("admin");
+
+                if (professorUser is not null)
+                {
+                    return Ok(_vCenter.GetTemplateByVCenterId(id));
+                }
+                else
+                {
+                    return Forbid();
+                }
+            }
+            catch (BffHttpException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
+        }
+
+        
+
+
+
         [HttpPost("templates/postTemplate")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
