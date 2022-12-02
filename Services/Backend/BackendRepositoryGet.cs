@@ -66,7 +66,8 @@ namespace VmProjectBFF.Services
                  {
                      CourseCode = c.CourseCode,
                      VmTemplateName = vt.VmTemplateName,
-                     VmInstanceExpireDate = vi.VmInstanceExpireDate
+                     VmInstanceExpireDate = vi.VmInstanceExpireDate,
+                     VmInstanceVcenterName = vi.VmInstanceVcenterName
                  }).ToList()
             );
         }

@@ -6,5 +6,6 @@
         public int VmTemplateId { get; set; }
         public string VmInstanceVcenterId { get; set; }
         public DateTime VmInstanceExpireDate { get; set; }
+        public string VmInstanceVcenterName { get; set; }
     }
 }
