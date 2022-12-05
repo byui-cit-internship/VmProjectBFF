@@ -260,12 +260,15 @@ namespace VmProjectBFF.Controllers
             {
                 User professor = _authorization.GetAuth("admin");
                 if (professor is not null)
-                {
-                    _lastResponse = _backendHttpClient.Get($"api/v2/VmTemplate", new() { { "vmTemplateVcenterId", template.VmTemplateId } });
+                {   
+                    DTO.Database.VmTemplate something = template;
+
+                    _lastResponse = _backendHttpClient.Get($"api/v2/VmTemplate", new() { { "VmTemplateVcenterId", template.VmTemplateVCenterId } });
                     DTO.Database.VmTemplate fetchedTemplate = JsonConvert.DeserializeObject<DTO.Database.VmTemplate>(_lastResponse.Response);
 
-                    if (fetchedTemplate is not null)
-                    {
+                    if (fetchedTemplate is null)
+                    {   
+                        template.VmTemplateAccessDate = new DateTime(2022, 1, 1);
                         _lastResponse = _backendHttpClient.Post($"api/v2/VmTemplate", template);
                         template = JsonConvert.DeserializeObject<DTO.Database.VmTemplate>(_lastResponse.Response);
                         return Ok(template);
