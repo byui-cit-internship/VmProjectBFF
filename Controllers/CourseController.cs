@@ -98,9 +98,9 @@ namespace VmProjectBFF.Controllers
                 return StatusCode((int)be.StatusCode, be.Message);
             }
         }
-/****************************************
-         * 
-         ***************************************/
+        /****************************************
+                 * 
+                 ***************************************/
         /**
          * <summary>
          * Returns a list of current courses by a professor for the semester.
@@ -138,7 +138,7 @@ namespace VmProjectBFF.Controllers
          * <response code="403">Insufficent permission to make request.</response>
          */
         [HttpGet("professor/getAllCourses")]
-        
+
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult> GetAllCourses()
@@ -164,9 +164,9 @@ namespace VmProjectBFF.Controllers
 
 
 
-    /****************************************
-         * 
-         ***************************************/
+        /****************************************
+             * 
+             ***************************************/
         /**
          * <summary>
          * Returns a list of sections been taught by a professor for the semester.
@@ -238,11 +238,55 @@ namespace VmProjectBFF.Controllers
             }
         }
 
+        [HttpGet("getSectionsByCourseId/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult> GetSectionsByCourseId(int id)
+        {
+            try
+            {
+                User professor = _authorization.GetAuth("admin");
+                if (professor is not null)
+                {
+                    return Ok(_backend.GetSectionsByCourseId(id));
+                }
+                else
+                {
+                    return Forbid();
+                }
+            }
+            catch (BffHttpException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
+        }
 
+        [HttpGet("getSectionById/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult> GetSectionById(int id)
+        {
+            try
+            {
+                User professor = _authorization.GetAuth("admin");
+                if (professor is not null)
+                {
+                    return Ok(_backend.GetSectionById(id));
+                }
+                else
+                {
+                    return Forbid();
+                }
+            }
+            catch (BffHttpException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
+        }
 
-/****************************************
-         * 
-         ***************************************/
+        /****************************************
+                 * 
+                 ***************************************/
         /**
          * <summary>
          * Returns a dropdown of courses on Canvas for a professor.

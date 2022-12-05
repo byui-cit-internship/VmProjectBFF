@@ -30,6 +30,22 @@ namespace VmProjectBFF.Services
             return (JsonConvert.DeserializeObject<ContentLibraryContainer>(_lastResponse.Response)).value;
         }
 
+        public VmTemplateMetadata GetTemplateMetadata(string itemId)
+        {
+            _lastResponse = _vCenterHttpClient.Get($"rest/vcenter/vm-template/library-items/{itemId}");
+            dynamic metadata = JsonConvert.DeserializeObject<dynamic>(_lastResponse.Response).value;
+            VmTemplateMetadata templateMetadata = new();
+
+            templateMetadata.cpuCount = metadata.cpu.count;
+            templateMetadata.coresPerSocket = metadata.cpu.cores_per_socket;
+            templateMetadata.memory = metadata.memory.size_MiB;
+            templateMetadata.os = metadata.guest_OS;
+            templateMetadata.storage = metadata.disks;
+
+            return templateMetadata;
+
+        }
+
         public List<Folder> GetFolders()
         {
             _lastResponse = _vCenterHttpClient.Get("rest/vcenter/folder", new() { { "filter.type", "VIRTUAL_MACHINE" } });

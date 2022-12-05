@@ -5,6 +5,7 @@ using VmProjectBFF.DTO.VCenter;
 using VmProjectBFF.Exceptions;
 using VmProjectBFF.Services;
 using VCFolder = VmProjectBFF.DTO.VCenter.Folder;
+using Newtonsoft.Json;
 
 namespace VmProjectBFF.Controllers
 {
@@ -78,6 +79,21 @@ namespace VmProjectBFF.Controllers
             try
             {
                 return Ok(_vCenter.GetContentLibraries());
+            }
+            catch (BffHttpException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
+        }
+
+        [HttpGet("libraryById/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(550)]
+        public async Task<ActionResult<IEnumerable<ContentLibrary>>> GetLibrariesById(string id)
+        {
+            try
+            {
+                return Ok(_vCenter.GetContentLibraryById(id));
             }
             catch (BffHttpException be)
             {
@@ -171,7 +187,6 @@ namespace VmProjectBFF.Controllers
         {
             try
             {
-                //check if it is a professor
                 User professorUser = _authorization.GetAuth("admin");
 
                 if (professorUser is not null)
@@ -182,6 +197,85 @@ namespace VmProjectBFF.Controllers
                 {
                     return Forbid();
                 }
+            }
+            catch (BffHttpException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
+        }
+
+        [HttpGet("vCenterTemplate/{id}")]
+        public async Task<ActionResult<IEnumerable<string>>> GetVCenterTemplateById(string id)
+        {
+            try
+            {
+                User professorUser = _authorization.GetAuth("admin");
+
+                if (professorUser is not null)
+                {
+                    return Ok(_vCenter.GetTemplateByVCenterId(id));
+                }
+                else
+                {
+                    return Forbid();
+                }
+            }
+            catch (BffHttpException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
+        }
+
+        [HttpGet("vCenterTemplate/metadata/{id}")]
+        public async Task<ActionResult<IEnumerable<string>>> GetVCenterTemplateMetadata(string id)
+        {
+            try
+            {
+                User professorUser = _authorization.GetAuth("admin");
+
+                if (professorUser is not null)
+                {
+                    return Ok(_vCenter.GetTemplateMetadata(id));
+                }
+                else
+                {
+                    return Forbid();
+                }
+            }
+            catch (BffHttpException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
+        }
+
+
+
+        [HttpPost("templates/postTemplate")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<ActionResult> PostTemplate([FromBody] DTO.Database.VmTemplate template)
+        {
+            try
+            {
+                User professor = _authorization.GetAuth("admin");
+                if (professor is not null)
+                {   
+                    DTO.Database.VmTemplate something = template;
+
+                    _lastResponse = _backendHttpClient.Get($"api/v2/VmTemplate", new() { { "VmTemplateVcenterId", template.VmTemplateVCenterId } });
+                    DTO.Database.VmTemplate fetchedTemplate = JsonConvert.DeserializeObject<DTO.Database.VmTemplate>(_lastResponse.Response);
+
+                    if (fetchedTemplate is null)
+                    {   
+                        template.VmTemplateAccessDate = new DateTime(2022, 1, 1);
+                        _lastResponse = _backendHttpClient.Post($"api/v2/VmTemplate", template);
+                        template = JsonConvert.DeserializeObject<DTO.Database.VmTemplate>(_lastResponse.Response);
+                        return Ok(template);
+                    }
+                    return Conflict();
+                }
+                return Unauthorized();
             }
             catch (BffHttpException be)
             {

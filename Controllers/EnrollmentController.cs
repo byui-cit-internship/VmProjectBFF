@@ -50,7 +50,7 @@ namespace VmProjectBFF.Controllers
                 if (professor != null && courseDetails != null)
                 {
                     _lastResponse = _backendHttpClient.Get($"api/v2/Section", new() { { "sectionCanvasId", courseDetails.canvasCourseId } });
-                    Section courseExist = JsonConvert.DeserializeObject<Section>(_lastResponse.Response);
+                    Section courseExist = JsonConvert.DeserializeObject<Section>(_lastResponse.Response); 
 
                     if (courseExist == null)
                     {
