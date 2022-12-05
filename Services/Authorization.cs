@@ -1,9 +1,9 @@
 ﻿using Newtonsoft.Json;
-using vmProjectBFF.DTO;
-using vmProjectBFF.Exceptions;
-using vmProjectBFF.Models;
+using VmProjectBFF.DTO;
+using VmProjectBFF.Exceptions;
+using VmProjectBFF.DTO.Database;
 
-namespace vmProjectBFF.Services
+namespace VmProjectBFF.Services
 {
     public class Authorization : IAuthorization
     {

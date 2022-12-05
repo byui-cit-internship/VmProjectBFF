@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 // this endpoint is needed for your cloudbuild-dev.yaml file for the livenessProbe.
 // may want to review whether you need to add the [Attorize] declarator.
-namespace vmProjectBFF.Controllers
+namespace VmProjectBFF.Controllers
 {
     [Route("/")]
     [ApiController]

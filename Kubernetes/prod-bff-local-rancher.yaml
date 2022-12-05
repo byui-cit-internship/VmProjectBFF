@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vm-project-bff-prod
+  namespace: vima-project-prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vm-project-bff-prod
+  template:
+    metadata:
+      labels:
+        app: vm-project-bff-prod
+    spec:
+      containers:
+      - name: vm-project-bff-prod
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: Production
+        image: gcr.io/cubs-consulting/bff-repository/bff-vima:latest
+        ports:
+        - containerPort: 80        
+        resources:
+          limits:
+            cpu: ".5"
+            memory: "500Mi"
+          requests:
+            cpu: ".25"
+            memory: "250Mi"
+        livenessProbe:
+          httpGet:
+            path: /          
+            port: 80
+          initialDelaySeconds: 3
+          periodSeconds: 3               
+      imagePullSecrets:
+      - name: bff-rcr-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vm-project-bff-prod-loadbalancer
+  namespace: vima-project-prod
+spec:
+  selector:
+    app: vm-project-bff-prod
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 80    
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vm-project-bff-prod-nodeport
+  namespace: vima-project-prod
+spec:
+  selector:
+    app: vm-project-bff-prod
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 80      
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vm-project-bff-prod-ingress
+  namespace: vima-project-prod
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-cluster-issuer"
+spec:
+  tls:
+  - hosts:
+    - rancher-prod-bff.cit.byui.edu
+    secretName: vm-project-bff-prod-tls
+  rules:
+  - host: rancher-prod-bff.cit.byui.edu
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: vm-project-bff-prod-loadbalancer
+            port:
+              number: 80

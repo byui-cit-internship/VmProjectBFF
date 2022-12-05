@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using vmProjectBFF.DTO;
-using vmProjectBFF.Exceptions;
-using vmProjectBFF.Models;
-using vmProjectBFF.Services;
+using VmProjectBFF.DTO;
+using VmProjectBFF.DTO.Database;
+using VmProjectBFF.Exceptions;
+using VmProjectBFF.Services;
 
-namespace vmProjectBFF.Controllers
+namespace VmProjectBFF.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
@@ -50,31 +50,32 @@ namespace vmProjectBFF.Controllers
                 if (professor != null && courseDetails != null)
                 {
                     _lastResponse = _backendHttpClient.Get($"api/v2/Section", new() { { "sectionCanvasId", courseDetails.canvasCourseId } });
-                    SectionDTO courseExist = JsonConvert.DeserializeObject<SectionDTO>(_lastResponse.Response);
+                    Section courseExist = JsonConvert.DeserializeObject<Section>(_lastResponse.Response);
 
                     if (courseExist == null)
                     {
-                        _lastResponse = _backendHttpClient.Get($"api/v2/Course", new() { { "courseId", courseDetails.course_id } });
+                        _lastResponse = _backendHttpClient.Get($"api/v2/Course", new() { { "courseCode", courseDetails.courseCode } });
                         Course course = JsonConvert.DeserializeObject<Course>(_lastResponse.Response);
 
                         if (course == null)
                         {
 
-                            _lastResponse = _backendHttpClient.Get($"api/v2/ResourceGroup", new() { { "memory", 0 }, { "cpu", 0 }, { "resourceGroupName", courseDetails.resource_group } });
-                            ResourceGroup resourceGroupCourse = JsonConvert.DeserializeObject<ResourceGroup>(_lastResponse.Response);
-                            if (resourceGroupCourse == null)
+                            _lastResponse = _backendHttpClient.Get($"api/v2/ResourcePool", new() { { "memory", 0 }, { "cpu", 0 }, { "resourcePoolName", courseDetails.resourcePoolName } });
+                            ResourcePool resourcePoolCourse = JsonConvert.DeserializeObject<ResourcePool>(_lastResponse.Response);
+                            if (resourcePoolCourse == null)
                             {
-                                resourceGroupCourse = new();
-                                resourceGroupCourse.Cpu = 0;
-                                resourceGroupCourse.Memory = 0;
-                                resourceGroupCourse.ResourceGroupName = courseDetails.resource_group;
-                                _lastResponse = _backendHttpClient.Post("api/v2/ResourceGroup", resourceGroupCourse);
-                                resourceGroupCourse = JsonConvert.DeserializeObject<ResourceGroup>(_lastResponse.Response);
+                                resourcePoolCourse = new();
+                                resourcePoolCourse.Cpu = 0;
+                                resourcePoolCourse.Memory = 0;
+                                resourcePoolCourse.ResourcePoolName = courseDetails.resourcePoolName;
+                                resourcePoolCourse.ResourcePoolVsphereId = courseDetails.resource_pool;
+                                _lastResponse = _backendHttpClient.Post("api/v2/ResourcePool", resourcePoolCourse);
+                                resourcePoolCourse = JsonConvert.DeserializeObject<ResourcePool>(_lastResponse.Response);
                             }
 
                             course = new();
                             course.CourseCode = courseDetails.courseCode;
-                            course.ResourceGroupId = resourceGroupCourse.ResourceGroupId;
+                            course.ResourcePoolId = resourcePoolCourse.ResourcePoolId;
 
                             _lastResponse = _backendHttpClient.Post("api/v2/Course", course);
                             course = JsonConvert.DeserializeObject<Course>(_lastResponse.Response);
@@ -95,65 +96,62 @@ namespace vmProjectBFF.Controllers
                         _lastResponse = _backendHttpClient.Put("api/v2/User", professor);
                         professor = JsonConvert.DeserializeObject<User>(_lastResponse.Response);
 
-                        _lastResponse = _backendHttpClient.Get($"api/v2/Semester", new() { { "semesterTerm", courseDetails.semester }, { "semesterYear", 2022 } });
+
+                        _lastResponse = _backendHttpClient.Get($"api/v2/Semester", new() { { "enrollmentTermCanvasId", courseDetails.semester.EnrollmentTermCanvasId } });
                         Semester term = JsonConvert.DeserializeObject<Semester>(_lastResponse.Response);
 
                         if (term == null)
                         {
-                            term = new Semester();
-                            term.SemesterTerm = courseDetails.semester;
-                            term.SemesterYear = 2022;
-                            term.StartDate = new DateTime(2022, 1, 1);
-                            term.EndDate = new DateTime(2022, 12, 31);
-
-                            _lastResponse = _backendHttpClient.Post($"api/v2/Semester", term);
-                            term = JsonConvert.DeserializeObject<Semester>(_lastResponse.Response);
+                            _lastResponse = _backendHttpClient.Post($"api/v2/Semester", courseDetails.semester);
+                            courseDetails.semester = JsonConvert.DeserializeObject<Semester>(_lastResponse.Response);
+                            term = courseDetails.semester;
                         }
 
-                        _lastResponse = _backendHttpClient.Get($"api/v2/ResourceGroup", new() { { "resourceGroupId", course.ResourceGroupId } });
-                        ResourceGroup resourceGroupTemplate = JsonConvert.DeserializeObject<ResourceGroup>(_lastResponse.Response);
+                        _lastResponse = _backendHttpClient.Get($"api/v2/ResourcePool", new() { { "resourcePoolId", course.ResourcePoolId } });
+                        ResourcePool resourcePoolTemplate = JsonConvert.DeserializeObject<ResourcePool>(_lastResponse.Response);
 
-                        ResourceGroup resourceGroupSection = new();
-                        resourceGroupSection.Cpu = resourceGroupTemplate.Cpu;
-                        resourceGroupSection.Memory = resourceGroupTemplate.Memory;
-                        resourceGroupSection.ResourceGroupName = $"{resourceGroupTemplate.ResourceGroupName}-{courseDetails.resource_group}";
+                        ResourcePool resourcePoolSection = new();
+                        resourcePoolSection.Cpu = resourcePoolTemplate.Cpu;
+                        resourcePoolSection.Memory = resourcePoolTemplate.Memory;
+                        resourcePoolSection.ResourcePoolName = resourcePoolTemplate.ResourcePoolName;
+                        resourcePoolSection.ResourcePoolVsphereId = resourcePoolTemplate.ResourcePoolVsphereId;
 
-                        _lastResponse = _backendHttpClient.Post($"api/v2/ResourceGroup", resourceGroupSection);
-                        resourceGroupSection = JsonConvert.DeserializeObject<ResourceGroup>(_lastResponse.Response);
+                        _lastResponse = _backendHttpClient.Post($"api/v2/ResourcePool", resourcePoolSection);
+                        resourcePoolSection = JsonConvert.DeserializeObject<ResourcePool>(_lastResponse.Response);
 
-                        List<VmTemplate> vmTemplates = new();
+                        List<DTO.Database.VmTemplate> vmTemplates = new();
                         foreach (string templateVmId in courseDetails.templateVm)
                         {
                             _lastResponse = _backendHttpClient.Get($"api/v2/VmTemplate", new() { { "vmTemplateVcenterId", templateVmId } });
-                            VmTemplate template = JsonConvert.DeserializeObject<VmTemplate>(_lastResponse.Response);
+                            DTO.Database.VmTemplate template = JsonConvert.DeserializeObject<DTO.Database.VmTemplate>(_lastResponse.Response);
 
                             if (template == null)
                             {
                                 template = new VmTemplate();
-                                template.VmTemplateVcenterId = templateVmId;
-                                template.VmTemplateName = "test";
+                                template.VmTemplateVCenterId = templateVmId;
+                                template.VmTemplateName = courseDetails.vmTemplateName;
                                 template.VmTemplateAccessDate = new DateTime(2022, 1, 1);
-                                template.LibraryId = courseDetails.libraryId;
+                                template.LibraryVCenterId = courseDetails.libraryId;
 
                                 _lastResponse = _backendHttpClient.Post($"api/v2/VmTemplate", template);
-                                template = JsonConvert.DeserializeObject<VmTemplate>(_lastResponse.Response);
+                                template = JsonConvert.DeserializeObject<DTO.Database.VmTemplate>(_lastResponse.Response);
                             }
 
                             vmTemplates.Add(template);
                         }
 
-                        SectionDTO newSection = new();
+                        Section newSection = new();
                         newSection.CourseId = (int)course.CourseId;
                         newSection.SectionCanvasId = Int32.Parse(courseDetails.canvasCourseId);
                         newSection.SemesterId = term.SemesterId;
                         newSection.SectionNumber = courseDetails.section_num;
                         newSection.FolderId = folder.FolderId;
-                        newSection.ResourceGroupId = resourceGroupSection.ResourceGroupId;
+                        newSection.ResourcePoolId = resourcePoolSection.ResourcePoolId;
                         newSection.SectionName = courseDetails.sectionName;
-                        newSection.LibraryId = courseDetails.libraryId;
+                        newSection.LibraryVCenterId = courseDetails.libraryId;
 
                         _lastResponse = _backendHttpClient.Post($"api/v2/Section", newSection);
-                        newSection = JsonConvert.DeserializeObject<SectionDTO>(_lastResponse.Response);
+                        newSection = JsonConvert.DeserializeObject<Section>(_lastResponse.Response);
 
                         _lastResponse = _backendHttpClient.Get($"api/v2/Role", new() { { "roleName", "Professor" } });
                         Role profRole = JsonConvert.DeserializeObject<List<Role>>(_lastResponse.Response).FirstOrDefault();
@@ -188,7 +186,7 @@ namespace vmProjectBFF.Controllers
                         if (tag == null)
                         {
                             tag = new();
-                            tag.TagVcenterId = "TEMP_USE";
+                            tag.TagVCenterId = "TEMP_USE";
                             tag.TagCategoryId = tagCategory.TagCategoryId;
                             tag.TagName = course.CourseCode;
                             tag.TagDescription = "Do not attempt to use with VCenter.";
@@ -197,7 +195,7 @@ namespace vmProjectBFF.Controllers
                             tag = JsonConvert.DeserializeObject<Tag>(_lastResponse.Response);
                         }
 
-                        foreach (VmTemplate vmTemplate in vmTemplates)
+                        foreach (DTO.Database.VmTemplate vmTemplate in vmTemplates)
                         {
                             _lastResponse = _backendHttpClient.Get($"api/v2/VmTemplateTag", new() { { "tagId", tag.TagId }, { "vmTemplateId", vmTemplate.VmTemplateId } });
                             VmTemplateTag vmTemplateTag = JsonConvert.DeserializeObject<VmTemplateTag>(_lastResponse.Response);
@@ -227,7 +225,7 @@ namespace vmProjectBFF.Controllers
                     }
                     else
                     {
-                        return Conflict(new { message = $"A course already exits with this id {courseDetails.course_id}" });
+                        return Conflict(new { message = $"A course already exits with this code {courseDetails.courseCode}" });
                     }
                 }
                 return Unauthorized();

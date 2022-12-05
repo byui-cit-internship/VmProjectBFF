@@ -1,12 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using vmProjectBFF.DTO;
-using vmProjectBFF.Exceptions;
-using vmProjectBFF.Models;
-using vmProjectBFF.Services;
+using VmProjectBFF.DTO.Database;
+using VmProjectBFF.Exceptions;
+using VmProjectBFF.Services;
 
-namespace vmProjectBFF.Controllers
+namespace VmProjectBFF.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
@@ -37,20 +35,46 @@ namespace vmProjectBFF.Controllers
 
         //Student get to see all their classes that they are enrolled in
         // GET: api/StudentCourse
-        [HttpGet()]
+
+        /**
+         * <summary>
+         * Returns a list of courses a student is enrolled for.
+         * </summary>
+         * <returns>A list of "OldSectionDTO" objects repesenting information about sections the requesting professor teaches.</returns>
+         * <remarks>
+         * Only certain parameter combinations are allowed. Possible combinations include:<br/>
+         * <![CDATA[
+         *      <pre>
+         *          <code>/api/studentcourse
+         *          </code>
+         *      </pre>
+         * ]]>
+         * Sample requests:
+         *
+         *      Returns the user logging in.
+         *      GET /api/semester/semester
+         *      RETURNS
+         *     
+         *
+         * </remarks>
+         * <response code="200">Returns a list of objects representing sections.</response>
+         * <response code="403">Insufficent permission to make request.</response>
+         */
+
+        [HttpGet("StudentCourse")]
         public async Task<ActionResult<IEnumerable<Course>>> GetCourses()
         {
             try
             {
                 User student = _authorization.GetAuth("user");
-                if (student != null)
+                if (student is not null)
                 {
-                    _lastResponse = _backendHttpClient.Get($"api/v1/StudentCourse", new() { { "queryUserId", student.UserId } });
-                    List<CourseListByUserDTO> courseList = JsonConvert.DeserializeObject<List<CourseListByUserDTO>>(_lastResponse.Response);
-
-                    return Ok(courseList);
+                    return Ok(_backend.GetStudentCourseByUserId(student.UserId));
                 }
-                return Unauthorized("You are not an Authorized User");
+                else
+                {
+                    return Forbid();
+                }
             }
             catch (BffHttpException be)
             {

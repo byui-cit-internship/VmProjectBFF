@@ -1,17 +1,17 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using vmProjectBFF.DTO;
-using vmProjectBFF.Exceptions;
-using vmProjectBFF.Models;
-using vmProjectBFF.Services;
+using System.Linq;
+using VmProjectBFF.DTO.Database;
+using VmProjectBFF.Exceptions;
+using VmProjectBFF.Services;
 
-namespace vmProjectBFF.Controllers
+namespace VmProjectBFF.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class TokenController : BffController
     {
+        IEmailClient _emailClient;
         public TokenController(
             IAuthorization authorization,
             IBackendRepository backend,
@@ -20,7 +20,8 @@ namespace vmProjectBFF.Controllers
             IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
             ILogger<TokenController> logger,
-            IVCenterRepository vCenter)
+            IVCenterRepository vCenter,
+            IEmailClient emailClient)
             : base(
                   authorization: authorization,
                   backend: backend,
@@ -31,6 +32,7 @@ namespace vmProjectBFF.Controllers
                   logger: logger,
                   vCenter: vCenter)
         {
+            _emailClient = emailClient;
         }
 
         /**************************************
@@ -91,12 +93,11 @@ namespace vmProjectBFF.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(510)]
-        public async Task<ActionResult> GetToken([FromBody] DTO.AccessTokenDTO accessTokenObj)
+        public async Task<ActionResult> GetToken([FromBody] AccessToken accessTokenObj)
         {
             try
             {
-                _lastResponse = _backendHttpClient.Post("api/v1/token", accessTokenObj);
-                (User authenticatedUser, string vimaCookie) = JsonConvert.DeserializeObject<(User, string)>(_lastResponse.Response);
+                (User authenticatedUser, string vimaCookie) = _backend.PostToken(accessTokenObj);
 
                 _httpContextAccessor.HttpContext.Response.Cookies.Append(
                     "vima-cookie",
@@ -114,10 +115,6 @@ namespace vmProjectBFF.Controllers
             catch (BffHttpException be)
             {
                 return StatusCode((int)be.StatusCode, be.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
             }
         }
 
@@ -144,7 +141,7 @@ namespace vmProjectBFF.Controllers
         {
             try
             {
-                BffResponse deleteResponse = _backendHttpClient.Delete("api/v1/token", null);
+                _backend.DeleteToken();
                 _httpContextAccessor.HttpContext.Response.Cookies.Delete("vima-cookie");
                 return Ok();
             }

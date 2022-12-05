@@ -1,8 +1,10 @@
 ﻿using System.Text;
-using vmProjectBFF.DTO;
-using vmProjectBFF.Exceptions;
+using VmProjectBFF.DTO;
+using VmProjectBFF.Exceptions;
+using Newtonsoft.Json;
+using VcenterToken = VmProjectBFF.DTO.VCenter.SessionToken;
 
-namespace vmProjectBFF.Services
+namespace VmProjectBFF.Services
 {
     public class VCenterHttpClient : BffHttpClient, IDisposable, IVCenterHttpClient
     {
@@ -51,7 +53,7 @@ namespace vmProjectBFF.Services
             _timer = new(LogoutLogin, new WeakReference<VCenterHttpClient>(this), 60 * 1000, 60 * 1000);
         }
 
-        public void Dispose()
+        void IDisposable.Dispose()
         {
             if (!_disposed && _initialized)
             {
@@ -69,9 +71,11 @@ namespace vmProjectBFF.Services
                 {
                     Headers = new() { { "Authorization", $"Basic {GetVCenterLoginBase64(_configuration)}" } };
                 }
-                BffResponse loginResponse = base.Post("api/session",
+                BffResponse loginResponse = base.Post("rest/com/vmware/cis/session",
                                                       null);
-                Headers = new() { { "Cookie", $"vmware-api-session-id={loginResponse.Response}" } };
+                VcenterToken sessionToken = JsonConvert.DeserializeObject<VcenterToken>(loginResponse.Response);
+                _logger.LogInformation($"{sessionToken.value}");
+                Headers = new() { { "Cookie", $"vmware-api-session-id={sessionToken.value}" } };
             }
             catch (BffHttpException ex)
             {
@@ -83,7 +87,7 @@ namespace vmProjectBFF.Services
         {
             try
             {
-                base.Delete("api/session",
+                base.Delete("rest/com/vmware/cis/session",
                             null);
             }
             catch (BffHttpException ex)

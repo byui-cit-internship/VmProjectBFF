@@ -1,22 +1,25 @@
 ﻿using Newtonsoft.Json;
-using vmProjectBFF.DTO;
+using VmProjectBFF.DTO.VCenter;
 
-namespace vmProjectBFF.Services
+namespace VmProjectBFF.Services
 {
     public interface IVCenterRepository
     {
         public IVCenterHttpClient VCenterHttpClient { get; }
+
+        // GET's
         public List<ContentLibrary> GetContentLibraries();
         public List<string> GetContentLibraryIds();
         public ContentLibrary GetContentLibraryById(string contentLibraryId);
-        public List<OldFolder> GetFolders();
-        public List<Template> GetTemplatesByContentLibraryId(string contentLibraryId);
-        public Template GetTemplateByVCenterId(string vCenterId);
-        public List<Pool> GetResourceGroups();
+        public List<Folder> GetFolders();
+        public List<VmTemplate> GetTemplatesByContentLibraryId(string contentLibraryId);
+        public List<string> GetTemplateIdsInContentLibrary(string contentLibraryId);
+        public VmTemplate GetTemplateByVCenterId(string vCenterId);
+        public List<Pool> GetResourcePools();
 
         // POST's
-        public string NewVmInstanceByTemplateId(
+        public NewVmInstance NewVmInstanceByTemplateId(
             string vCenterTemplateId,
-            Deploy deploy);
+            DeployContainer deployContainer);
     }
 }

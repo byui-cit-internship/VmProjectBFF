@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
-using vmProjectBFF.DTO;
+using VmProjectBFF.DTO.VCenter;
 
-namespace vmProjectBFF.Services
+namespace VmProjectBFF.Services
 {
     public partial class VCenterRepository
     {
@@ -20,27 +20,26 @@ namespace vmProjectBFF.Services
 
         public List<string> GetContentLibraryIds()
         {
-            _lastResponse = _vCenterHttpClient.Get("api/content/local-library");
-            return JsonConvert.DeserializeObject<List<string>>(_lastResponse.Response);
+            _lastResponse = _vCenterHttpClient.Get("rest/com/vmware/content/local-library");
+            return (JsonConvert.DeserializeObject<ContentLibraryIdList>(_lastResponse.Response)).value;
         }
 
         public ContentLibrary GetContentLibraryById(string contentLibraryId)
         {
-            _lastResponse = _vCenterHttpClient.Get($"api/content/local-library/{contentLibraryId}");
-            return JsonConvert.DeserializeObject<ContentLibrary>(_lastResponse.Response);
+            _lastResponse = _vCenterHttpClient.Get($"rest/com/vmware/content/local-library/id:{contentLibraryId}");
+            return (JsonConvert.DeserializeObject<ContentLibraryContainer>(_lastResponse.Response)).value;
         }
 
-        public List<OldFolder> GetFolders()
+        public List<Folder> GetFolders()
         {
             _lastResponse = _vCenterHttpClient.Get("rest/vcenter/folder", new() { { "filter.type", "VIRTUAL_MACHINE" } });
-            return new List<OldFolder>(JsonConvert.DeserializeObject<FolderResponse>(_lastResponse.Response).value);
+            return new List<Folder>(JsonConvert.DeserializeObject<FolderContainer>(_lastResponse.Response).value);
         }
 
-        public List<Template> GetTemplatesByContentLibraryId(string contentLibraryId)
+        public List<VmTemplate> GetTemplatesByContentLibraryId(string contentLibraryId)
         {
-            List<Template> templates = new();
-            _lastResponse = _vCenterHttpClient.Get("api/content/library/item", new() { { "library_id", contentLibraryId } });
-            List<string> templateIds = JsonConvert.DeserializeObject<List<string>>(_lastResponse.Response);
+            List<VmTemplate> templates = new();
+            List<string> templateIds = GetTemplateIdsInContentLibrary(contentLibraryId);
             foreach (string templateId in templateIds)
             {
                 templates.Add(GetTemplateByVCenterId(templateId));
@@ -48,16 +47,22 @@ namespace vmProjectBFF.Services
             return templates;
         }
 
-        public Template GetTemplateByVCenterId(string vCenterId)
+        public List<string> GetTemplateIdsInContentLibrary(string contentLibraryId)
         {
-            _lastResponse = _vCenterHttpClient.Get($"api/content/library/item/{vCenterId}");
-            return JsonConvert.DeserializeObject<Template>(_lastResponse.Response);
+            _lastResponse = _vCenterHttpClient.Get("rest/com/vmware/content/library/item", new() { { "library_id", contentLibraryId } });
+            return (JsonConvert.DeserializeObject<TemplateInLibrary>(_lastResponse.Response).value);
         }
 
-        public List<Pool> GetResourceGroups()
+        public VmTemplate GetTemplateByVCenterId(string vCenterId)
         {
-            _lastResponse = _vCenterHttpClient.Get("api/vcenter/resource-pool");
-            return JsonConvert.DeserializeObject<List<Pool>>(_lastResponse.Response);
+            _lastResponse = _vCenterHttpClient.Get($"rest/com/vmware/content/library/item/id:{vCenterId}");
+            return (JsonConvert.DeserializeObject<VmTemplateContainer>(_lastResponse.Response).value);
+        }
+
+        public List<Pool> GetResourcePools()
+        {
+            _lastResponse = _vCenterHttpClient.Get("rest/vcenter/resource-pool");
+            return new List<Pool>(JsonConvert.DeserializeObject<PoolContainer>(_lastResponse.Response).value);
         }
     }
 }

@@ -1,24 +1,25 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using vmProjectBFF.DTO;
-using vmProjectBFF.Exceptions;
-using vmProjectBFF.Models;
-using vmProjectBFF.Services;
+using VmProjectBFF.DTO;
+using VmProjectBFF.DTO.Database;
+using VmProjectBFF.DTO.Canvas;
+using VmProjectBFF.Exceptions;
+using VmProjectBFF.Services;
 
-namespace vmProjectBFF.Controllers
+namespace VmProjectBFF.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : BffController
     {
-
+        private readonly IEmailClient _emailClient;
         public UserController(
             IAuthorization authorization,
             IBackendRepository backend,
             ICanvasRepository canvas,
             IConfiguration configuration,
+            IEmailClient emailClient,
             IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
             ILogger<UserController> logger,
@@ -31,8 +32,11 @@ namespace vmProjectBFF.Controllers
                   httpClientFactory: httpClientFactory,
                   httpContextAccessor: httpContextAccessor,
                   logger: logger,
-                  vCenter: vCenter)
+                  vCenter: vCenter
+                  )
+
         {
+            _emailClient = emailClient;
         }
 
         /***********************************************
@@ -44,41 +48,24 @@ namespace vmProjectBFF.Controllers
         public async Task<ActionResult> PutUser(User user)
         {
             User admin = _authorization.GetAuth("admin");
-            if (admin != null)
+            if (admin is not null)
             {
-                _lastResponse = _backendHttpClient.Put("api/v2/User", user);
-                User changedUser = JsonConvert.DeserializeObject<User>(_lastResponse.Response);
-
-                if (admin.UserId == changedUser.UserId)
-                {
-                    return Ok(changedUser);
-                }
-                else
-                {
-                    return Ok("User was modified successfully");
-                }
+                return Ok(_backend.PutUser(user));
 
             }
             User authUser = _authorization.GetAuth("user");
-            if (authUser != null)
+            if (authUser is not null)
             {
                 if (user.UserId == authUser.UserId && user.IsAdmin == authUser.IsAdmin)
                 {
-                    _lastResponse = _backendHttpClient.Put("api/v2/User", user);
-                    User changedUser = JsonConvert.DeserializeObject<User>(_lastResponse.Response);
-
-                    return Ok(changedUser);
+                    return Ok(_backend.PutUser(user));
                 }
                 else
                 {
                     return BadRequest("Bad Request");
                 }
             }
-
-
-            return Unauthorized("Contact your admin to get access");
-
-
+            return Forbid();
         }
 
         /****************************************
@@ -91,30 +78,28 @@ namespace vmProjectBFF.Controllers
             {
                 User admin = _authorization.GetAuth("admin");
 
-                if (admin != null)
+                if (admin is not null)
                 {
-                    _lastResponse = _backendHttpClient.Get("api/v2/User", new() { { "email", postUser.email } });
-                    User user = JsonConvert.DeserializeObject<User>(_lastResponse.Response);
+                    User user = _backend.GetUserByEmail(postUser.email);
 
-                    if (user == null)
+                    if (user is null)
                     {
-                        user = new User();
-                        user.Email = postUser.email;
-                        user.FirstName = postUser.firstName;
-                        user.LastName = postUser.lastName;
-                        user.IsAdmin = true;
+                        user = new()
+                        {
+                            Email = postUser.email,
+                            FirstName = postUser.firstName,
+                            LastName = postUser.lastName,
+                            IsAdmin = true,
+                            role = "professor",
+                            approveStatus = "approved"
+                        };
 
-                        _lastResponse = _backendHttpClient.Post("api/v2/User", user);
-
-                        return Ok("created user as admin");
+                        return Ok(_backend.PostUser(user));
                     }
                     else
                     {
                         user.IsAdmin = true;
-
-                        _lastResponse = _backendHttpClient.Put("api/v2/User", user);
-
-                        return Ok("modified user to be admin");
+                        return Ok(_backend.PutUser(user));
                     }
                 }
                 return Unauthorized();
@@ -124,6 +109,44 @@ namespace vmProjectBFF.Controllers
                 return StatusCode((int)be.StatusCode, be.Message);
             }
         }
+/**
+         * <summary>
+         * Returns a list of professors.
+         * </summary>
+         * <returns>A list of "OldSectionDTO" objects repesenting information about sections the requesting professor teaches.</returns>
+         * <remarks>
+         * Only certain parameter combinations are allowed. Possible combinations include:<br/>
+         * <![CDATA[
+         *      <pre>
+         *          <code>/api/user/professors
+         *          </code>
+         *      </pre>
+         * ]]>
+         * Sample requests:
+         *
+         *      Returns the user logging in.
+         *      GET /api/user/professors
+         *      RETURNS
+         [
+    {
+        "userId": 1,
+        "firstName": "Shae",
+        "lastName": "Carnahan",
+        "email": "shaecarnahan@gmail.com",
+        "isAdmin": true,
+        "canvasToken": "10706~V8zJCRp7mx2pilM4LHfjPKe6KiV2FOJ2H79J7EFNNVDRFMQMaARM6lrNus89y2Y2",
+        "isVerified": false,
+        "verificationCode": 0,
+        "verificationCodeExpiration": "0001-01-01T00:00:00",
+        "role": "professor",
+        "approveStatus": "approved"
+    }]
+         *     
+         *
+         * </remarks>
+         * <response code="200">Returns a list of objects representing sections.</response>
+         * <response code="403">Insufficent permission to make request.</response>
+         */
         [HttpGet("professors")]
         public async Task<ActionResult> GetProfessors()
         {
@@ -131,16 +154,13 @@ namespace vmProjectBFF.Controllers
             {
                 User professor = _authorization.GetAuth("admin");
 
-                if (professor != null)
+                if (professor is not null)
                 {
-
-                    _lastResponse = _backendHttpClient.Get($"api/v2/user", new() { { "isAdmin", true } });
-                    List<User> professorList = JsonConvert.DeserializeObject<List<User>>(_lastResponse.Response);
-                    return Ok(professorList);
+                    return Ok(_backend.GetAdmins());
                 }
                 else
                 {
-                    return Unauthorized("You are not a professor");
+                    return Forbid();
                 }
             }
             catch (BffHttpException be)
@@ -148,6 +168,58 @@ namespace vmProjectBFF.Controllers
                 return StatusCode((int)be.StatusCode, be.Message);
             }
         }
+
+/**
+         * <summary>
+         * Returns a list of students in a section.
+         * </summary>
+         * <returns>A list of "OldSectionDTO" objects repesenting information about sections the requesting professor teaches.</returns>
+         * <remarks>
+         * Only certain parameter combinations are allowed. Possible combinations include:<br/>
+         * <![CDATA[
+         *      <pre>
+         *          <code>/api/user/bySection?sectionId=9
+         *          </code>
+         *      </pre>
+         * ]]>
+         * Sample requests:
+         *
+         *      Returns the user logging in.
+         *      GET /api/user/bySection?sectionId=9
+         *      RETURNS
+         
+         *     
+         *
+         * </remarks>
+         * <response code="200">Returns a list of objects representing sections.</response>
+         * <response code="403">Insufficent permission to make request.</response>
+         */
+        
+
+
+        [HttpGet("allProfessors")]
+        public async Task<ActionResult> GetAllProfessors()
+
+        {
+            try
+            {
+                User professor = _authorization.GetAuth("admin");
+
+                if (professor is not null)
+                {
+                    return Ok(_backend.GetProfessors());
+                }
+                else
+                {
+                    return Forbid();
+                }
+            }
+            catch (BffHttpException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
+        }
+
         [HttpGet("bySection")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -171,5 +243,293 @@ namespace vmProjectBFF.Controllers
                 return StatusCode((int)be.StatusCode, be.Message);
             }
         }
+
+        /****************************************
+         * 
+         ***************************************/
+        /**
+         * <summary>
+         * Changes requesting user's approve status to "pending" and sets the role to "professor"
+         * </summary>
+         * <returns>Returns requesting user's information.</returns>
+         * <remarks>
+         * Only certain parameter combinations are allowed. Possible combinations include:<br/>
+         *   
+         * <![CDATA[
+         *      <pre>
+         *          <code>/api/user/requestAccess
+         *          </code>
+         *      </pre>
+         * ]]>
+         * Sample requests:
+         *
+         *      Returns the requesting user.
+         *      PUT /api/user/requestAccess
+         *      RETURNS
+         *       {
+         *           "userId": 1019,
+         *           "firstName": "Joe",
+         *           "lastName": "Doe",
+         *           "email": "joedoe@byui.edu",
+         *           "isAdmin": true,
+         *           "canvasToken": "123456789asdfdfgh",
+         *           "role": "professor",
+         *           "approveStatus": "pending" 
+         *        }
+         *      
+         *
+         * </remarks>
+         * <response code="200">Returns approved user.</response>
+         * <response code="403">Insufficent permission to make request.</response>
+         */
+        [HttpPut("requestAccess")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult> RequestAccess(User user)
+        {
+            try
+            {
+                CanvasUser canvasUser = _canvas.GetUserByCanvasToken(user.CanvasToken);
+                User authUser = _authorization.GetAuth("user");
+
+                if (authUser is not null &&
+                    (authUser.approveStatus == "n/a" || authUser.approveStatus == "approved")
+                    && user is not null
+                    /*&& user.primary_email == canvasUser.primary_email */) // This won't work for testing
+                {
+                    authUser.role = "professor";
+                    authUser.CanvasToken = user.CanvasToken;
+
+                    if (authUser.approveStatus == "n/a")
+                    {
+                        authUser.approveStatus = "pending";
+                        string message = "Your authorization request has been sent. An administrator will respond to your request.";
+                        string subject = "Request sent.";
+                        authUser = _backend.PutUser(authUser);
+                        _emailClient.SendMessage(authUser.Email, subject, message);
+                    }
+                    else if (authUser.approveStatus == "approved")
+                    {
+                        authUser = _backend.PutUser(authUser);
+                    }
+
+                    return Ok(authUser);
+                }
+                return Forbid();
+            }
+            catch (BffHttpException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
+        }
+        /****************************************
+         * 
+         ***************************************/
+        /**
+         * <summary>
+         * Changes user (with professor role) approved_status column to 'approved'
+         * </summary>
+         * <returns>Returns the approved professor.</returns>
+         * <remarks>
+         * Only certain parameter combinations are allowed. Possible combinations include:<br/>
+         *   
+         * <![CDATA[
+         *      <pre>
+         *          <code>/api/user/approve
+         *          </code>
+         *      </pre>
+         * ]]>
+         * Sample requests:
+         *
+         *      Returns the approved user.
+         *      PUT /api/user/approve
+         *      BODY
+         *      {
+         *          "email": "joedoe@byui.edu"
+         *       }
+         *      RETURNS
+         *       {
+         *           "userId": 1019,
+         *           "firstName": "Joe",
+         *           "lastName": "Doe",
+         *           "email": "joedoe@byui.edu",
+         *           "isAdmin": true,
+         *           "canvasToken": "123456789asdfdfgh",
+         *           "role": "professor",
+         *           "approveStatus": "approved" 
+         *        }
+         *      
+         *
+         * </remarks>
+         * <response code="200">Returns approved user.</response>
+         * <response code="403">Insufficent permission to make request.</response>
+         */
+        [HttpPut("approve")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult> Approve([FromBody] User user)
+        {
+            User authUser = _authorization.GetAuth("admin");
+            if (authUser is not null)
+            {
+                try
+                {
+                    user = _backend.GetUserByEmail(user.Email);
+                    user.approveStatus = "approved";
+                    user.IsAdmin = true;
+
+                    user = _backend.PutUser(user);
+                    _emailClient.SendMessage(user.Email, "Request approved", "Your request has been approved, you can now login.");
+
+                    return Ok(user);
+                }
+                catch (BffHttpException be)
+                {
+                    return StatusCode((int)be.StatusCode, be.Message);
+                }
+            }
+            return Forbid();
+        }
+
+        /*
+        * <summary>
+        * Sends current user's information.
+        * </summary>
+        * <return>Returns user's own information</returns>
+        * 
+        * <remarks>
+        * <![CDATA[
+        *   <pre>
+        *       <code> /api/user/self </code>
+        *   </pre>
+        * ]]>
+        *
+        * Samples requests:
+        *
+        *   Returns the information of the user calling the endpoint.
+        *   GET /api/user/self
+        *   RETURNS 
+        *       {
+        *           "userId": 1019,
+        *           "firstName": "Joe",
+        *           "lastName": "Doe",
+        *           "email": "joedoe@byui.edu",
+        *           "isAdmin": true,
+        *           "canvasToken": "123456789asdfdfgh",
+        *           "role": "professor",
+        *           "approveStatus": "approved" 
+        *        }
+        * </remarks>
+        *
+        * <response code="200">Returns user's information</response>
+        * <response code="401">User not authenticated</response>
+        * <response code="403">Insufficient permission to make request</response>
+        */
+        [HttpGet("self")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult> Self()
+        {
+            try
+            {
+                User authUser = _authorization.GetAuth("user");
+                if (authUser is not null)
+                {
+                    return Ok(authUser);
+                }
+                return Forbid();
+            }
+            catch (BffHttpException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
+        }
+
+
+        [HttpPost("SendTestEmail")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult> SendEmail()
+        {
+            User authUser = _authorization.GetAuth("admin");
+            try
+            {
+                _emailClient.SendMessage(authUser.Email, "test email", "This is a test email");
+                return Ok();
+            }
+            catch (BffHttpException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
+        }
     }
 }
+
+/*
+UNUSED EMAIL VERIFICATION ENDPOINTS:
+    
+
+        [HttpPut("verifyUser")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult> verifyUser([FromQuery] int code)
+        {
+            User authUser = _authorization.GetAuth("user");
+            try
+            {
+                if (authUser.VerificationCodeExpiration > DateTime.Now && authUser.VerificationCode == code)
+                {
+                    authUser.IsVerified = true;
+                    return Ok(_backend.PutUser(authUser));
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+            catch (BffHttpException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
+        }
+
+        [HttpPut("sendCode")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult> SendCode()
+        {
+            User authUser = _authorization.GetAuth("user");
+
+            if (authUser is not null)
+            {
+                int codeLength = 5;
+                Random random = new();
+                List<string> codeStr = new(codeLength);
+                for (int i = 0; i < codeLength; i++)
+                {
+                    codeStr.Add(random.Next(1, 9).ToString());
+                }
+                int code = int.Parse(string.Concat(codeStr));
+
+                DateTime codeExpDate = DateTime.Now.AddDays(1);
+
+                authUser.VerificationCode = code;
+                authUser.VerificationCodeExpiration = codeExpDate;
+
+                try
+                {
+                    authUser = _backend.PutUser(authUser);
+                    _emailClient.SendCode(authUser.Email, code.ToString(), "Vima Confirmation Code");
+
+                    authUser.VerificationCode = null;
+                    return Ok(authUser);
+                }
+                catch (BffHttpException be)
+                {
+                    return StatusCode((int)be.StatusCode, be.Message);
+                }
+            }
+            return Forbid();
+        }
+*/

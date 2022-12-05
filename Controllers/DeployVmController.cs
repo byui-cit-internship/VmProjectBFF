@@ -1,13 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using System.Text;
-using vmProjectBFF.DTO;
-using vmProjectBFF.Exceptions;
-using vmProjectBFF.Models;
-using vmProjectBFF.Services;
+using VmProjectBFF.DTO;
+using VmProjectBFF.DTO.Database;
+using DBFolder = VmProjectBFF.DTO.Database.Folder;
+using VmProjectBFF.DTO.VCenter;
+using VCPool = VmProjectBFF.DTO.VCenter.Pool;
+using VmProjectBFF.Exceptions;
+using VmProjectBFF.Services;
 
-namespace vmProjectBFF.Controllers
+namespace VmProjectBFF.Controllers
 {
 
     [Route("api/[controller]")]
@@ -49,26 +50,32 @@ namespace vmProjectBFF.Controllers
                 {
                     // "[{\"student_name\":\"Trevor Wayman\",\"course_name\":\"CIT 270\",\"course_id\":1,\"template_id\":\"cit270-empty-vm-template\",\"course_semester\":\"Spring\",\"enrollment_id\":33,\"folder\":\"CIT270\"}]"
                     CreateVmDTO createVm = _backend.GetCreateVmByEnrollmentId(enrollment_id); // Should validation be added so createVm is not made by any student on behalf of another student??
+                    Section section = _backend.GetSectionsByEnrollmentId(enrollment_id);
+                    ResourcePool resourcePool = _backend.GetResourcePoolByResourcePoolId(section.ResourcePoolId);
+                    DBFolder folder = _backend.GetFolderByFolderId(section.FolderId);
 
                     // Create vm with the information we have in vsphere
-                    Deploy deploy = new()
+                    DeployContainer deployContainer = new()
+                    {
+                    spec = new Deploy
                     {
                         name = HttpContext.User.Identity.Name,
                         placement = new Placement
                         {
-                            folder = createVm.Folder, // Check CIT270 error 
-                            resource_pool = _configuration["Resource_Pool"]
+                            folder = folder.VcenterFolderId, // Check CIT270 error 
+                            resource_pool = resourcePool.ResourcePoolVsphereId
                         }
+                    }
                     };
 
-                    string vCenterInstanceId = _vCenter.NewVmInstanceByTemplateId(createVm.Template_id,
-                                                                                  deploy);
+                    NewVmInstance vCenterInstanceId = _vCenter.NewVmInstanceByTemplateId(createVm.Template_id,
+                                                                                  deployContainer);
 
-                    VmTemplate template = _backend.GetTemplateByVCenterId(createVm.Template_id);
+                    DTO.Database.VmTemplate template = _backend.GetTemplateByVCenterId(createVm.Template_id);
 
                     VmInstance vmInstance = new()
                     {
-                        VmInstanceVcenterId = vCenterInstanceId,
+                        VmInstanceVcenterId = vCenterInstanceId.value,
                         VmTemplateId = template.VmTemplateId,
                         VmInstanceExpireDate = DateTime.MaxValue
                     };
@@ -84,11 +91,11 @@ namespace vmProjectBFF.Controllers
         }
 
         [HttpGet("resource-pool")]
-        public async Task<ActionResult<IEnumerable<Pool>>> GetPools()
+        public async Task<ActionResult<IEnumerable<VCPool>>> GetPools()
         {
             try
             {
-                return Ok(_vCenter.GetResourceGroups());
+                return Ok(_vCenter.GetResourcePools());
             }
             catch (BffHttpException be)
             {

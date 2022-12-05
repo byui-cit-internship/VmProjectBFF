@@ -1,7 +1,7 @@
-﻿using vmProjectBFF.DTO;
-using vmProjectBFF.Exceptions;
+﻿using VmProjectBFF.DTO;
+using VmProjectBFF.Exceptions;
 
-namespace vmProjectBFF.Services
+namespace VmProjectBFF.Services
 {
     public class CanvasHttpClient : BffHttpClient, ICanvasHttpClient
     {

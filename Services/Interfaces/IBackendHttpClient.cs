@@ -1,4 +1,4 @@
-﻿namespace vmProjectBFF.Services
+﻿namespace VmProjectBFF.Services
 {
     public interface IBackendHttpClient : IBffHttpClient
     {
