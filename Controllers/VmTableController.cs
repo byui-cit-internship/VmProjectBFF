@@ -53,6 +53,27 @@ namespace VmProjectBFF.Controllers
             }
         }
 
+        [HttpGet("professor/instance")]
+        public async Task<ActionResult<dynamic>> GetUserInstance([FromQuery] int userId)
+        {
+            try
+            {
+                User user = _authorization.GetAuth("user");
+                if (user is not null)
+                {
+                    return _backend.GetInstancesByUserId(userId);
+                }
+                else
+                {
+                    return Forbid();
+                }
+            }
+            catch (BffHttpException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
+        }
+
         //GET: api/vmtable/templates
         [HttpGet("templates/all")]
         public async Task<ActionResult<IEnumerable<string>>> GetTemplates(string libraryId)
