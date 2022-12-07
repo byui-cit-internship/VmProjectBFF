@@ -13,6 +13,10 @@ spec:
       labels:
         app: vm-project-bff-prod
     spec:
+      hostAliases:
+      - ip: "10.11.175.100"
+        hostnames:
+        - "vctr.c.cit.byui.edu"      
       containers:
       - name: vm-project-bff-prod
         env:
