@@ -40,7 +40,7 @@ namespace VmProjectBFF.Controllers
 
         //Connect our API to a second API that creates our vms 
         [HttpPost()]
-        public async Task<ActionResult> PostVmTable([FromBody] int enrollment_id)
+        public async Task<ActionResult> PostVmTable([FromBody] DeployVmRequirements requirements) //int enrollment_id, string vmInstanceName
         {
             try
             {
@@ -48,9 +48,8 @@ namespace VmProjectBFF.Controllers
 
                 if (studentUser is not null)
                 {
-                    // "[{\"student_name\":\"Trevor Wayman\",\"course_name\":\"CIT 270\",\"course_id\":1,\"template_id\":\"cit270-empty-vm-template\",\"course_semester\":\"Spring\",\"enrollment_id\":33,\"folder\":\"CIT270\"}]"
-                    CreateVmDTO createVm = _backend.GetCreateVmByEnrollmentId(enrollment_id); // Should validation be added so createVm is not made by any student on behalf of another student??
-                    Section section = _backend.GetSectionsByEnrollmentId(enrollment_id);
+                    CreateVmDTO createVm = _backend.GetCreateVmByEnrollmentId(requirements.enrollment_id); // Should validation be added so createVm is not made by any student on behalf of another student??
+                    Section section = _backend.GetSectionsByEnrollmentId(requirements.enrollment_id);
                     ResourcePool resourcePool = _backend.GetResourcePoolByResourcePoolId(section.ResourcePoolId);
                     DBFolder folder = _backend.GetFolderByFolderId(section.FolderId);
 
@@ -59,7 +58,7 @@ namespace VmProjectBFF.Controllers
                     {
                     spec = new Deploy
                     {
-                        name = HttpContext.User.Identity.Name,
+                        name = requirements.vmInstanceName,
                         placement = new Placement
                         {
                             folder = folder.VcenterFolderId, // Check CIT270 error 
@@ -77,7 +76,8 @@ namespace VmProjectBFF.Controllers
                     {
                         VmInstanceVcenterId = vCenterInstanceId.value,
                         VmTemplateId = template.VmTemplateId,
-                        VmInstanceExpireDate = DateTime.MaxValue
+                        VmInstanceExpireDate = DateTime.MaxValue,
+                        VmInstanceVcenterName = requirements.vmInstanceName
                     };
 
                     return Ok(_backend.CreateVmInstance(vmInstance));

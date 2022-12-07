@@ -10,6 +10,7 @@ namespace VmProjectBFF.Services
         // GET's
         public List<ContentLibrary> GetContentLibraries();
         public List<string> GetContentLibraryIds();
+        public VmTemplateMetadata GetTemplateMetadata(string itemId);
         public ContentLibrary GetContentLibraryById(string contentLibraryId);
         public List<Folder> GetFolders();
         public List<VmTemplate> GetTemplatesByContentLibraryId(string contentLibraryId);
