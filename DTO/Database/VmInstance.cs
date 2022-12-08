@@ -5,7 +5,9 @@
         public int VmInstanceId { get; set; }
         public int VmTemplateId { get; set; }
         public string VmInstanceVcenterId { get; set; }
+        public DateTime VmInstanceCreationDate { get; set; }
         public DateTime VmInstanceExpireDate { get; set; }
         public string VmInstanceVcenterName { get; set; }
+        public int SectionId { get; set; }
     }
 }

@@ -42,6 +42,12 @@ namespace VmProjectBFF.Services
             return JsonConvert.DeserializeObject<List<Semester>>(_lastResponse.Response);
         }
 
+        public Semester GetSemesterBySemesterId(int semesterId)
+        {
+            _lastResponse = _backendHttpClient.Get($"api/v2/Semester", new() { { "semesterId", semesterId } });
+            return JsonConvert.DeserializeObject<Semester>(_lastResponse.Response);
+        }
+
         public List<User> GetUsersBySection(int sectionId)
         {
             _lastResponse = _backendHttpClient.Get($"api/v2/User", new() { { "sectionId", sectionId } });
@@ -78,8 +84,10 @@ namespace VmProjectBFF.Services
                  {
                      CourseCode = c.CourseCode,
                      VmTemplateName = vt.VmTemplateName,
+                     VmInstanceCreationDate = vi.VmInstanceCreationDate,
                      VmInstanceExpireDate = vi.VmInstanceExpireDate,
-                     VmInstanceVcenterName = vi.VmInstanceVcenterName
+                     VmInstanceVcenterName = vi.VmInstanceVcenterName,
+                     SectionId = vi.SectionId
                  }).ToList()
             );
         }
