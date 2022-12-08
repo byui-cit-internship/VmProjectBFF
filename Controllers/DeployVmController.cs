@@ -50,6 +50,7 @@ namespace VmProjectBFF.Controllers
                 {
                     CreateVmDTO createVm = _backend.GetCreateVmByEnrollmentId(requirements.enrollment_id); // Should validation be added so createVm is not made by any student on behalf of another student??
                     Section section = _backend.GetSectionsByEnrollmentId(requirements.enrollment_id);
+                    Semester semester = _backend.GetSemesterBySemesterId(section.SemesterId);
                     ResourcePool resourcePool = _backend.GetResourcePoolByResourcePoolId(section.ResourcePoolId);
                     DBFolder folder = _backend.GetFolderByFolderId(section.FolderId);
 
@@ -76,8 +77,10 @@ namespace VmProjectBFF.Controllers
                     {
                         VmInstanceVcenterId = vCenterInstanceId.value,
                         VmTemplateId = template.VmTemplateId,
-                        VmInstanceExpireDate = DateTime.MaxValue,
-                        VmInstanceVcenterName = requirements.vmInstanceName
+                        VmInstanceCreationDate = requirements.vmInstanceCreationDate,
+                        VmInstanceExpireDate = semester.EndDate,
+                        VmInstanceVcenterName = requirements.vmInstanceName,
+                        SectionId = section.SectionId
                     };
 
                     return Ok(_backend.CreateVmInstance(vmInstance));

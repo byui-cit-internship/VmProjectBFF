@@ -61,7 +61,7 @@ namespace VmProjectBFF.Controllers
          * <response code="403">Insufficent permission to make request.</response>
          */
 
-        [HttpGet("StudentCourse")]
+        [HttpGet("section")]
         public async Task<ActionResult<IEnumerable<Course>>> GetCourses()
         {
             try
