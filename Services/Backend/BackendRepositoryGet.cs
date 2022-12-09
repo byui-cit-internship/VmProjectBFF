@@ -144,5 +144,11 @@ namespace VmProjectBFF.Services
             _lastResponse = _backendHttpClient.Get($"api/v2/user", new() { { "role", "professor" } });
             return JsonConvert.DeserializeObject<List<User>>(_lastResponse.Response);
         }
+        public List<VmTemplate> GetTemplatesByLibraryId(string libraryVCenterId)
+        {
+            _lastResponse = _backendHttpClient.Get($"api/v2/VmTemplate", new() {{"libraryVCenterId", libraryVCenterId}});
+            return JsonConvert.DeserializeObject<List<VmTemplate>>(_lastResponse.Response);
+        }
+
     }
 }
