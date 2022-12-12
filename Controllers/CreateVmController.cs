@@ -260,14 +260,14 @@ namespace VmProjectBFF.Controllers
             {
                 User professor = _authorization.GetAuth("admin");
                 if (professor is not null)
-                {   
+                {
                     DTO.Database.VmTemplate something = template;
 
                     _lastResponse = _backendHttpClient.Get($"api/v2/VmTemplate", new() { { "VmTemplateVcenterId", template.VmTemplateVCenterId } });
                     DTO.Database.VmTemplate fetchedTemplate = JsonConvert.DeserializeObject<DTO.Database.VmTemplate>(_lastResponse.Response);
 
                     if (fetchedTemplate is null)
-                    {   
+                    {
                         template.VmTemplateAccessDate = new DateTime(2022, 1, 1);
                         _lastResponse = _backendHttpClient.Post($"api/v2/VmTemplate", template);
                         template = JsonConvert.DeserializeObject<DTO.Database.VmTemplate>(_lastResponse.Response);
@@ -282,5 +282,26 @@ namespace VmProjectBFF.Controllers
                 return StatusCode((int)be.StatusCode, be.Message);
             }
         }
+
+        [HttpGet("templates/byLibraryId/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult> GetTemplatesByLibraryId(string id)
+        {
+            try
+            {
+                User user = _authorization.GetAuth("user");
+                if (user is not null)
+                {
+                    return Ok(_backend.GetTemplatesByLibraryId(id));
+                }
+                return Unauthorized();
+
+            }
+            catch (BffHttpException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
+        }
+
     }
 }

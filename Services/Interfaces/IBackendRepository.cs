@@ -27,6 +27,7 @@ namespace VmProjectBFF.Services
         public Section GetSectionsByEnrollmentId(int enrollmentId);
         public ResourcePool GetResourcePoolByResourcePoolId(int resourcePoolId);
         public Folder GetFolderByFolderId(int folderId);
+        public List<VmTemplate> GetTemplatesByLibraryId(string libraryVCenterId);
 
 
         // POST's
