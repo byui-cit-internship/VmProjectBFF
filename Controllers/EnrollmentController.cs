@@ -17,6 +17,7 @@ namespace VmProjectBFF.Controllers
         public EnrollmentController(
             IAuthorization authorization,
             IBackendRepository backend,
+            IBackgroundService1Manual backgroundService1,
             ICanvasRepository canvas,
             IConfiguration configuration,
             IHttpClientFactory httpClientFactory,
@@ -26,6 +27,7 @@ namespace VmProjectBFF.Controllers
             : base(
                   authorization: authorization,
                   backend: backend,
+                  backgroundService1: backgroundService1,
                   canvas: canvas,
                   configuration: configuration,
                   httpClientFactory: httpClientFactory,
@@ -220,6 +222,8 @@ namespace VmProjectBFF.Controllers
 
                         _lastResponse = _backendHttpClient.Post($"api/v2/UserSectionRole", enrollment);
                         enrollment = JsonConvert.DeserializeObject<UserSectionRole>(_lastResponse.Response);
+
+                        await _backgroundService1?.ReadAndUpdateDB();
 
                         return Ok("ID " + newSection.SectionId + " enrollment was created");
                     }

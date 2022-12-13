@@ -17,6 +17,7 @@ namespace VmProjectBFF.Controllers
         protected readonly IBackendHttpClient _backendHttpClient;
         protected readonly ICanvasHttpClient _canvasHttpClient;
         protected readonly IVCenterHttpClient _vCenterHttpClient;
+        protected readonly IBackgroundService1Manual _backgroundService1;
         
         protected BffResponse _lastResponse;
 
@@ -30,11 +31,13 @@ namespace VmProjectBFF.Controllers
             IHttpClientFactory httpClientFactory,
             IHttpContextAccessor httpContextAccessor,
             ILogger logger,
-            IVCenterRepository vCenter
+            IVCenterRepository vCenter,
+            IBackgroundService1Manual backgroundService1 = null
             )
         {
             _authorization = authorization;
             _backend = backend;
+            _backgroundService1 = backgroundService1;
             _canvas = canvas;
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;

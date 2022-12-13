@@ -84,6 +84,7 @@ namespace VmProjectBFF.Services
                  {
                      CourseCode = c.CourseCode,
                      VmTemplateName = vt.VmTemplateName,
+                     VmInstanceVcenterId = vi.VmInstanceVcenterId,
                      VmInstanceCreationDate = vi.VmInstanceCreationDate,
                      VmInstanceExpireDate = vi.VmInstanceExpireDate,
                      VmInstanceVcenterName = vi.VmInstanceVcenterName,

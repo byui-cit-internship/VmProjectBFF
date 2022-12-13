@@ -80,5 +80,11 @@ namespace VmProjectBFF.Services
             _lastResponse = _vCenterHttpClient.Get("rest/vcenter/resource-pool");
             return new List<Pool>(JsonConvert.DeserializeObject<PoolContainer>(_lastResponse.Response).value);
         }
+
+        public List<VmNetworkInfo> GetVmNetworkInfo(string vmInstanceVcenterId)
+        {
+            _lastResponse = _vCenterHttpClient.Get($"rest/vcenter/vm/{vmInstanceVcenterId}/guest/networking/interfaces");
+            return new List<VmNetworkInfo>(JsonConvert.DeserializeObject<VmNetworkInfoContainer>(_lastResponse.Response).value);
+        }
     }
 }

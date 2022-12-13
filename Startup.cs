@@ -71,6 +71,7 @@ namespace VmProjectBFF
             services.AddScoped<IVCenterRepository, VCenterRepository>();
             services.AddScoped<IAuthorization, Authorization>();
             services.AddSingleton<IEmailClient, EmailClient>();
+            services.AddHostedService<BackgroundService1Hosted>();
 
             // This allows for Cross-origin request Read more: https://docs.microsoft.com/en-us/aspnet/core/security/cors?view=aspnetcore-6.0 
             services.AddCors(options =>
