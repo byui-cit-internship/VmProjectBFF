@@ -105,5 +105,18 @@ namespace VmProjectBFF.Controllers
                 return StatusCode((int)be.StatusCode, be.Message);
             }
         }
+
+        [HttpGet("vm-network")]
+        public async Task<ActionResult<IEnumerable<VmNetworkInfoContainer>>> GetVmNetworkInfo([FromQuery] string vmInstanceVcenterId)
+        {
+            try
+            {
+                return Ok(_vCenter.GetVmNetworkInfo(vmInstanceVcenterId));
+            }
+            catch (BffHttpException be)
+            {
+                return StatusCode((int)be.StatusCode, be.Message);
+            }
+        }
     }
 }
