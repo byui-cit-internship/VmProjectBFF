@@ -8,13 +8,14 @@ namespace VmProjectBFF.Services
 {
     public class BackgroundService1 : BackgroundService
     {
-        private readonly IBackendHttpClient _backendHttpClient;
-        private readonly IConfiguration _configuration;
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly ILogger<BackgroundService1> _logger;
-        private readonly int canvasStudentRoleId;
-        private readonly IHttpContextAccessor _contextAccessor;
-        private BffResponse _lastResponse;
+        protected readonly IBackendHttpClient _backendHttpClient;
+        protected readonly IConfiguration _configuration;
+        protected readonly IHttpClientFactory _httpClientFactory;
+        protected readonly ILogger<BackgroundService1> _logger;
+        protected readonly int canvasStudentRoleId;
+        protected readonly IHttpContextAccessor _contextAccessor;
+        protected BffResponse _lastResponse;
+        public Timer _timer;
 
         public IServiceProvider Services;
 
@@ -35,8 +36,6 @@ namespace VmProjectBFF.Services
             _backendHttpClient = backendHttpClient;
             _httpClientFactory = httpClientFactory;
             canvasStudentRoleId = int.Parse(_configuration["Canvas:StudentRoleId"]);
-
-            _backendHttpClient.Cookie = _configuration.GetConnectionString("BackendConnectionPassword");
         }
 
         public async Task ReadAndUpdateDB()
@@ -179,10 +178,9 @@ namespace VmProjectBFF.Services
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-
+                await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
                 await ReadAndUpdateDB();
                 // _logger.LogInformation("From background service");
-                await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken);
             }
             await Task.CompletedTask;
         }

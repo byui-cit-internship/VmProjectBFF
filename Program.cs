@@ -16,8 +16,6 @@ namespace VmProjectBFF
             // ILogger Logger { get; } = AppLogger.CreateLogger<*ClassName*>();
             ILoggerFactory LoggerFactory = services.GetRequiredService<ILoggerFactory>();
             AppLogger.LoggerFactory = LoggerFactory;
-            BackgroundService1 bs1 = services.GetRequiredService<BackgroundService1>();
-            //await bs1.ReadAndUpdateDB();
 
             host.Run();
         }
@@ -31,7 +29,7 @@ namespace VmProjectBFF
                 })
                 .ConfigureServices((hostContext, services) =>
                 {
-                    services.AddScoped<BackgroundService1>();
+                    services.AddScoped<IBackgroundService1Manual, BackgroundService1Manual>();
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {

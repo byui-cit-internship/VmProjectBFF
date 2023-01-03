@@ -14,6 +14,7 @@ namespace VmProjectBFF.Services
         public List<Section> GetSectionsByUserId(int userId);
         public List<Section>GetSectionsByCourseId(int courseId);
         public List<Semester> GetAllSemesters(int userId);
+        public Semester GetSemesterBySemesterId(int semesterId);
         public List<User> GetUsersBySection(int sectionId);
         public dynamic GetInstancesByUserId(int userId);
         public CreateVmDTO GetCreateVmByEnrollmentId(int enrollmentId);
@@ -26,6 +27,7 @@ namespace VmProjectBFF.Services
         public Section GetSectionsByEnrollmentId(int enrollmentId);
         public ResourcePool GetResourcePoolByResourcePoolId(int resourcePoolId);
         public Folder GetFolderByFolderId(int folderId);
+        public List<VmTemplate> GetTemplatesByLibraryId(string libraryVCenterId);
 
 
         // POST's

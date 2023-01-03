@@ -42,6 +42,12 @@ namespace VmProjectBFF.Services
             return JsonConvert.DeserializeObject<List<Semester>>(_lastResponse.Response);
         }
 
+        public Semester GetSemesterBySemesterId(int semesterId)
+        {
+            _lastResponse = _backendHttpClient.Get($"api/v2/Semester", new() { { "semesterId", semesterId } });
+            return JsonConvert.DeserializeObject<Semester>(_lastResponse.Response);
+        }
+
         public List<User> GetUsersBySection(int sectionId)
         {
             _lastResponse = _backendHttpClient.Get($"api/v2/User", new() { { "sectionId", sectionId } });
@@ -78,8 +84,11 @@ namespace VmProjectBFF.Services
                  {
                      CourseCode = c.CourseCode,
                      VmTemplateName = vt.VmTemplateName,
+                     VmInstanceVcenterId = vi.VmInstanceVcenterId,
+                     VmInstanceCreationDate = vi.VmInstanceCreationDate,
                      VmInstanceExpireDate = vi.VmInstanceExpireDate,
-                     VmInstanceVcenterName = vi.VmInstanceVcenterName
+                     VmInstanceVcenterName = vi.VmInstanceVcenterName,
+                     SectionId = vi.SectionId
                  }).ToList()
             );
         }
@@ -136,5 +145,11 @@ namespace VmProjectBFF.Services
             _lastResponse = _backendHttpClient.Get($"api/v2/user", new() { { "role", "professor" } });
             return JsonConvert.DeserializeObject<List<User>>(_lastResponse.Response);
         }
+        public List<VmTemplate> GetTemplatesByLibraryId(string libraryVCenterId)
+        {
+            _lastResponse = _backendHttpClient.Get($"api/v2/VmTemplate", new() {{"libraryVCenterId", libraryVCenterId}});
+            return JsonConvert.DeserializeObject<List<VmTemplate>>(_lastResponse.Response);
+        }
+
     }
 }
