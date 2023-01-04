@@ -22,6 +22,16 @@ spec:
         env:
         - name: ASPNETCORE_ENVIRONMENT
           value: Production
+        - name: CUSTOMCONNSTR_VCenterLoginUsername
+          valueFrom:
+            secretKeyRef:
+              name: api-prod
+              key: username
+        - name: CUSTOMCONNSTR_VCenterLoginPassword
+          valueFrom:
+            secretKeyRef:
+              name: api-prod
+              key: password
         image: gcr.io/cubs-consulting/bff-repository/bff-vima:latest
         ports:
         - containerPort: 80        
