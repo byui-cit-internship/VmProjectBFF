@@ -94,7 +94,7 @@ namespace VmProjectBFF.Services
 
                             // contains our base Url where individula course_id is added
                             // This URL enpoint gives a list of all the Student in that class : role_id= 3 list all the student for that Professor
-                            HttpResponseMessage response = await httpClient.GetAsync($"{_configurtion.GetConnectionString("CanvasRootUri")}/api/v1/courses/{sectionId}/users?per_page=1000&role_id={canvasStudentRoleId}");
+                            HttpResponseMessage response = await httpClient.GetAsync($"{_configuration.GetConnectionString("CanvasRootUri")}/api/v1/courses/{sectionId}/users?per_page=1000&role_id={canvasStudentRoleId}");
 
                             if (response.IsSuccessStatusCode)
                             {
