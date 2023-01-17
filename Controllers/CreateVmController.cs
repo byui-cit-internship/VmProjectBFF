@@ -254,15 +254,51 @@ namespace VmProjectBFF.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
-        public async Task<ActionResult> PostTemplate([FromBody] DTO.Database.VmTemplate template)
+        public async Task<ActionResult> PostTemplate([FromBody] DTO.Database.VmTemplate template, [FromQuery] string courseCode)
         {
             try
             {
                 User professor = _authorization.GetAuth("admin");
                 if (professor is not null)
                 {
-                    DTO.Database.VmTemplate something = template;
+                    _lastResponse = _backendHttpClient.Get($"api/v2/TagCategory", new() { { "tagCategoryName", "Course" } });
+                        TagCategory tagCategory = JsonConvert.DeserializeObject<TagCategory>(_lastResponse.Response);
 
+                        if (tagCategory == null)
+                        {
+                            tagCategory = new();
+                            tagCategory.TagCategoryVcenterId = "TEMP_USE";
+                            tagCategory.TagCategoryName = "Course";
+                            tagCategory.TagCategoryDescription = "Do not attempt to use with VCenter.";
+
+                            _lastResponse = _backendHttpClient.Post($"api/v2/TagCategory", tagCategory);
+                            tagCategory = JsonConvert.DeserializeObject<TagCategory>(_lastResponse.Response);
+                        }
+
+                    // get the tag which belong to that course
+                    _lastResponse = _backendHttpClient.Get($"api/v2/Tag", new() { { "tagCategoryId", tagCategory.TagCategoryId }, { "tagName", courseCode } });
+                    Tag tag = JsonConvert.DeserializeObject<Tag>(_lastResponse.Response);
+
+                    // Looking for a template that is being tied to the course
+                    _lastResponse = _backendHttpClient.Get($"api/v2/VmTemplateTag", new() { { "tagId", tag.TagId }, { "vmTemplateId", template.VmTemplateId } });
+                    VmTemplateTag vmTemplateTag = JsonConvert.DeserializeObject<VmTemplateTag>(_lastResponse.Response);
+
+                    // if VmTemplateTag exist then we don't need to add it. If VmTemplateTag is not equal null, return Conflict. (if, else)
+                    if (vmTemplateTag == null)
+                    {
+                        vmTemplateTag = new();
+                        vmTemplateTag.VmTemplateId = template.VmTemplateId;
+                        // this tied the course to the template
+                        vmTemplateTag.TagId = tag.TagId;
+
+                        _lastResponse = _backendHttpClient.Post($"api/v2/VmTemplateTag", vmTemplateTag);
+                        vmTemplateTag = JsonConvert.DeserializeObject<VmTemplateTag>(_lastResponse.Response);
+                    }
+                    else
+                    {
+                        return Conflict();
+                    }
+                    
                     _lastResponse = _backendHttpClient.Get($"api/v2/VmTemplate", new() { { "VmTemplateVcenterId", template.VmTemplateVCenterId } });
                     DTO.Database.VmTemplate fetchedTemplate = JsonConvert.DeserializeObject<DTO.Database.VmTemplate>(_lastResponse.Response);
 
@@ -271,9 +307,13 @@ namespace VmProjectBFF.Controllers
                         template.VmTemplateAccessDate = new DateTime(2022, 1, 1);
                         _lastResponse = _backendHttpClient.Post($"api/v2/VmTemplate", template);
                         template = JsonConvert.DeserializeObject<DTO.Database.VmTemplate>(_lastResponse.Response);
-                        return Ok(template);
                     }
-                    return Conflict();
+                    else 
+                    {
+                        template = fetchedTemplate;
+                    }
+                    return Ok(template);
+                    // return Conflict();
                 }
                 return Unauthorized();
             }

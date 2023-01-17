@@ -181,10 +181,11 @@ namespace VmProjectBFF.Controllers
                             _lastResponse = _backendHttpClient.Post($"api/v2/TagCategory", tagCategory);
                             tagCategory = JsonConvert.DeserializeObject<TagCategory>(_lastResponse.Response);
                         }
-
+                        // get the tag which belong to that course
                         _lastResponse = _backendHttpClient.Get($"api/v2/Tag", new() { { "tagCategoryId", tagCategory.TagCategoryId }, { "tagName", course.CourseCode } });
                         Tag tag = JsonConvert.DeserializeObject<Tag>(_lastResponse.Response);
 
+                        // if this course doesn't have a tag yet then it will create it. for all the class that have the same CourseCode
                         if (tag == null)
                         {
                             tag = new();
@@ -199,6 +200,7 @@ namespace VmProjectBFF.Controllers
 
                         foreach (DTO.Database.VmTemplate vmTemplate in vmTemplates)
                         {
+                            // Looking for a template that is being tied to the course
                             _lastResponse = _backendHttpClient.Get($"api/v2/VmTemplateTag", new() { { "tagId", tag.TagId }, { "vmTemplateId", vmTemplate.VmTemplateId } });
                             VmTemplateTag vmTemplateTag = JsonConvert.DeserializeObject<VmTemplateTag>(_lastResponse.Response);
 
