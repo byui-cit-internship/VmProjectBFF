@@ -6,6 +6,8 @@ namespace VmProjectBFF.DTO.Database
 
         public int CourseId { get; set; }
 
+        public string CourseCode { get; set; }
+
         public int SemesterId { get; set; }
 
         public int FolderId { get; set; }
