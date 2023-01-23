@@ -80,16 +80,9 @@ namespace VmProjectBFF.Controllers
         {
             try
             {
-                User professor = _authorization.GetAuth("admin");
 
-                if (professor is not null)
-                {
                     return Ok(_vCenter.GetTemplatesByContentLibraryId(libraryId));
-                }
-                else
-                {
-                    return Forbid();
-                }
+     
             }
             catch (BffHttpException be)
             {

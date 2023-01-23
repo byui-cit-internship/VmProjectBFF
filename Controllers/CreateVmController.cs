@@ -204,6 +204,7 @@ namespace VmProjectBFF.Controllers
             }
         }
 
+
         [HttpGet("vCenterTemplate/{id}")]
         public async Task<ActionResult<IEnumerable<string>>> GetVCenterTemplateById(string id)
         {
@@ -283,25 +284,6 @@ namespace VmProjectBFF.Controllers
             }
         }
 
-        [HttpGet("templates/byLibraryId/{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult> GetTemplatesByLibraryId(string id)
-        {
-            try
-            {
-                User user = _authorization.GetAuth("user");
-                if (user is not null)
-                {
-                    return Ok(_backend.GetTemplatesByLibraryId(id));
-                }
-                return Unauthorized();
-
-            }
-            catch (BffHttpException be)
-            {
-                return StatusCode((int)be.StatusCode, be.Message);
-            }
-        }
 
     }
 }
