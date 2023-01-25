@@ -151,5 +151,6 @@ namespace VmProjectBFF.Services
             return JsonConvert.DeserializeObject<List<VmTemplate>>(_lastResponse.Response);
         }
 
+
     }
 }
