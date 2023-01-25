@@ -121,27 +121,6 @@ namespace VmProjectBFF.Controllers
                         _lastResponse = _backendHttpClient.Post($"api/v2/ResourcePool", resourcePoolSection);
                         resourcePoolSection = JsonConvert.DeserializeObject<ResourcePool>(_lastResponse.Response);
 
-                        List<DTO.Database.VmTemplate> vmTemplates = new();
-                        foreach (string templateVmId in courseDetails.templateVm)
-                        {
-                            _lastResponse = _backendHttpClient.Get($"api/v2/VmTemplate", new() { { "vmTemplateVcenterId", templateVmId } });
-                            DTO.Database.VmTemplate template = JsonConvert.DeserializeObject<DTO.Database.VmTemplate>(_lastResponse.Response);
-
-                            if (template == null)
-                            {
-                                template = new VmTemplate();
-                                template.VmTemplateVCenterId = templateVmId;
-                                template.VmTemplateName = courseDetails.vmTemplateName;
-                                template.VmTemplateAccessDate = new DateTime(2022, 1, 1);
-                                template.LibraryVCenterId = courseDetails.libraryId;
-
-                                _lastResponse = _backendHttpClient.Post($"api/v2/VmTemplate", template);
-                                template = JsonConvert.DeserializeObject<DTO.Database.VmTemplate>(_lastResponse.Response);
-                            }
-
-                            vmTemplates.Add(template);
-                        }
-
                         Section newSection = new();
                         newSection.CourseId = (int)course.CourseId;
                         newSection.SectionCanvasId = Int32.Parse(courseDetails.canvasCourseId);
@@ -195,22 +174,6 @@ namespace VmProjectBFF.Controllers
 
                             _lastResponse = _backendHttpClient.Post($"api/v2/Tag", tag);
                             tag = JsonConvert.DeserializeObject<Tag>(_lastResponse.Response);
-                        }
-
-                        foreach (DTO.Database.VmTemplate vmTemplate in vmTemplates)
-                        {
-                            _lastResponse = _backendHttpClient.Get($"api/v2/VmTemplateTag", new() { { "tagId", tag.TagId }, { "vmTemplateId", vmTemplate.VmTemplateId } });
-                            VmTemplateTag vmTemplateTag = JsonConvert.DeserializeObject<VmTemplateTag>(_lastResponse.Response);
-
-                            if (vmTemplateTag == null)
-                            {
-                                vmTemplateTag = new();
-                                vmTemplateTag.VmTemplateId = vmTemplate.VmTemplateId;
-                                vmTemplateTag.TagId = tag.TagId;
-
-                                _lastResponse = _backendHttpClient.Post($"api/v2/VmTemplateTag", vmTemplateTag);
-                                vmTemplateTag = JsonConvert.DeserializeObject<VmTemplateTag>(_lastResponse.Response);
-                            }
                         }
 
                         UserSectionRole enrollment = new UserSectionRole
