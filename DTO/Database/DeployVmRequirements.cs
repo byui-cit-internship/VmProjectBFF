@@ -8,5 +8,6 @@ namespace VmProjectBFF.DTO.Database
 
         public DateTime vmInstanceCreationDate { get; set; }
     
+        public string templateId { get; set;}
     }
 }
