@@ -71,7 +71,7 @@ namespace VmProjectBFF.Controllers
                     NewVmInstance vCenterInstanceId = _vCenter.NewVmInstanceByTemplateId(createVm.Template_id,
                                                                                   deployContainer);
 
-                    DTO.Database.VmTemplate template = _backend.GetTemplateByVCenterId(createVm.Template_id);
+                    DTO.Database.VmTemplate template = _backend.GetTemplateByVCenterId(requirements.templateId);
 
                     VmInstance vmInstance = new()
                     {
