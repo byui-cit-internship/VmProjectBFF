@@ -8,8 +8,8 @@
         public int enrollmentId { get; set; }
         public string studentFullName { get; set; }
         public string vcenterTemplateId { get; set; }
-
-        public CourseListByUserDTO(int canvasSectionId, int sectionId, string sectionName, int enrollmentId, string studentFullName, string vcenterTemplateId)
+        public string LibraryVCenterId {get; set; } 
+        public CourseListByUserDTO(int canvasSectionId, int sectionId, string sectionName, int enrollmentId, string studentFullName, string vcenterTemplateId, string LibraryVCenterId)
         {
             this.canvasSectionId = canvasSectionId;
             this.sectionId = sectionId;
@@ -17,6 +17,7 @@
             this.enrollmentId = enrollmentId;
             this.studentFullName = studentFullName;
             this.vcenterTemplateId = vcenterTemplateId;
+            this.LibraryVCenterId = LibraryVCenterId;
         }
     }
 }
