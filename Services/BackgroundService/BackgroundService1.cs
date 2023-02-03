@@ -38,7 +38,7 @@ namespace VmProjectBFF.Services
             canvasStudentRoleId = int.Parse(_configuration["Canvas:StudentRoleId"]);
         }
 
-        public async Task ReadAndUpdateDB()
+        public async Task ReadAndUpdateDB(int sectionIdCreated)//this is our own identifier
         {
             try
             {
@@ -71,11 +71,32 @@ namespace VmProjectBFF.Services
                 {
                     foreach (User professor in canvasUsers)
                     {
+                        //call the new function instead of the code below, then we can call it outside the loop as well
                         _lastResponse = _backendHttpClient.Get($"api/v2/Section", new() { { "userId", professor.UserId } });
                         List<Section> sections = JsonConvert.DeserializeObject<List<Section>>(_lastResponse.Response);
 
                         foreach (Section section in sections)
                         {
+                            await CreateNewSection(section, professor, studentRole);
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("There is no sections imported from canvas");
+                }
+
+
+                BffResponse deleteResponse = _backendHttpClient.Delete("api/v1/token", null);
+            }
+            catch (BffHttpException be)
+            {
+                return;
+            }
+        }
+
+        protected async Task CreateNewSection(Section section, User professor, Role studentRole)    
+            {
                             // grab the id, canvas_token, section_num for every course
                             int sectionId = section.SectionCanvasId;
                             string profCanvasToken = professor.CanvasToken;
@@ -158,28 +179,14 @@ namespace VmProjectBFF.Services
                             }
                             Console.WriteLine("here 5");
                         }
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("There is no sections imported from canvas");
-                }
 
-
-                BffResponse deleteResponse = _backendHttpClient.Delete("api/v1/token", null);
-            }
-            catch (BffHttpException be)
-            {
-                return;
-            }
-        }
 
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
                 await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
-                await ReadAndUpdateDB();
+                await ReadAndUpdateDB(0);//0 means all sections
                 // _logger.LogInformation("From background service");
             }
             await Task.CompletedTask;
