@@ -125,7 +125,7 @@ namespace VmProjectBFF.Services
 
         public List<CourseListByUserDTO> GetStudentCourseByUserId(int userId)
         {
-            _lastResponse = _backendHttpClient.Get($"api/v2/Section", new() { { "queryUserId", userId } });
+            _lastResponse = _backendHttpClient.Get($"api/v2/Section", new() { { "userId", userId } });
             return JsonConvert.DeserializeObject<List<CourseListByUserDTO>>(_lastResponse.Response);
         }
 
