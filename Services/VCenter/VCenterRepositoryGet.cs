@@ -48,7 +48,7 @@ namespace VmProjectBFF.Services
 
         public List<Folder> GetFolders()
         {
-            _lastResponse = _vCenterHttpClient.Get("rest/vcenter/folder", new() { { "filter.type", "VIRTUAL_MACHINE" } });
+            _lastResponse = _vCenterHttpClient.Get("rest/vcenter/folder", new Dictionary<string, dynamic>() { { "filter.type", "VIRTUAL_MACHINE" } });
             return new List<Folder>(JsonConvert.DeserializeObject<FolderContainer>(_lastResponse.Response).value);
         }
 
@@ -65,7 +65,7 @@ namespace VmProjectBFF.Services
 
         public List<string> GetTemplateIdsInContentLibrary(string contentLibraryId)
         {
-            _lastResponse = _vCenterHttpClient.Get("rest/com/vmware/content/library/item", new() { { "library_id", contentLibraryId } });
+            _lastResponse = _vCenterHttpClient.Get("rest/com/vmware/content/library/item", new Dictionary<string, dynamic>() { { "library_id", contentLibraryId } });
             return (JsonConvert.DeserializeObject<TemplateInLibrary>(_lastResponse.Response).value);
         }
 
