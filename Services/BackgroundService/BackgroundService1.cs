@@ -38,8 +38,9 @@ namespace VmProjectBFF.Services
             canvasStudentRoleId = int.Parse(_configuration["Canvas:StudentRoleId"]);
         }
 
-        public async Task ReadAndUpdateDB(int sectionIdCreated)//this is our own identifier
+        public async Task ReadAndUpdateDB(int sectionIdCreated=0, User newCourseProfessor = null)//this is our own identifier
         {
+            if(sectionIdCreated==0) {
             try
             {
                 //_lastResponse = _backendHttpClient.Post("api/v1/token", new DTO.AccessTokenDTO(_configuration.GetConnectionString("BackendConnectionPassword")));
@@ -92,6 +93,11 @@ namespace VmProjectBFF.Services
             catch (BffHttpException be)
             {
                 return;
+            }
+            }
+            else {
+        
+             //CreateNewSection();   TO-DO:pass parameters 
             }
         }
 
@@ -186,7 +192,7 @@ namespace VmProjectBFF.Services
             while (!stoppingToken.IsCancellationRequested)
             {
                 await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
-                await ReadAndUpdateDB(0);//0 means all sections
+                await ReadAndUpdateDB();//0 means all sections
                 // _logger.LogInformation("From background service");
             }
             await Task.CompletedTask;
