@@ -48,8 +48,8 @@ namespace VmProjectBFF.Controllers
 
                 if (studentUser is not null)
                 {
-                    CreateVmDTO createVm = _backend.GetCreateVmByEnrollmentId(requirements.enrollment_id); // Should validation be added so createVm is not made by any student on behalf of another student??
-                    Section section = _backend.GetSectionsByEnrollmentId(requirements.enrollment_id);
+                    CreateVmDTO createVm = _backend.GetCreateVmByEnrollmentId(requirements.enrollmentId); // Should validation be added so createVm is not made by any student on behalf of another student??
+                    Section section = _backend.GetSectionsByEnrollmentId(requirements.enrollmentId);
                     Semester semester = _backend.GetSemesterBySemesterId(section.SemesterId);
                     ResourcePool resourcePool = _backend.GetResourcePoolByResourcePoolId(section.ResourcePoolId);
                     DBFolder folder = _backend.GetFolderByFolderId(section.FolderId);
