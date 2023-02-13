@@ -38,8 +38,11 @@ namespace VmProjectBFF.Services
             canvasStudentRoleId = int.Parse(_configuration["Canvas:StudentRoleId"]);
         }
 
-        public async Task ReadAndUpdateDB()
+        public async Task ReadAndUpdateDB(int sectionIdCreated=0, User newCourseProfessor = null)//this is our own identifier
         {
+            _lastResponse = _backendHttpClient.Get($"api/v2/Role", new() { { "canvasRoleId", canvasStudentRoleId } });
+            Role studentRole = JsonConvert.DeserializeObject<List<Role>>(_lastResponse.Response).FirstOrDefault();
+            if(sectionIdCreated==0) { //This means it is running unattended
             try
             {
                 //_lastResponse = _backendHttpClient.Post("api/v1/token", new DTO.AccessTokenDTO(_configuration.GetConnectionString("BackendConnectionPassword")));
@@ -52,10 +55,6 @@ namespace VmProjectBFF.Services
 
                 _lastResponse = _backendHttpClient.Get("api/v1/User/canvasUsers");
                 List<User> canvasUsers = JsonConvert.DeserializeObject<List<User>>(_lastResponse.Response);
-
-
-                _lastResponse = _backendHttpClient.Get($"api/v2/Role", new() { { "canvasRoleId", canvasStudentRoleId } });
-                Role studentRole = JsonConvert.DeserializeObject<List<Role>>(_lastResponse.Response).FirstOrDefault();
 
                 if (studentRole == null)
                 {
@@ -71,11 +70,41 @@ namespace VmProjectBFF.Services
                 {
                     foreach (User professor in canvasUsers)
                     {
+                        //call the new function instead of the code below, then we can call it outside the loop as well
                         _lastResponse = _backendHttpClient.Get($"api/v2/Section", new() { { "userId", professor.UserId } });
                         List<Section> sections = JsonConvert.DeserializeObject<List<Section>>(_lastResponse.Response);
 
                         foreach (Section section in sections)
                         {
+                            await CreateNewSection(section, professor, studentRole);
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("There is no sections imported from canvas");
+                }
+
+
+                BffResponse deleteResponse = _backendHttpClient.Delete("api/v1/token", null);
+            }
+            catch (BffHttpException be)
+            {
+                _logger.LogError("Error synchronizing with Canvas " + be.Message);
+                return;
+            }
+            }
+            else { //this is when a teacher just created a class
+
+                _lastResponse = _backendHttpClient.Get($"api/v2/Section", new() { { "sectionId", sectionIdCreated } });
+                Section section = JsonConvert.DeserializeObject<Section>(_lastResponse.Response);
+                //we assume we will get back one section for the id provided
+                await CreateNewSection(section, newCourseProfessor, studentRole);   //TO-DO:pass parameters 
+            }
+        }
+
+        protected async Task CreateNewSection(Section section, User professor, Role studentRole)    
+            {
                             // grab the id, canvas_token, section_num for every course
                             int sectionId = section.SectionCanvasId;
                             string profCanvasToken = professor.CanvasToken;
@@ -158,28 +187,14 @@ namespace VmProjectBFF.Services
                             }
                             Console.WriteLine("here 5");
                         }
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("There is no sections imported from canvas");
-                }
 
-
-                BffResponse deleteResponse = _backendHttpClient.Delete("api/v1/token", null);
-            }
-            catch (BffHttpException be)
-            {
-                return;
-            }
-        }
 
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
                 await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
-                await ReadAndUpdateDB();
+                await ReadAndUpdateDB();//0 means all sections
                 // _logger.LogInformation("From background service");
             }
             await Task.CompletedTask;
