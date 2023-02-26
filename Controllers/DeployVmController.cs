@@ -68,8 +68,9 @@ namespace VmProjectBFF.Controllers
                     }
                     };
 
-                    NewVmInstance vCenterInstanceId = _vCenter.NewVmInstanceByTemplateId(createVm.Template_id,
-                                                                                  deployContainer);
+                    NewVmInstance vCenterInstanceId = _vCenter.NewVmInstanceByTemplateId(createVm.Template_id,deployContainer);
+                                    
+                    _vCenter.startVm(vCenterInstanceId.value);
 
                     DTO.Database.VmTemplate template = _backend.GetTemplateByVCenterId(requirements.templateId);
 
@@ -82,6 +83,7 @@ namespace VmProjectBFF.Controllers
                         VmInstanceVcenterName = requirements.vmInstanceName,
                         SectionId = section.SectionId
                     };
+                    
 
                     return Ok(_backend.CreateVmInstance(vmInstance));
                 }
