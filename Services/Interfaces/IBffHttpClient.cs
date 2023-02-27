@@ -18,6 +18,10 @@ namespace VmProjectBFF.Services
             string path,
             dynamic content);
 
+
+        public BffResponse Post(
+            string path);            
+
         public BffResponse Post(
             string path,
             Dictionary<string, dynamic> queryParams,

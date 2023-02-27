@@ -184,6 +184,19 @@ namespace VmProjectBFF.Services
             }
         }
 
+                public override BffResponse Post(
+            string path)
+        {
+            try
+            {
+                return base.Post(path);
+            }
+            catch (BffHttpException ex)
+            {
+                throw new VCenterHttpException(ex);
+            }
+        }
+
         public override BffResponse Put(
             string path,
             dynamic content)

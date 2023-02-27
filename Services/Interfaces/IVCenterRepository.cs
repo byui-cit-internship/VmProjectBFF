@@ -23,5 +23,7 @@ namespace VmProjectBFF.Services
         public NewVmInstance NewVmInstanceByTemplateId(
             string vCenterTemplateId,
             DeployContainer deployContainer);
+
+        public void StartVM(string vmInstanceId);
     }
 }

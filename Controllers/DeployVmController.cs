@@ -70,7 +70,7 @@ namespace VmProjectBFF.Controllers
 
                     NewVmInstance vCenterInstanceId = _vCenter.NewVmInstanceByTemplateId(createVm.Template_id,deployContainer);
                                     
-                    _vCenter.startVm(vCenterInstanceId.value);
+                    _vCenter.StartVm(vCenterInstanceId.value);
 
                     DTO.Database.VmTemplate template = _backend.GetTemplateByVCenterId(requirements.templateId);
 

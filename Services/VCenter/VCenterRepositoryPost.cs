@@ -14,7 +14,7 @@ namespace VmProjectBFF.Services
         }
         public void startVm (string vmInstanceVcenterId)
         {
-             _lastResponse = _vCenterHttpClient.Post($"rest/vcenter/vm/{vmInstanceVcenterId}/power/start", new());
+             _lastResponse = _vCenterHttpClient.Post($"rest/vcenter/vm/{vmInstanceVcenterId}/power/start");
         }
     }
 }
