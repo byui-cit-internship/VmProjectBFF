@@ -186,7 +186,7 @@ namespace VmProjectBFF.Controllers
                         _lastResponse = _backendHttpClient.Post($"api/v2/UserSectionRole", enrollment);
                         enrollment = JsonConvert.DeserializeObject<UserSectionRole>(_lastResponse.Response);
 
-                        await _backgroundService1?.ReadAndUpdateDB(newSection.SectionId);
+                        await _backgroundService1?.ReadAndUpdateDB(newSection.SectionId, professor);
 
                         return Ok("ID " + newSection.SectionId + " enrollment was created");
                     }

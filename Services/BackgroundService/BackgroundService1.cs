@@ -38,8 +38,11 @@ namespace VmProjectBFF.Services
             canvasStudentRoleId = int.Parse(_configuration["Canvas:StudentRoleId"]);
         }
 
-        public async Task ReadAndUpdateDB(int sectionIdCreated)//this is our own identifier
+        public async Task ReadAndUpdateDB(int sectionIdCreated=0, User newCourseProfessor = null)//this is our own identifier
         {
+            _lastResponse = _backendHttpClient.Get($"api/v2/Role", new() { { "canvasRoleId", canvasStudentRoleId } });
+            Role studentRole = JsonConvert.DeserializeObject<List<Role>>(_lastResponse.Response).FirstOrDefault();
+            if(sectionIdCreated==0) { //This means it is running unattended
             try
             {
                 //_lastResponse = _backendHttpClient.Post("api/v1/token", new DTO.AccessTokenDTO(_configuration.GetConnectionString("BackendConnectionPassword")));
@@ -52,10 +55,6 @@ namespace VmProjectBFF.Services
 
                 _lastResponse = _backendHttpClient.Get("api/v1/User/canvasUsers");
                 List<User> canvasUsers = JsonConvert.DeserializeObject<List<User>>(_lastResponse.Response);
-
-
-                _lastResponse = _backendHttpClient.Get($"api/v2/Role", new() { { "canvasRoleId", canvasStudentRoleId } });
-                Role studentRole = JsonConvert.DeserializeObject<List<Role>>(_lastResponse.Response).FirstOrDefault();
 
                 if (studentRole == null)
                 {
@@ -91,7 +90,16 @@ namespace VmProjectBFF.Services
             }
             catch (BffHttpException be)
             {
+                _logger.LogError("Error synchronizing with Canvas " + be.Message);
                 return;
+            }
+            }
+            else { //this is when a teacher just created a class
+
+                _lastResponse = _backendHttpClient.Get($"api/v2/Section", new() { { "sectionId", sectionIdCreated } });
+                Section section = JsonConvert.DeserializeObject<Section>(_lastResponse.Response);
+                //we assume we will get back one section for the id provided
+                await CreateNewSection(section, newCourseProfessor, studentRole);   //TO-DO:pass parameters 
             }
         }
 
@@ -181,12 +189,14 @@ namespace VmProjectBFF.Services
                         }
 
 
+
+
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
                 await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
-                await ReadAndUpdateDB(0);//0 means all sections
+                await ReadAndUpdateDB();//0 means all sections
                 // _logger.LogInformation("From background service");
             }
             await Task.CompletedTask;

@@ -9,6 +9,7 @@
         public string studentFullName { get; set; }
         public string vcenterTemplateId { get; set; }
         public string LibraryVCenterId {get; set; } 
+        public int userSectionRoleId {get; set; }
         public CourseListByUserDTO(int canvasSectionId, int sectionId, string sectionName, int enrollmentId, string studentFullName, string vcenterTemplateId, string LibraryVCenterId)
         {
             this.canvasSectionId = canvasSectionId;
