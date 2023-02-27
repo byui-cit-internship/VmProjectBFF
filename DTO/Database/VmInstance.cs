@@ -9,5 +9,6 @@
         public DateTime VmInstanceExpireDate { get; set; }
         public string VmInstanceVcenterName { get; set; }
         public int SectionId { get; set; }
+        public int UserId { get; set; }
     }
 }
