@@ -147,34 +147,34 @@ namespace VmProjectBFF.Controllers
                             profRole = JsonConvert.DeserializeObject<Role>(_lastResponse.Response);
                         }
 
-                        _lastResponse = _backendHttpClient.Get($"api/v2/TagCategory", new() { { "tagCategoryName", "Course" } });
-                        TagCategory tagCategory = JsonConvert.DeserializeObject<TagCategory>(_lastResponse.Response);
+                        // _lastResponse = _backendHttpClient.Get($"api/v2/TagCategory", new() { { "tagCategoryName", "Course" } });
+                        // TagCategory tagCategory = JsonConvert.DeserializeObject<TagCategory>(_lastResponse.Response);
 
-                        if (tagCategory == null)
-                        {
-                            tagCategory = new();
-                            tagCategory.TagCategoryVcenterId = "TEMP_USE";
-                            tagCategory.TagCategoryName = "Course";
-                            tagCategory.TagCategoryDescription = "Do not attempt to use with VCenter.";
+                        // if (tagCategory == null)
+                        // {
+                        //     tagCategory = new();
+                        //     tagCategory.TagCategoryVcenterId = "TEMP_USE";
+                        //     tagCategory.TagCategoryName = "Course";
+                        //     tagCategory.TagCategoryDescription = "Do not attempt to use with VCenter.";
 
-                            _lastResponse = _backendHttpClient.Post($"api/v2/TagCategory", tagCategory);
-                            tagCategory = JsonConvert.DeserializeObject<TagCategory>(_lastResponse.Response);
-                        }
+                        //     _lastResponse = _backendHttpClient.Post($"api/v2/TagCategory", tagCategory);
+                        //     tagCategory = JsonConvert.DeserializeObject<TagCategory>(_lastResponse.Response);
+                        // }
 
-                        _lastResponse = _backendHttpClient.Get($"api/v2/Tag", new() { { "tagCategoryId", tagCategory.TagCategoryId }, { "tagName", course.CourseCode } });
-                        Tag tag = JsonConvert.DeserializeObject<Tag>(_lastResponse.Response);
+                        // _lastResponse = _backendHttpClient.Get($"api/v2/Tag", new() { { "tagCategoryId", tagCategory.TagCategoryId }, { "tagName", course.CourseCode } });
+                        // Tag tag = JsonConvert.DeserializeObject<Tag>(_lastResponse.Response);
 
-                        if (tag == null)
-                        {
-                            tag = new();
-                            tag.TagVCenterId = "TEMP_USE";
-                            tag.TagCategoryId = tagCategory.TagCategoryId;
-                            tag.TagName = course.CourseCode;
-                            tag.TagDescription = "Do not attempt to use with VCenter.";
+                        // if (tag == null)
+                        // {
+                        //     tag = new();
+                        //     tag.TagVCenterId = "TEMP_USE";
+                        //     tag.TagCategoryId = tagCategory.TagCategoryId;
+                        //     tag.TagName = course.CourseCode;
+                        //     tag.TagDescription = "Do not attempt to use with VCenter.";
 
-                            _lastResponse = _backendHttpClient.Post($"api/v2/Tag", tag);
-                            tag = JsonConvert.DeserializeObject<Tag>(_lastResponse.Response);
-                        }
+                        //     _lastResponse = _backendHttpClient.Post($"api/v2/Tag", tag);
+                        //     tag = JsonConvert.DeserializeObject<Tag>(_lastResponse.Response);
+                        // }
 
                         UserSectionRole enrollment = new UserSectionRole
                         {

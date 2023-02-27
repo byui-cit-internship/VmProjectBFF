@@ -80,7 +80,9 @@ namespace VmProjectBFF.Controllers
                         VmInstanceCreationDate = requirements.vmInstanceCreationDate,
                         VmInstanceExpireDate = semester.EndDate,
                         VmInstanceVcenterName = requirements.vmInstanceName,
-                        SectionId = section.SectionId
+                        SectionId = section.SectionId,
+                        /*added this to replace tagUser*/
+                        UserId = studentUser.UserId
                     };
 
                     return Ok(_backend.CreateVmInstance(vmInstance));
