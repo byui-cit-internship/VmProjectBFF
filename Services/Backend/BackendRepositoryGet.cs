@@ -67,12 +67,14 @@ namespace VmProjectBFF.Services
                 vmTemplates.Add(JsonConvert.DeserializeObject<VmTemplate>(_lastResponse.Response));
             }
             List<CourseTemplateDTO> courses = new();
-            foreach (int vmTemplateId in vmTemplateIds)
+            foreach (VmInstance vmInstance in vmInstances)
             {
-                _lastResponse = _backendHttpClient.Get("api/v2/Course", new() { { "vmTemplateId", vmTemplateId } });
+                Console.WriteLine("section ID:"+vmInstance.SectionId);
+                _lastResponse = _backendHttpClient.Get("api/v2/Course", new() { { "sectionId", vmInstance.SectionId } });
                 CourseTemplateDTO course = JsonConvert.DeserializeObject<CourseTemplateDTO>(_lastResponse.Response);
-                course.VmTemplateId = vmTemplateId;
+                course.VmTemplateId = vmInstance.VmTemplateId;
                 courses.Add(course);
+            
             }
             return (
                 (from vi in vmInstances
