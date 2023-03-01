@@ -12,7 +12,7 @@ namespace VmProjectBFF.Services
             _lastResponse = _vCenterHttpClient.Post($"rest/vcenter/vm-template/library-items/{vCenterTemplateId}", new() { { "action", "deploy" } }, deployContainer);
             return JsonConvert.DeserializeObject<NewVmInstance>(_lastResponse.Response);
         }
-        public void startVm (string vmInstanceVcenterId)
+        public void StartVm (string vmInstanceVcenterId)
         {
              _lastResponse = _vCenterHttpClient.Post($"rest/vcenter/vm/{vmInstanceVcenterId}/power/start");
         }
