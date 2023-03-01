@@ -5,7 +5,7 @@ namespace VmProjectBFF.Services
 {
     public partial class VCenterRepository
     {
-        public NewVmInstance NewVmInstanceByTemplateId(
+        public  NewVmInstance NewVmInstanceByTemplateId(
             string vCenterTemplateId,
             DeployContainer deployContainer)
         {
