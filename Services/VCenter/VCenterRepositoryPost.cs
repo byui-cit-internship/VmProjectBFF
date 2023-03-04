@@ -5,12 +5,16 @@ namespace VmProjectBFF.Services
 {
     public partial class VCenterRepository
     {
-        public NewVmInstance NewVmInstanceByTemplateId(
+        public  NewVmInstance NewVmInstanceByTemplateId(
             string vCenterTemplateId,
             DeployContainer deployContainer)
         {
             _lastResponse = _vCenterHttpClient.Post($"rest/vcenter/vm-template/library-items/{vCenterTemplateId}", new() { { "action", "deploy" } }, deployContainer);
             return JsonConvert.DeserializeObject<NewVmInstance>(_lastResponse.Response);
+        }
+        public void StartVm (string vmInstanceVcenterId)
+        {
+             _lastResponse = _vCenterHttpClient.Post($"rest/vcenter/vm/{vmInstanceVcenterId}/power/start");
         }
     }
 }

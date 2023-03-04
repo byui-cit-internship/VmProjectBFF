@@ -68,8 +68,9 @@ namespace VmProjectBFF.Controllers
                     }
                     };
 
-                    NewVmInstance vCenterInstanceId = _vCenter.NewVmInstanceByTemplateId(createVm.Template_id,
-                                                                                  deployContainer);
+                    NewVmInstance vCenterInstanceId = _vCenter.NewVmInstanceByTemplateId(createVm.Template_id,deployContainer);
+                                    
+                    _vCenter.StartVm(vCenterInstanceId.value);
 
                     DTO.Database.VmTemplate template = _backend.GetTemplateByVCenterId(requirements.templateId);
 
@@ -80,8 +81,11 @@ namespace VmProjectBFF.Controllers
                         VmInstanceCreationDate = requirements.vmInstanceCreationDate,
                         VmInstanceExpireDate = semester.EndDate,
                         VmInstanceVcenterName = requirements.vmInstanceName,
-                        SectionId = section.SectionId
+                        SectionId = section.SectionId,
+                        /*added this to replace tagUser*/
+                        UserId = studentUser.UserId
                     };
+                    
 
                     return Ok(_backend.CreateVmInstance(vmInstance));
                 }

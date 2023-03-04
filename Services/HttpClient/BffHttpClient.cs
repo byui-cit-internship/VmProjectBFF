@@ -13,6 +13,7 @@ namespace VmProjectBFF.Services
         protected readonly IConfiguration _configuration;
         protected Dictionary<string, string> _headers = new();
         protected readonly string _baseUrl;
+        
 
         public Dictionary<string, string> Headers
         { get => _headers; set => _headers = value; }
@@ -119,6 +120,29 @@ namespace VmProjectBFF.Services
             }
             return response;
         }
+        public HttpResponseMessage Send(
+            string path,
+            HttpMethod method)
+        {
+            HttpRequestMessage toSend = new();
+            toSend.RequestUri = new($"{_baseUrl}{path}");
+            toSend.Method = method;
+            foreach (KeyValuePair<string, string> headers in _headers)
+            {
+                toSend.Headers.Add(headers.Key, headers.Value);
+            }
+
+            _logger.LogInformation($"Sending '{method}' request to URL: {toSend.RequestUri}");
+            HttpResponseMessage response = Send(toSend);
+            if (!response.IsSuccessStatusCode)
+            {
+                string responseErrorContent = response.Content.ReadAsStringAsync().Result;
+                string responseErrorMessage = LogError(path, response, responseErrorContent);
+                throw new BffHttpException(response.StatusCode, responseErrorMessage);
+            }
+            return response;
+        }
+
 
         public virtual BffResponse Delete(
             string path,
@@ -146,6 +170,15 @@ namespace VmProjectBFF.Services
             return Get(path);
         }
 
+
+        public virtual BffResponse Post(
+            string path)
+        {
+            HttpResponseMessage postResponse = Send(path,
+                                                    HttpMethod.Post
+                                                    );
+            return new(postResponse);
+        }
         public virtual BffResponse Post(
             string path,
             dynamic content)
