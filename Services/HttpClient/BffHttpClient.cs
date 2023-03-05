@@ -91,6 +91,7 @@ namespace VmProjectBFF.Services
             ILogger logger)
             : base(GetHttpClientHandler())
         {
+            this.Timeout=TimeSpan.FromMinutes(10);//VSphere takes a while
             _baseUrl = baseUrl;
             _headers = headers;
             _logger = logger;
