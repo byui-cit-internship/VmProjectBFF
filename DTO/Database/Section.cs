@@ -19,5 +19,7 @@ namespace VmProjectBFF.DTO.Database
         public string SectionName { get; set; }
 
         public string LibraryVCenterId { get; set; }
+
+        public string CourseCode { get; set;}
     }
 }
