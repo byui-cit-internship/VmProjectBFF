@@ -95,7 +95,7 @@ namespace VmProjectBFF.Services
                      VmInstanceExpireDate = vi.VmInstanceExpireDate,
                      VmInstanceVcenterName = vi.VmInstanceVcenterName,
                      SectionId = vi.SectionId
-                 }).ToList()
+                 }).Distinct().ToList()
             );
         }
 
