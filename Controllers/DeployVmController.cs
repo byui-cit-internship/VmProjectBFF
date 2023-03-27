@@ -68,7 +68,7 @@ namespace VmProjectBFF.Controllers
                     }
                     };
 
-                    NewVmInstance vCenterInstanceId = _vCenter.NewVmInstanceByTemplateId(createVm.Template_id,deployContainer);
+                    NewVmInstance vCenterInstanceId = _vCenter.NewVmInstanceByTemplateId(requirements.templateId,deployContainer);
                                     
                     _vCenter.StartVm(vCenterInstanceId.value);
 
