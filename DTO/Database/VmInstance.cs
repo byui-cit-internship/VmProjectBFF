@@ -2,7 +2,7 @@
 {
     public class VmInstance
     {
-        public int VmInstanceId { get; set; }
+        public string VmInstanceId { get; set; }
         public int VmTemplateId { get; set; }
         public string VmInstanceVcenterId { get; set; }
         public DateTime VmInstanceCreationDate { get; set; }
