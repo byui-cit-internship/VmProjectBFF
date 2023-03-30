@@ -82,6 +82,7 @@ namespace VmProjectBFF.Services
                 _lastResponse = _backendHttpClient.Get($"api/v2/Section", new() { { "sectionId", vmInstance.SectionId } });
                 Section section = JsonConvert.DeserializeObject<Section>(_lastResponse.Response);
                 sections.Add(section);
+                course.CourseId = section.CourseId;
                 course.CourseCode= section.CourseCode;
                 courses.Add(course);
             
@@ -102,7 +103,8 @@ namespace VmProjectBFF.Services
                      VmInstanceCreationDate = vi.VmInstanceCreationDate,
                      VmInstanceExpireDate = vi.VmInstanceExpireDate,
                      VmInstanceVcenterName = vi.VmInstanceVcenterName,
-                     SectionId = vi.SectionId
+                     SectionId = vi.SectionId,
+                     vmTemplateName = vi.vmTemplateName
                  }).Distinct().ToList()
             );
         }
