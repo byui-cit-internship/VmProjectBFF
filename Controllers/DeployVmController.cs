@@ -72,17 +72,15 @@ namespace VmProjectBFF.Controllers
                                     
                     _vCenter.StartVm(vCenterInstanceId.value);
 
-                    DTO.Database.VmTemplate template = _backend.GetTemplateByVCenterId(requirements.templateId);
-
                     VmInstance vmInstance = new()
                     {
                         VmInstanceVcenterId = vCenterInstanceId.value,
-                        VmTemplateId = template.VmTemplateId,
+                        VmTemplateId = requirements.templateId,
                         VmInstanceCreationDate = requirements.vmInstanceCreationDate,
                         VmInstanceExpireDate = semester.EndDate,
                         VmInstanceVcenterName = requirements.vmInstanceName,
                         SectionId = section.SectionId,
-                        /*added this to replace tagUser*/
+                        /* added this to replace tagUser*/
                         UserId = studentUser.UserId
                     };
                     
