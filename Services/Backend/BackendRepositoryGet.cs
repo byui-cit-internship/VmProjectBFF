@@ -60,12 +60,6 @@ namespace VmProjectBFF.Services
             List<VmInstance> vmInstances = JsonConvert.DeserializeObject<List<VmInstance>>(_lastResponse.Response);
             List<string> vmTemplateIds = (from instance in vmInstances
                                        select instance.VmTemplateId).Distinct().ToList();
-                                       
-            // List<VmTemplate> vmTemplates = new();
-            // foreach (string vmTemplateId in vmTemplateIds)
-            // {
-            //     VmProjectBFF.DTO.VCenter.VmTemplate vmTemplate= _vCenter.GetTemplateByVCenterId (vmTemplateId);
-            // }
 
             List<CourseTemplateDTO> courses = new();
             List<Section> sections = new();
@@ -77,7 +71,7 @@ namespace VmProjectBFF.Services
 
                 Console.WriteLine("section ID:"+vmInstance.SectionId);
                 
-                CourseTemplateDTO course = new CourseTemplateDTO();//JsonConvert.DeserializeObject<CourseTemplateDTO>(_lastResponse.Response);
+                CourseTemplateDTO course = new CourseTemplateDTO();
                 course.VmTemplateId = vmInstance.VmTemplateId;
                 _lastResponse = _backendHttpClient.Get($"api/v2/Section", new() { { "sectionId", vmInstance.SectionId } });
                 Section section = JsonConvert.DeserializeObject<Section>(_lastResponse.Response);
@@ -89,8 +83,6 @@ namespace VmProjectBFF.Services
             }
             return (
                 (from vi in vmInstances
-                //  join vt in vmTemplates
-                //  on vi.VmTemplateId equals vt.VmTemplateId
                  join s in sections 
                  on vi.SectionId equals s.SectionId
                  join c in courses

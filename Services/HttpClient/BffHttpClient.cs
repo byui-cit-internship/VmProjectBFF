@@ -184,7 +184,6 @@ namespace VmProjectBFF.Services
             string path,
             dynamic content)
         {
-            // var PropertyInfo = content.GetType().GetProperties();
 
             HttpResponseMessage postResponse = Send(path,
                                                     HttpMethod.Post,
