@@ -58,38 +58,46 @@ namespace VmProjectBFF.Services
         {
             _lastResponse = _backendHttpClient.Get("api/v2/VmInstance", new() { { "userId", userId } });
             List<VmInstance> vmInstances = JsonConvert.DeserializeObject<List<VmInstance>>(_lastResponse.Response);
-            List<int> vmTemplateIds = (from instance in vmInstances
+            List<string> vmTemplateIds = (from instance in vmInstances
                                        select instance.VmTemplateId).Distinct().ToList();
-            List<VmTemplate> vmTemplates = new();
-            foreach (int vmTemplateId in vmTemplateIds)
-            {
-                _lastResponse = _backendHttpClient.Get("api/v2/VmTemplate", new() { { "vmTemplateId", vmTemplateId } });
-                vmTemplates.Add(JsonConvert.DeserializeObject<VmTemplate>(_lastResponse.Response));
-            }
+                                       
+            // List<VmTemplate> vmTemplates = new();
+            // foreach (string vmTemplateId in vmTemplateIds)
+            // {
+            //     VmProjectBFF.DTO.VCenter.VmTemplate vmTemplate= _vCenter.GetTemplateByVCenterId (vmTemplateId);
+            // }
 
             List<CourseTemplateDTO> courses = new();
+            List<Section> sections = new();
             foreach (VmInstance vmInstance in vmInstances)
-            {
+            {   
+                VmProjectBFF.DTO.VCenter.VmTemplate vmTemplate= _vCenter.GetTemplateByVCenterId (vmInstance.VmTemplateId);
+
+                vmInstance.vmTemplateName = vmTemplate.name;
+
                 Console.WriteLine("section ID:"+vmInstance.SectionId);
                 
                 CourseTemplateDTO course = new CourseTemplateDTO();//JsonConvert.DeserializeObject<CourseTemplateDTO>(_lastResponse.Response);
                 course.VmTemplateId = vmInstance.VmTemplateId;
                 _lastResponse = _backendHttpClient.Get($"api/v2/Section", new() { { "sectionId", vmInstance.SectionId } });
                 Section section = JsonConvert.DeserializeObject<Section>(_lastResponse.Response);
+                sections.Add(section);
                 course.CourseCode= section.CourseCode;
                 courses.Add(course);
             
             }
             return (
                 (from vi in vmInstances
-                 join vt in vmTemplates
-                 on vi.VmTemplateId equals vt.VmTemplateId
+                //  join vt in vmTemplates
+                //  on vi.VmTemplateId equals vt.VmTemplateId
+                 join s in sections 
+                 on vi.SectionId equals s.SectionId
                  join c in courses
-                 on vt.VmTemplateId equals c.VmTemplateId
+                 on s.CourseId equals c.CourseId
+
                  select new
                  {
                      CourseCode = c.CourseCode,
-                     VmTemplateName = vt.VmTemplateName,
                      VmInstanceVcenterId = vi.VmInstanceVcenterId,
                      VmInstanceCreationDate = vi.VmInstanceCreationDate,
                      VmInstanceExpireDate = vi.VmInstanceExpireDate,

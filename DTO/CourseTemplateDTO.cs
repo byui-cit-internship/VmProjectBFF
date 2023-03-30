@@ -4,6 +4,6 @@ namespace VmProjectBFF.DTO
 {
     public class CourseTemplateDTO : Course
     {
-        public int VmTemplateId { get; set; }
+        public string VmTemplateId { get; set; }
     }
 }

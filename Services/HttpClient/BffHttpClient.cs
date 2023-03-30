@@ -109,7 +109,7 @@ namespace VmProjectBFF.Services
             {
                 toSend.Headers.Add(headers.Key, headers.Value);
             }
-            toSend.Content = new StringContent(JsonConvert.SerializeObject(content), Encoding.UTF8, "application/json");
+            toSend.Content = new StringContent(JsonConvert.SerializeObject(content, Formatting.Indented, new JsonSerializerSettings{NullValueHandling=NullValueHandling.Ignore}), Encoding.UTF8, "application/json");
 
             _logger.LogInformation($"Sending '{method}' request to URL: {toSend.RequestUri}");
             HttpResponseMessage response = Send(toSend);
@@ -184,6 +184,8 @@ namespace VmProjectBFF.Services
             string path,
             dynamic content)
         {
+            // var PropertyInfo = content.GetType().GetProperties();
+
             HttpResponseMessage postResponse = Send(path,
                                                     HttpMethod.Post,
                                                     content);
