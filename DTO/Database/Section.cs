@@ -21,5 +21,7 @@ namespace VmProjectBFF.DTO.Database
         public string LibraryVCenterId { get; set; }
 
         public string CourseCode { get; set;}
+
+        public int vmCount {get; set;}
     }
 }
